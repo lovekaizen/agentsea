@@ -1,0 +1,65 @@
+{
+  "name": "@lov3kaizen/agentsea-cli",
+  "version": "0.1.0",
+  "description": "CLI tool for AgentSea ADK - Build and orchestrate AI agents",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "bin": {
+    "agentsea": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "test": "echo 'No tests configured for CLI package'",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist",
+    "prepublishOnly": "pnpm build"
+  },
+  "keywords": [
+    "agentsea",
+    "ai",
+    "agents",
+    "llm",
+    "cli",
+    "anthropic",
+    "openai",
+    "ollama",
+    "local-llm"
+  ],
+  "author": "lovekaizen",
+  "license": "MIT",
+  "dependencies": {
+    "@lov3kaizen/agentsea-core": "workspace:*",
+    "commander": "^11.1.0",
+    "chalk": "^4.1.2",
+    "ora": "^5.4.1",
+    "inquirer": "^8.2.6",
+    "conf": "^10.2.0",
+    "dotenv": "^16.3.1",
+    "table": "^6.8.1"
+  },
+  "devDependencies": {
+    "@types/inquirer": "^8.2.10",
+    "@types/node": "^20.10.5",
+    "typescript": "^5.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lov3kaizen/agentsea.git",
+    "directory": "packages/cli"
+  },
+  "homepage": "https://agentsea.dev",
+  "bugs": {
+    "url": "https://github.com/lov3kaizen/agentsea/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

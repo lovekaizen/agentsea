@@ -1,0 +1,16 @@
+{
+  "name": "agentsea-examples",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Example applications demonstrating AgentSea usage",
+  "scripts": {
+    "basic": "tsx basic-usage.ts"
+  },
+  "dependencies": {
+    "@lov3kaizen/agentsea-core": "workspace:*"
+  },
+  "devDependencies": {
+    "tsx": "^4.7.0",
+    "dotenv": "^16.3.1"
+  }
+}

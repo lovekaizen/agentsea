@@ -1,0 +1,568 @@
+# AgentSea
+
+**Unite and orchestrate AI agents** - A production-ready ADK for building agentic AI applications in Node.js.
+
+AgentSea ADK unites AI agents and services to create powerful, intelligent applications and integrations.
+
+[![npm version](https://img.shields.io/npm/v/@lov3kaizen/agentsea-core.svg)](https://www.npmjs.com/package/@lov3kaizen/agentsea-core)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+
+## ✨ Features
+
+- 🤖 **Multi-Provider Support** - Anthropic Claude, OpenAI GPT, Google Gemini
+- 🏠 **Local & Open Source Models** - Ollama, LM Studio, LocalAI, Text Generation WebUI, vLLM
+- 🎙️ **Voice Support (TTS/STT)** - OpenAI Whisper, ElevenLabs, Piper TTS, Local Whisper
+- 🔗 **MCP Protocol** - First-class Model Context Protocol integration
+- 🛒 **ACP Protocol** - Agentic Commerce Protocol for e-commerce integration
+- 🔄 **Multi-Agent Workflows** - Sequential, parallel, and supervisor orchestration
+- 💬 **Conversation Schemas** - Structured conversational experiences with validation
+- 🧠 **Advanced Memory** - Buffer, Redis, and summary-based memory stores
+- 🔧 **Built-in Tools** - 8 production-ready tools + custom tool support
+- 📊 **Full Observability** - Logging, metrics, and distributed tracing
+- 🎯 **NestJS Integration** - Decorators, modules, and dependency injection
+- 🌐 **REST API & Streaming** - HTTP endpoints, SSE streaming, WebSocket support
+- 🚀 **Production Ready** - Rate limiting, caching, error handling, retries
+- 📘 **TypeScript** - Fully typed with comprehensive definitions
+
+## 🚀 Quick Start
+
+### Installation
+
+```bash
+# Core package (framework-agnostic)
+pnpm add @lov3kaizen/agentsea-core
+
+# NestJS integration
+pnpm add @lov3kaizen/agentsea-nestjs
+```
+
+### Basic Agent
+
+```typescript
+import {
+  Agent,
+  AnthropicProvider,
+  ToolRegistry,
+  BufferMemory,
+  calculatorTool,
+} from '@lov3kaizen/agentsea-core';
+
+// Create agent
+const agent = new Agent(
+  {
+    name: 'assistant',
+    model: 'claude-sonnet-4-20250514',
+    provider: 'anthropic',
+    systemPrompt: 'You are a helpful assistant.',
+    tools: [calculatorTool],
+  },
+  new AnthropicProvider(process.env.ANTHROPIC_API_KEY),
+  new ToolRegistry(),
+  new BufferMemory(50),
+);
+
+// Execute
+const response = await agent.execute('What is 42 * 58?', {
+  conversationId: 'user-123',
+  sessionData: {},
+  history: [],
+});
+
+console.log(response.content);
+```
+
+### Multi-Provider Support
+
+```typescript
+import {
+  Agent,
+  GeminiProvider,
+  OpenAIProvider,
+  AnthropicProvider,
+  OllamaProvider,
+  LMStudioProvider,
+  LocalAIProvider,
+} from '@lov3kaizen/agentsea-core';
+
+// Use Gemini
+const geminiAgent = new Agent(
+  { model: 'gemini-pro', provider: 'gemini' },
+  new GeminiProvider(process.env.GEMINI_API_KEY),
+  toolRegistry,
+);
+
+// Use OpenAI
+const openaiAgent = new Agent(
+  { model: 'gpt-4-turbo-preview', provider: 'openai' },
+  new OpenAIProvider(process.env.OPENAI_API_KEY),
+  toolRegistry,
+);
+
+// Use Anthropic
+const claudeAgent = new Agent(
+  { model: 'claude-sonnet-4-20250514', provider: 'anthropic' },
+  new AnthropicProvider(process.env.ANTHROPIC_API_KEY),
+  toolRegistry,
+);
+
+// Use Ollama (local)
+const ollamaAgent = new Agent(
+  { model: 'llama2', provider: 'ollama' },
+  new OllamaProvider(),
+  toolRegistry,
+);
+
+// Use LM Studio (local)
+const lmstudioAgent = new Agent(
+  { model: 'local-model', provider: 'openai-compatible' },
+  new LMStudioProvider(),
+  toolRegistry,
+);
+
+// Use LocalAI (local)
+const localaiAgent = new Agent(
+  { model: 'gpt-3.5-turbo', provider: 'openai-compatible' },
+  new LocalAIProvider(),
+  toolRegistry,
+);
+```
+
+### Local Models & Open Source
+
+Run AI models on your own hardware with complete privacy:
+
+```typescript
+import { Agent, OllamaProvider } from '@lov3kaizen/agentsea-core';
+
+// Create Ollama provider
+const provider = new OllamaProvider({
+  baseUrl: 'http://localhost:11434',
+});
+
+// Pull a model (if not already available)
+await provider.pullModel('llama2');
+
+// List available models
+const models = await provider.listModels();
+console.log('Available models:', models);
+
+// Create agent with local model
+const agent = new Agent({
+  name: 'local-assistant',
+  description: 'AI assistant running locally',
+  model: 'llama2',
+  provider: 'ollama',
+  systemPrompt: 'You are a helpful assistant.',
+});
+
+agent.registerProvider('ollama', provider);
+
+// Use the agent
+const response = await agent.execute('Hello!', {
+  conversationId: 'conv-1',
+  sessionData: {},
+  history: [],
+});
+```
+
+Supported local providers:
+
+- **Ollama** - Easy local LLM execution
+- **LM Studio** - User-friendly GUI for local models
+- **LocalAI** - OpenAI-compatible local API
+- **Text Generation WebUI** - Feature-rich web interface
+- **vLLM** - High-performance inference engine
+- **Any OpenAI-compatible endpoint**
+
+[See full local models documentation →](./docs/LOCAL_MODELS.md)
+
+### Voice Capabilities
+
+Add voice interaction with Text-to-Speech and Speech-to-Text:
+
+```typescript
+import {
+  Agent,
+  AnthropicProvider,
+  ToolRegistry,
+  VoiceAgent,
+  OpenAIWhisperProvider,
+  OpenAITTSProvider,
+} from '@lov3kaizen/agentsea-core';
+
+// Create base agent
+const provider = new AnthropicProvider(process.env.ANTHROPIC_API_KEY);
+const toolRegistry = new ToolRegistry();
+
+const agent = new Agent(
+  {
+    name: 'voice-assistant',
+    model: 'claude-sonnet-4-20250514',
+    provider: 'anthropic',
+    systemPrompt: 'You are a helpful voice assistant.',
+    description: 'Voice assistant',
+  },
+  provider,
+  toolRegistry,
+);
+
+// Create voice agent with STT and TTS
+const sttProvider = new OpenAIWhisperProvider(process.env.OPENAI_API_KEY);
+const ttsProvider = new OpenAITTSProvider(process.env.OPENAI_API_KEY);
+
+const voiceAgent = new VoiceAgent(agent, {
+  sttProvider,
+  ttsProvider,
+  ttsConfig: { voice: 'nova' },
+});
+
+// Process voice input
+const result = await voiceAgent.processVoice(audioBuffer, context);
+console.log('User said:', result.text);
+console.log('Assistant response:', result.response.content);
+
+// Save audio response
+fs.writeFileSync('./response.mp3', result.audio!);
+```
+
+Supported providers:
+
+- **STT:** OpenAI Whisper, Local Whisper
+- **TTS:** OpenAI TTS, ElevenLabs, Piper TTS
+
+[See full voice documentation →](./docs/VOICE.md)
+
+### MCP Integration
+
+```typescript
+import { MCPRegistry } from '@lov3kaizen/agentsea-core';
+
+// Connect to MCP servers
+const mcpRegistry = new MCPRegistry();
+
+await mcpRegistry.addServer({
+  name: 'filesystem',
+  command: 'npx',
+  args: ['-y', '@modelcontextprotocol/server-filesystem', '/tmp'],
+  transport: 'stdio',
+});
+
+// Get MCP tools (automatically converted)
+const mcpTools = mcpRegistry.getTools();
+
+// Use with agent
+const agent = new Agent({ tools: mcpTools }, provider, toolRegistry);
+```
+
+### ACP Commerce Integration
+
+Add e-commerce capabilities to your agents with the Agentic Commerce Protocol:
+
+```typescript
+import { ACPClient, createACPTools, Agent } from '@lov3kaizen/agentsea-core';
+
+// Setup ACP client
+const acpClient = new ACPClient({
+  baseUrl: 'https://api.yourcommerce.com/v1',
+  apiKey: process.env.ACP_API_KEY,
+  merchantId: process.env.ACP_MERCHANT_ID,
+});
+
+// Create commerce tools
+const acpTools = createACPTools(acpClient);
+
+// Create shopping agent
+const shoppingAgent = new Agent(
+  {
+    name: 'shopping-assistant',
+    model: 'claude-sonnet-4-20250514',
+    provider: 'anthropic',
+    systemPrompt: 'You are a helpful shopping assistant.',
+    tools: acpTools, // Includes 14 commerce tools
+  },
+  provider,
+  toolRegistry,
+);
+
+// Start shopping
+const response = await shoppingAgent.execute(
+  'I need wireless headphones under $100',
+  context,
+);
+```
+
+**Available Commerce Operations:**
+
+- Product search and discovery
+- Shopping cart management
+- Checkout and payment processing
+- Delegated payments (Stripe, PayPal, etc.)
+- Order tracking and management
+
+[See full ACP documentation →](./docs/ACP_INTEGRATION.md)
+
+### Conversation Schemas
+
+```typescript
+import { ConversationSchema } from '@lov3kaizen/agentsea-core';
+import { z } from 'zod';
+
+const schema = new ConversationSchema({
+  name: 'booking',
+  startStep: 'destination',
+  steps: [
+    {
+      id: 'destination',
+      prompt: 'Where would you like to go?',
+      schema: z.object({ city: z.string() }),
+      next: 'dates',
+    },
+    {
+      id: 'dates',
+      prompt: 'What dates?',
+      schema: z.object({
+        checkIn: z.string(),
+        checkOut: z.string(),
+      }),
+      next: 'confirm',
+    },
+  ],
+});
+```
+
+### With CLI
+
+```bash
+# Install CLI globally
+npm install -g @lov3kaizen/agentsea-cli
+
+# Initialize configuration
+agentsea init
+
+# Start chatting
+agentsea chat
+
+# Run an agent
+agentsea agent run default "What is the capital of France?"
+
+# Manage models (Ollama)
+agentsea model pull llama2
+agentsea model list
+```
+
+[See CLI documentation →](./packages/cli)
+
+### With NestJS
+
+```typescript
+import { Module } from '@nestjs/common';
+import { AgenticModule } from '@lov3kaizen/agentsea-nestjs';
+import { AnthropicProvider } from '@lov3kaizen/agentsea-core';
+
+@Module({
+  imports: [
+    AgenticModule.forRoot({
+      provider: new AnthropicProvider(),
+      defaultConfig: {
+        model: 'claude-sonnet-4-20250514',
+        provider: 'anthropic',
+      },
+      enableRestApi: true, // Enable REST API endpoints
+      enableWebSocket: true, // Enable WebSocket gateway
+    }),
+  ],
+})
+export class AppModule {}
+```
+
+**REST API Endpoints:**
+
+- `GET /agents` - List all agents
+- `GET /agents/:name` - Get agent details
+- `POST /agents/:name/execute` - Execute agent
+- `POST /agents/:name/stream` - Stream agent response (SSE)
+
+**WebSocket Events:**
+
+- `execute` - Execute an agent
+- `stream` - Real-time streaming events
+- `listAgents` - Get available agents
+- `getAgent` - Get agent info
+
+[See API documentation →](./docs/API.md)
+
+## 📦 Packages
+
+- **[@lov3kaizen/agentsea-core](./packages/core)** - Framework-agnostic core library
+- **[@lov3kaizen/agentsea-cli](./packages/cli)** - Command-line interface
+- **[@lov3kaizen/agentsea-nestjs](./packages/nestjs)** - NestJS integration with decorators
+- **[examples](./examples)** - Example applications
+
+## 🏗️ Architecture
+
+AgentSea follows a clean, layered architecture:
+
+```
+┌─────────────────────────────────────────┐
+│         Application Layer               │
+│  (Your NestJS/Node.js Application)      │
+└─────────────────────────────────────────┘
+                    │
+┌─────────────────────────────────────────┐
+│         AgentSea ADK Layer               │
+│  ┌─────────────────────────────────┐    │
+│  │  Multi-Agent Orchestration      │    │
+│  └─────────────────────────────────┘    │
+│  ┌─────────────────────────────────┐    │
+│  │  Conversation Management        │    │
+│  └─────────────────────────────────┘    │
+│  ┌─────────────────────────────────┐    │
+│  │  Agent Runtime & Tools          │    │
+│  └─────────────────────────────────┘    │
+│  ┌─────────────────────────────────┐    │
+│  │  Multi-Provider Adapters        │    │
+│  │  (Claude, GPT, Gemini, MCP)     │    │
+│  └─────────────────────────────────┘    │
+│  ┌─────────────────────────────────┐    │
+│  │  Observability & Utils          │    │
+│  └─────────────────────────────────┘    │
+└─────────────────────────────────────────┘
+                    │
+┌─────────────────────────────────────────┐
+│         Infrastructure Layer            │
+│  (LLM APIs, Storage, Monitoring)        │
+└─────────────────────────────────────────┘
+```
+
+## 🎯 Core Concepts
+
+### Agents
+
+Autonomous AI entities that can reason, use tools, and maintain conversation context.
+
+### Tools
+
+Functions that agents can call to perform specific tasks (API calls, calculations, etc.).
+
+### Workflows
+
+Orchestrate multiple agents in sequential, parallel, or supervised patterns.
+
+### Memory
+
+Manage conversation context with Buffer, Redis, or Summary memory stores.
+
+### MCP
+
+Model Context Protocol integration for seamless tool and resource integration.
+
+### Conversation Schemas
+
+Define structured conversation flows with validation and dynamic routing.
+
+## 📚 Documentation
+
+Full documentation available at [agentsea.dev](https://agentsea.dev)
+
+- [Installation](https://agentsea.dev/docs/installation)
+- [Quick Start](https://agentsea.dev/docs/quick-start)
+- [CLI Guide](./docs/CLI.md)
+- [Agents](https://agentsea.dev/docs/agents)
+- [Tools](https://agentsea.dev/docs/tools)
+- [Workflows](https://agentsea.dev/docs/workflows)
+- [Memory](https://agentsea.dev/docs/memory)
+- [MCP Integration](https://agentsea.dev/docs/mcp-overview)
+- [Conversation Schemas](https://agentsea.dev/docs/conversation)
+- [Local Models & Open Source](./docs/LOCAL_MODELS.md)
+- [Voice Features (TTS/STT)](./docs/VOICE.md)
+- [Provider Reference](./docs/PROVIDERS.md)
+- [Observability](https://agentsea.dev/docs/observability)
+- [NestJS Integration](https://agentsea.dev/docs/nestjs)
+- [API Reference](https://agentsea.dev/api)
+
+## 🛠️ Development
+
+```bash
+# Install dependencies
+pnpm install
+
+# Build all packages
+pnpm build
+
+# Run tests
+pnpm test
+
+# Run tests with coverage
+pnpm test:cov
+
+# Development mode (watch)
+pnpm dev
+
+# Lint
+pnpm lint
+
+# Type check
+pnpm type-check
+```
+
+## ✅ Feature Status
+
+### ✅ Completed
+
+- [x] Multi-provider support (Claude, GPT, Gemini)
+- [x] Local & open source model support (Ollama, LM Studio, LocalAI, etc.)
+- [x] Voice support (TTS/STT) with multiple providers
+- [x] Command-line interface (CLI)
+- [x] MCP protocol integration
+- [x] Multi-agent workflows (sequential, parallel, supervisor)
+- [x] Conversation schema system
+- [x] Advanced memory stores (Buffer, Redis, Summary)
+- [x] Built-in tools (8 tools + custom support)
+- [x] Observability (logging, metrics, tracing)
+- [x] NestJS integration
+- [x] Rate limiting and caching
+- [x] Comprehensive test suite
+- [x] TypeScript definitions
+- [x] CI/CD workflows
+
+### 🚧 In Progress
+
+- [ ] Vector-based memory
+- [ ] Admin UI for monitoring
+- [ ] Additional MCP tools/servers
+- [ ] More provider integrations
+
+## 🤝 Contributing
+
+We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+- 💬 [Discussions](https://github.com/lov3kaizen/agentsea/discussions) - Ask questions and share ideas
+- 🐛 [Issues](https://github.com/lov3kaizen/agentsea/issues) - Report bugs and request features
+- 📖 [Documentation](https://agentsea.dev) - Read the full documentation
+
+## 📄 License
+
+MIT License - see [LICENSE](LICENSE) for details
+
+## 🙏 Credits
+
+Built with ❤️ by [lovekaizen](https://lovekaizen.com)
+
+Special thanks to:
+
+- [Anthropic](https://anthropic.com) for Claude
+- [OpenAI](https://openai.com) for GPT
+- [Google](https://ai.google.dev) for Gemini
+- The open source community
+
+---
+
+<div align="center">
+
+**[Website](https://agentsea.dev)** • **[Documentation](https://agentsea.dev/docs)** • **[Examples](https://agentsea.dev/examples)** • **[API Reference](https://agentsea.dev/api)**
+
+Made with TypeScript and AI 🤖
+
+</div>
