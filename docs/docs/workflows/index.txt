@@ -1,0 +1,148 @@
+1:"$Sreact.fragment"
+2:I[1275,["619","static/chunks/619-ba102abea3e3d0e4.js","543","static/chunks/543-a0960cd7f2b1c22c.js","177","static/chunks/app/layout-b0f860a3d9150669.js"],"default"]
+3:I[9766,[],""]
+4:I[8924,[],""]
+2b:I[7150,[],""]
+:HL["/_next/static/media/e4af272ccee01ff0-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/7e7d96b1e6991756.css","style"]
+:HL["/_next/static/css/1145ad3a91ffb5c9.css","style"]
+:HL["/_next/static/css/7a622664f4c377b7.css","style"]
+0:{"P":null,"b":"BR2GXXFimfBinRJoMr3YY","p":"","c":["","docs","workflows",""],"i":false,"f":[[["",{"children":["docs",{"children":["workflows",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/7e7d96b1e6991756.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/_next/static/css/1145ad3a91ffb5c9.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","2",{"rel":"stylesheet","href":"/_next/static/css/7a622664f4c377b7.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","data-theme":"cmyk","children":["$","body",null,{"className":"__className_f367f3","children":["$","$L2",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]}]]}],{"children":["docs",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["workflows",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","div",null,{"className":"min-h-screen bg-base-100","children":["$","div",null,{"className":"container mx-auto px-6 py-12 max-w-5xl ","children":[["$","div",null,{"className":"mb-12","children":[["$","h1",null,{"className":"text-5xl font-bold mb-4","children":"Workflows"}],["$","p",null,{"className":"text-xl text-base-content/70","children":"Workflows enable multi-agent orchestration, allowing you to coordinate multiple agents to solve complex tasks through sequential, parallel, or supervised execution patterns."}]]}],["$","div",null,{"className":"prose max-w-none","children":[["$","h2",null,{"children":"What are Workflows?"}],["$","p",null,{"children":"Workflows coordinate multiple agents to work together on complex tasks. AgentSea  supports three workflow patterns:"}],["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-3 gap-4 not-prose mb-8","children":[["$","div","0",{"className":"p-4 bg-white rounded-lg border border-gray-200","children":[["$","div",null,{"className":"text-3xl mb-2","children":"➡️"}],["$","h3",null,{"className":"font-semibold text-gray-900 mb-2","children":"Sequential"}],["$","p",null,{"className":"text-sm text-gray-600","children":"Agents execute one after another, passing output as input"}]]}],["$","div","1",{"className":"p-4 bg-white rounded-lg border border-gray-200","children":[["$","div",null,{"className":"text-3xl mb-2","children":"⚡"}],["$","h3",null,{"className":"font-semibold text-gray-900 mb-2","children":"Parallel"}],["$","p",null,{"className":"text-sm text-gray-600","children":"All agents execute simultaneously and results are combined"}]]}],["$","div","2",{"className":"p-4 bg-white rounded-lg border border-gray-200","children":[["$","div",null,{"className":"text-3xl mb-2","children":"👔"}],["$","h3",null,{"className":"font-semibold text-gray-900 mb-2","children":"Supervisor"}],"$L5"]}]]}],"$L6","$L7","$L8","$L9","$La","$Lb","$Lc","$Ld","$Le","$Lf","$L10","$L11","$L12","$L13","$L14","$L15","$L16","$L17","$L18","$L19","$L1a","$L1b","$L1c","$L1d","$L1e","$L1f","$L20","$L21","$L22","$L23","$L24","$L25","$L26","$L27","$L28"]}]]}]}],null,"$L29"]}],{},null,false]},null,false]},null,false]},null,false],"$L2a",false]],"m":"$undefined","G":["$2b",[]],"s":false,"S":true}
+2c:I[8467,["619","static/chunks/619-ba102abea3e3d0e4.js","501","static/chunks/501-26489c9c153fdafc.js","773","static/chunks/app/docs/workflows/page-1661e6a98b49e8b6.js"],"CodeBlock"]
+2f:I[2619,["619","static/chunks/619-ba102abea3e3d0e4.js","501","static/chunks/501-26489c9c153fdafc.js","773","static/chunks/app/docs/workflows/page-1661e6a98b49e8b6.js"],""]
+30:I[4431,[],"OutletBoundary"]
+32:I[5278,[],"AsyncMetadataOutlet"]
+34:I[4431,[],"ViewportBoundary"]
+36:I[4431,[],"MetadataBoundary"]
+37:"$Sreact.suspense"
+5:["$","p",null,{"className":"text-sm text-gray-600","children":"A supervisor routes tasks dynamically to specialized agents"}]
+6:["$","h2",null,{"children":"Sequential Workflows"}]
+7:["$","p",null,{"children":"Agents execute one after another, with each agent's output becoming the next agent's input."}]
+2d:T407,import {
+  WorkflowFactory,
+  AnthropicProvider,
+  ToolRegistry,
+} from '@lov3kaizen/agentsea-core';
+
+const workflow = WorkflowFactory.create(
+  {
+    name: 'content-pipeline',
+    type: 'sequential',
+    agents: [
+      {
+        name: 'researcher',
+        model: 'claude-sonnet-4-20250514',
+        provider: 'anthropic',
+        systemPrompt: 'Research the topic and gather information.',
+        tools: [httpRequestTool],
+      },
+      {
+        name: 'writer',
+        model: 'claude-sonnet-4-20250514',
+        provider: 'anthropic',
+        systemPrompt: 'Write a comprehensive article based on the research.',
+      },
+      {
+        name: 'editor',
+        model: 'claude-sonnet-4-20250514',
+        provider: 'anthropic',
+        systemPrompt: 'Edit and polish the article for publication.',
+      },
+    ],
+  },
+  new AnthropicProvider(),
+  new ToolRegistry(),
+);
+
+// Execute workflow
+const result = await workflow.execute(
+  'Write an article about AI agents',
+  context,
+);
+
+console.log(result.content); // Final edited article8:["$","$L2c",null,{"language":"typescript","children":"$2d"}]
+9:["$","h2",null,{"children":"Parallel Workflows"}]
+a:["$","p",null,{"children":"All agents execute simultaneously, and their results are aggregated."}]
+b:["$","$L2c",null,{"language":"typescript","children":"const workflow = WorkflowFactory.create(\n  {\n    name: 'multi-analysis',\n    type: 'parallel',\n    agents: [\n      {\n        name: 'sentiment-analyzer',\n        model: 'claude-sonnet-4-20250514',\n        provider: 'anthropic',\n        systemPrompt: 'Analyze the sentiment of the text.',\n      },\n      {\n        name: 'keyword-extractor',\n        model: 'claude-sonnet-4-20250514',\n        provider: 'anthropic',\n        systemPrompt: 'Extract key topics and keywords.',\n      },\n      {\n        name: 'summarizer',\n        model: 'claude-sonnet-4-20250514',\n        provider: 'anthropic',\n        systemPrompt: 'Create a concise summary.',\n      },\n    ],\n  },\n  new AnthropicProvider(),\n  new ToolRegistry(),\n);\n\n// All agents run in parallel\nconst result = await workflow.execute(\n  'Analyze this product review: ...',\n  context,\n);\n\n// Result contains combined output from all agents\nconsole.log(result.content);"}]
+c:["$","h2",null,{"children":"Supervisor Workflows"}]
+d:["$","p",null,{"children":"A supervisor agent dynamically routes tasks to specialized worker agents based on the input."}]
+2e:T566,const workflow = WorkflowFactory.create(
+  {
+    name: 'customer-support',
+    type: 'supervisor',
+    supervisor: {
+      name: 'routing-agent',
+      model: 'claude-sonnet-4-20250514',
+      provider: 'anthropic',
+      systemPrompt: `You are a routing supervisor. Analyze the request and:
+- Route technical questions to 'technical-support'
+- Route billing questions to 'billing-support'
+- Route general questions to 'general-support'
+
+Respond with ONLY the agent name to route to.`,
+    },
+    agents: [
+      {
+        name: 'technical-support',
+        model: 'claude-sonnet-4-20250514',
+        provider: 'anthropic',
+        systemPrompt: 'Provide technical support and troubleshooting.',
+        tools: [databaseQueryTool],
+      },
+      {
+        name: 'billing-support',
+        model: 'claude-sonnet-4-20250514',
+        provider: 'anthropic',
+        systemPrompt: 'Handle billing and payment inquiries.',
+        tools: [paymentApiTool],
+      },
+      {
+        name: 'general-support',
+        model: 'claude-sonnet-4-20250514',
+        provider: 'anthropic',
+        systemPrompt: 'Provide general customer support.',
+      },
+    ],
+    maxRounds: 3, // Prevent infinite loops
+  },
+  new AnthropicProvider(),
+  new ToolRegistry(),
+);
+
+// Supervisor routes to appropriate agent
+const result = await workflow.execute(
+  'My credit card payment failed',
+  context,
+);e:["$","$L2c",null,{"language":"typescript","children":"$2e"}]
+f:["$","h2",null,{"children":"Error Handling"}]
+10:["$","p",null,{"children":"Configure how workflows handle errors:"}]
+11:["$","$L2c",null,{"language":"typescript","children":"const workflow = WorkflowFactory.create(\n  {\n    name: 'resilient-workflow',\n    type: 'sequential',\n    agents: [...],\n    errorHandling: {\n      strategy: 'continue', // 'stop', 'continue', or 'retry'\n      maxRetries: 3,\n      retryDelay: 1000, // milliseconds\n    },\n  },\n  provider,\n  toolRegistry,\n);\n\ntry {\n  const result = await workflow.execute(input, context);\n  console.log(result);\n} catch (error) {\n  console.error('Workflow failed:', error);\n}"}]
+12:["$","h2",null,{"children":"Workflow Context"}]
+13:["$","p",null,{"children":"Pass data between agents using workflow context:"}]
+14:["$","$L2c",null,{"language":"typescript","children":"const context = {\n  conversationId: 'workflow-123',\n  sessionData: {\n    userId: '12345',\n    userPreferences: {\n      language: 'en',\n      timezone: 'UTC',\n    },\n  },\n  history: [], // Conversation history\n};\n\n// In sequential workflows, output from one agent\n// becomes input to the next agent automatically\nconst result = await workflow.execute('Create a report', context);\n\n// Access workflow metadata\nconsole.log(result.metadata.agentsUsed);\nconsole.log(result.metadata.executionTime);\nconsole.log(result.metadata.tokensUsed);"}]
+15:["$","h2",null,{"children":"Streaming Workflows"}]
+16:["$","p",null,{"children":"Stream results in real-time as agents process:"}]
+17:["$","$L2c",null,{"language":"typescript","children":"const stream = await workflow.stream(\n  'Analyze this data',\n  context,\n);\n\nfor await (const chunk of stream) {\n  if (chunk.type === 'agent_start') {\n    console.log(`Starting agent: ${chunk.agentName}`);\n  } else if (chunk.type === 'content') {\n    process.stdout.write(chunk.content);\n  } else if (chunk.type === 'agent_complete') {\n    console.log(`\\nCompleted agent: ${chunk.agentName}`);\n  }\n}"}]
+18:["$","h2",null,{"children":"Dynamic Agent Selection"}]
+19:["$","p",null,{"children":"Create workflows where agents are selected dynamically:"}]
+1a:["$","$L2c",null,{"language":"typescript","children":"import { SupervisorWorkflow } from '@lov3kaizen/agentsea-core';\n\nconst workflow = new SupervisorWorkflow(\n  {\n    name: 'dynamic-workflow',\n    supervisor: supervisorAgent,\n    agents: [\n      codeReviewAgent,\n      bugFixAgent,\n      documentationAgent,\n    ],\n    routingStrategy: 'conditional', // or 'round-robin'\n    maxRounds: 5,\n  },\n  provider,\n  toolRegistry,\n);\n\n// Supervisor will route based on the input\nconst result = await workflow.execute(\n  'Review this pull request and fix any bugs',\n  context,\n);"}]
+1b:["$","h2",null,{"children":"Workflow Factory"}]
+1c:["$","p",null,{"children":"Use the factory for simplified workflow creation:"}]
+1d:["$","$L2c",null,{"language":"typescript","children":"import { WorkflowFactory } from '@lov3kaizen/agentsea-core';\n\n// Factory handles provider and tool registry setup\nconst workflow = WorkflowFactory.create(\n  {\n    name: 'my-workflow',\n    type: 'sequential', // 'parallel' or 'supervisor'\n    agents: [\n      // Agent configurations\n    ],\n  },\n  new AnthropicProvider(),\n  new ToolRegistry(),\n);\n\n// Factory creates appropriate workflow type automatically\n// - SequentialWorkflow for type: 'sequential'\n// - ParallelWorkflow for type: 'parallel'\n// - SupervisorWorkflow for type: 'supervisor'"}]
+1e:["$","h2",null,{"children":"Use Cases"}]
+1f:["$","h3",null,{"children":"Sequential Workflows"}]
+20:["$","ul",null,{"children":[["$","li",null,{"children":"Content creation pipelines (research → write → edit)"}],["$","li",null,{"children":"Data processing (extract → transform → load)"}],["$","li",null,{"children":"Multi-step analysis (collect → analyze → report)"}]]}]
+21:["$","h3",null,{"children":"Parallel Workflows"}]
+22:["$","ul",null,{"children":[["$","li",null,{"children":"Multi-perspective analysis (sentiment + keywords + summary)"}],["$","li",null,{"children":"Competitive research (analyze multiple competitors)"}],["$","li",null,{"children":"A/B testing (generate multiple variations)"}]]}]
+23:["$","h3",null,{"children":"Supervisor Workflows"}]
+24:["$","ul",null,{"children":[["$","li",null,{"children":"Customer support routing"}],["$","li",null,{"children":"Dynamic task delegation"}],["$","li",null,{"children":"Multi-round problem solving"}]]}]
+25:["$","h2",null,{"children":"Best Practices"}]
+26:["$","ul",null,{"children":[["$","li",null,{"children":[["$","strong",null,{"children":"Agent Specialization"}],": Give each agent a clear, focused role"]}],["$","li",null,{"children":[["$","strong",null,{"children":"System Prompts"}],": Write specific system prompts for each agent's task"]}],["$","li",null,{"children":[["$","strong",null,{"children":"Error Handling"}],": Configure appropriate error strategies for your use case"]}],["$","li",null,{"children":[["$","strong",null,{"children":"Round Limits"}],": Set maxRounds in supervisor workflows to prevent infinite loops"]}],["$","li",null,{"children":[["$","strong",null,{"children":"Context Management"}],": Use sessionData to pass relevant context between agents"]}],["$","li",null,{"children":[["$","strong",null,{"children":"Monitoring"}],": Track workflow execution metrics and token usage"]}],["$","li",null,{"children":[["$","strong",null,{"children":"Testing"}],": Test workflows with various inputs to ensure proper routing"]}]]}]
+27:["$","h2",null,{"children":"Next Steps"}]
+28:["$","ul",null,{"children":[["$","li",null,{"children":["$","$L2f",null,{"href":"/docs/agents","children":"Learn more about Agents"}]}],["$","li",null,{"children":["$","$L2f",null,{"href":"/docs/observability","children":"Monitor Workflow Performance"}]}],["$","li",null,{"children":["$","$L2f",null,{"href":"/examples","children":"View Workflow Examples"}]}]]}]
+29:["$","$L30",null,{"children":["$L31",["$","$L32",null,{"promise":"$@33"}]]}]
+2a:["$","$1","h",{"children":[null,[["$","$L34",null,{"children":"$L35"}],["$","meta",null,{"name":"next-size-adjust","content":""}]],["$","$L36",null,{"children":["$","div",null,{"hidden":true,"children":["$","$37",null,{"fallback":null,"children":"$L38"}]}]}]]}]
+35:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+31:null
+33:{"metadata":[["$","title","0",{"children":"AgentSea - Unite and Orchestrate AI Agents"}],["$","meta","1",{"name":"description","content":"Build powerful agentic AI applications with AgentSea. Unite AI agents and services with multi-provider support, workflow orchestration, MCP protocol, and enterprise-grade observability."}]],"error":null,"digest":"$undefined"}
+38:"$33:metadata"

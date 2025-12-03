@@ -1,0 +1,76 @@
+{
+  "name": "@lov3kaizen/agentsea-react",
+  "version": "0.1.1",
+  "description": "React components for rendering AgentSea agent responses with formatting support",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts --format cjs,esm --dts --dts-resolve --clean --external react --external react-dom",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --dts-resolve --watch --external react --external react-dom",
+    "test": "vitest run --passWithNoTests",
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "@lov3kaizen/agentsea-core": "workspace:*",
+    "react-markdown": "^9.0.1",
+    "remark-gfm": "^4.0.0",
+    "rehype-highlight": "^7.0.0",
+    "rehype-raw": "^7.0.0"
+  },
+  "peerDependencies": {
+    "react": "^18.0.0 || ^19.0.0",
+    "react-dom": "^18.0.0 || ^19.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@vitest/coverage-v8": "^1.2.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "keywords": [
+    "agentsea",
+    "react",
+    "components",
+    "markdown",
+    "rendering",
+    "formatting",
+    "ai",
+    "agents"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "lovekaizen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lov3kaizen/agentsea.git",
+    "directory": "packages/react"
+  },
+  "homepage": "https://agentsea.dev",
+  "bugs": {
+    "url": "https://github.com/lov3kaizen/agentsea/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,65 @@
+{
+  "name": "agentsea",
+  "version": "0.1.1",
+  "private": true,
+  "description": "AgentSea - Production-ready ADK for building agentic AI applications in Node.js",
+  "keywords": [
+    "agentsea",
+    "ai",
+    "agents",
+    "llm",
+    "anthropic",
+    "claude",
+    "nestjs",
+    "orchestration",
+    "workflow"
+  ],
+  "author": "lovekaizen <michael@lov3kaizen.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lov3kaizen/agentsea.git"
+  },
+  "engines": {
+    "node": ">=20.0.0",
+    "pnpm": ">=8.0.0"
+  },
+  "packageManager": "pnpm@8.15.0",
+  "scripts": {
+    "build": "pnpm -r --filter='./packages/*' run build",
+    "dev": "pnpm -r --parallel run dev",
+    "test": "pnpm -r run test",
+    "test:cov": "pnpm -r run test:cov",
+    "lint": "eslint '{packages,examples}/**/*.ts' --fix",
+    "format": "prettier --write '{packages,examples}/**/*.{ts,json,md}'",
+    "type-check": "pnpm -r run type-check",
+    "clean": "pnpm -r run clean && rm -rf node_modules",
+    "prepare": "husky",
+    "changeset": "changeset",
+    "version-packages": "changeset version",
+    "release": "pnpm build && changeset publish"
+  },
+  "devDependencies": {
+    "@changesets/cli": "^2.27.1",
+    "@types/node": "^20.11.0",
+    "@typescript-eslint/eslint-plugin": "^7.0.0",
+    "@typescript-eslint/parser": "^7.0.0",
+    "eslint": "^8.56.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-import": "^2.29.1",
+    "husky": "^9.0.10",
+    "lint-staged": "^15.2.0",
+    "prettier": "^3.2.4",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md}": [
+      "prettier --write"
+    ]
+  }
+}

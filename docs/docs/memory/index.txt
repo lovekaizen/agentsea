@@ -1,0 +1,151 @@
+1:"$Sreact.fragment"
+2:I[1275,["619","static/chunks/619-ba102abea3e3d0e4.js","543","static/chunks/543-a0960cd7f2b1c22c.js","177","static/chunks/app/layout-b0f860a3d9150669.js"],"default"]
+3:I[9766,[],""]
+4:I[8924,[],""]
+30:I[7150,[],""]
+:HL["/_next/static/media/e4af272ccee01ff0-s.p.woff2","font",{"crossOrigin":"","type":"font/woff2"}]
+:HL["/_next/static/css/7e7d96b1e6991756.css","style"]
+:HL["/_next/static/css/1145ad3a91ffb5c9.css","style"]
+:HL["/_next/static/css/7a622664f4c377b7.css","style"]
+0:{"P":null,"b":"BR2GXXFimfBinRJoMr3YY","p":"","c":["","docs","memory",""],"i":false,"f":[[["",{"children":["docs",{"children":["memory",{"children":["__PAGE__",{}]}]}]},"$undefined","$undefined",true],["",["$","$1","c",{"children":[[["$","link","0",{"rel":"stylesheet","href":"/_next/static/css/7e7d96b1e6991756.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","1",{"rel":"stylesheet","href":"/_next/static/css/1145ad3a91ffb5c9.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}],["$","link","2",{"rel":"stylesheet","href":"/_next/static/css/7a622664f4c377b7.css","precedence":"next","crossOrigin":"$undefined","nonce":"$undefined"}]],["$","html",null,{"lang":"en","data-theme":"cmyk","children":["$","body",null,{"className":"__className_f367f3","children":["$","$L2",null,{"children":["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":[[["$","title",null,{"children":"404: This page could not be found."}],["$","div",null,{"style":{"fontFamily":"system-ui,\"Segoe UI\",Roboto,Helvetica,Arial,sans-serif,\"Apple Color Emoji\",\"Segoe UI Emoji\"","height":"100vh","textAlign":"center","display":"flex","flexDirection":"column","alignItems":"center","justifyContent":"center"},"children":["$","div",null,{"children":[["$","style",null,{"dangerouslySetInnerHTML":{"__html":"body{color:#000;background:#fff;margin:0}.next-error-h1{border-right:1px solid rgba(0,0,0,.3)}@media (prefers-color-scheme:dark){body{color:#fff;background:#000}.next-error-h1{border-right:1px solid rgba(255,255,255,.3)}}"}}],["$","h1",null,{"className":"next-error-h1","style":{"display":"inline-block","margin":"0 20px 0 0","padding":"0 23px 0 0","fontSize":24,"fontWeight":500,"verticalAlign":"top","lineHeight":"49px"},"children":404}],["$","div",null,{"style":{"display":"inline-block"},"children":["$","h2",null,{"style":{"fontSize":14,"fontWeight":400,"lineHeight":"49px","margin":0},"children":"This page could not be found."}]}]]}]}]],[]],"forbidden":"$undefined","unauthorized":"$undefined"}]}]}]}]]}],{"children":["docs",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["memory",["$","$1","c",{"children":[null,["$","$L3",null,{"parallelRouterKey":"children","error":"$undefined","errorStyles":"$undefined","errorScripts":"$undefined","template":["$","$L4",null,{}],"templateStyles":"$undefined","templateScripts":"$undefined","notFound":"$undefined","forbidden":"$undefined","unauthorized":"$undefined"}]]}],{"children":["__PAGE__",["$","$1","c",{"children":[["$","div",null,{"className":"min-h-screen bg-base-100","children":["$","div",null,{"className":"container mx-auto px-6 py-12 max-w-5xl ","children":[["$","div",null,{"className":"mb-12","children":[["$","h1",null,{"className":"text-5xl font-bold mb-4","children":"Memory"}],["$","p",null,{"className":"text-xl text-base-content/70","children":"Memory stores enable agents to maintain conversation context across multiple interactions, providing continuity and personalization."}]]}],["$","div",null,{"className":"prose max-w-none","children":[["$","h2",null,{"children":"Memory Types"}],["$","p",null,{"children":"AgentSea  provides four memory store implementations:"}],["$","div",null,{"className":"grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 not-prose mb-8","children":[["$","div","0",{"className":"p-4 bg-white rounded-lg border border-gray-200","children":[["$","div",null,{"className":"text-3xl mb-2","children":"💾"}],["$","h3",null,{"className":"font-semibold text-gray-900 mb-2","children":"Buffer Memory"}],["$","p",null,{"className":"text-sm text-gray-600 mb-3","children":"In-memory storage that keeps the most recent N messages"}],["$","div",null,{"className":"text-xs text-gray-500","children":[["$","strong",null,{"children":"Best for:"}]," ","Development, testing, simple applications"]}]]}],["$","div","1",{"className":"p-4 bg-white rounded-lg border border-gray-200","children":[["$","div",null,{"className":"text-3xl mb-2","children":"🔴"}],["$","h3",null,{"className":"font-semibold text-gray-900 mb-2","children":"Redis Memory"}],["$","p",null,{"className":"text-sm text-gray-600 mb-3","children":"Persistent storage using Redis for production deployments"}],["$","div",null,{"className":"text-xs text-gray-500","children":[["$","strong",null,{"children":"Best for:"}]," ","Production, multi-server, high availability"]}]]}],["$","div","2",{"className":"p-4 bg-white rounded-lg border border-gray-200","children":["$L5","$L6","$L7","$L8"]}],"$L9"]}],"$La","$Lb","$Lc","$Ld","$Le","$Lf","$L10","$L11","$L12","$L13","$L14","$L15","$L16","$L17","$L18","$L19","$L1a","$L1b","$L1c","$L1d","$L1e","$L1f","$L20","$L21","$L22","$L23","$L24","$L25","$L26","$L27","$L28","$L29","$L2a","$L2b","$L2c","$L2d"]}]]}]}],null,"$L2e"]}],{},null,false]},null,false]},null,false]},null,false],"$L2f",false]],"m":"$undefined","G":["$30",[]],"s":false,"S":true}
+31:I[8467,["619","static/chunks/619-ba102abea3e3d0e4.js","501","static/chunks/501-26489c9c153fdafc.js","790","static/chunks/app/docs/memory/page-1661e6a98b49e8b6.js"],"CodeBlock"]
+34:I[2619,["619","static/chunks/619-ba102abea3e3d0e4.js","501","static/chunks/501-26489c9c153fdafc.js","790","static/chunks/app/docs/memory/page-1661e6a98b49e8b6.js"],""]
+38:I[4431,[],"OutletBoundary"]
+3a:I[5278,[],"AsyncMetadataOutlet"]
+3c:I[4431,[],"ViewportBoundary"]
+3e:I[4431,[],"MetadataBoundary"]
+3f:"$Sreact.suspense"
+5:["$","div",null,{"className":"text-3xl mb-2","children":"📝"}]
+6:["$","h3",null,{"className":"font-semibold text-gray-900 mb-2","children":"Summary Memory"}]
+7:["$","p",null,{"className":"text-sm text-gray-600 mb-3","children":"Automatically summarizes old messages to reduce token usage"}]
+8:["$","div",null,{"className":"text-xs text-gray-500","children":[["$","strong",null,{"children":"Best for:"}]," ","Long conversations, cost optimization"]}]
+9:["$","div","3",{"className":"p-4 bg-white rounded-lg border border-gray-200","children":[["$","div",null,{"className":"text-3xl mb-2","children":"🏢"}],["$","h3",null,{"className":"font-semibold text-gray-900 mb-2","children":"Tenant Buffer Memory"}],["$","p",null,{"className":"text-sm text-gray-600 mb-3","children":"Multi-tenant aware memory with complete data isolation"}],["$","div",null,{"className":"text-xs text-gray-500","children":[["$","strong",null,{"children":"Best for:"}]," ","Multi-tenant SaaS applications"]}]]}]
+a:["$","h2",null,{"children":"Buffer Memory"}]
+b:["$","p",null,{"children":"Simple in-memory storage that keeps the most recent messages. Fast and easy to use."}]
+c:["$","$L31",null,{"language":"typescript","children":"import { Agent, BufferMemory, AnthropicProvider, ToolRegistry } from '@lov3kaizen/agentsea-core';\n\n// Create buffer memory with max 50 messages\nconst memory = new BufferMemory(50);\n\n// Create agent with memory\nconst agent = new Agent(\n  {\n    name: 'chat-agent',\n    model: 'claude-sonnet-4-20250514',\n    provider: 'anthropic',\n    systemPrompt: 'You are a helpful assistant.',\n  },\n  new AnthropicProvider(),\n  new ToolRegistry(),\n  memory, // Pass memory to agent\n);\n\n// First conversation\nawait agent.execute('My name is Alice', {\n  conversationId: 'user-123',\n  sessionData: {},\n  history: [],\n});\n\n// Agent remembers from previous message\nawait agent.execute('What is my name?', {\n  conversationId: 'user-123',\n  sessionData: {},\n  history: [],\n});\n// Response: \"Your name is Alice\""}]
+d:["$","h2",null,{"children":"Redis Memory"}]
+e:["$","p",null,{"children":"Persistent storage using Redis. Ideal for production applications with multiple servers."}]
+f:["$","$L31",null,{"language":"typescript","children":"import { Agent, RedisMemory, AnthropicProvider, ToolRegistry } from '@lov3kaizen/agentsea-core';\n\n// Create Redis memory\nconst memory = new RedisMemory({\n  url: process.env.REDIS_URL || 'redis://localhost:6379',\n  ttl: 86400, // 24 hours (optional)\n  keyPrefix: 'agent:', // Optional key prefix\n});\n\n// Create agent with Redis memory\nconst agent = new Agent(\n  config,\n  new AnthropicProvider(),\n  new ToolRegistry(),\n  memory,\n);\n\n// Memory persists across server restarts\nawait agent.execute('Remember: my favorite color is blue', context);\n\n// Later, even after server restart\nawait agent.execute('What is my favorite color?', context);\n// Response: \"Your favorite color is blue\"\n\n// Cleanup when done\nawait memory.disconnect();"}]
+10:["$","h2",null,{"children":"Summary Memory"}]
+11:["$","p",null,{"children":"Automatically summarizes old messages to maintain context while reducing token usage."}]
+12:["$","$L31",null,{"language":"typescript","children":"import { Agent, SummaryMemory, AnthropicProvider, ToolRegistry } from '@lov3kaizen/agentsea-core';\n\n// Create summary memory\nconst memory = new SummaryMemory(\n  new AnthropicProvider(),\n  {\n    maxMessages: 20, // Keep last 20 messages\n    summaryModel: 'claude-haiku-4-20250514', // Use fast model for summaries\n    summaryPrompt: 'Summarize the key points from this conversation:', // Optional\n  },\n);\n\n// Create agent\nconst agent = new Agent(\n  config,\n  new AnthropicProvider(),\n  new ToolRegistry(),\n  memory,\n);\n\n// As conversation grows, old messages are automatically summarized\n// This keeps token usage low while maintaining context"}]
+13:["$","h2",null,{"children":"Memory Interface"}]
+14:["$","p",null,{"children":"All memory stores implement the same interface:"}]
+15:["$","$L31",null,{"language":"typescript","children":"interface MemoryStore {\n  // Save messages for a conversation\n  save(conversationId: string, messages: Message[]): Promise<void>;\n\n  // Load messages for a conversation\n  load(conversationId: string): Promise<Message[]>;\n\n  // Clear messages for a conversation\n  clear(conversationId: string): Promise<void>;\n\n  // Optional: Check if conversation exists\n  exists?(conversationId: string): Promise<boolean>;\n}"}]
+16:["$","h2",null,{"children":"Custom Memory Store"}]
+17:["$","p",null,{"children":"Create your own memory store by implementing the MemoryStore interface:"}]
+32:T50e,import { MemoryStore, Message } from '@lov3kaizen/agentsea-core';
+
+export class DatabaseMemory implements MemoryStore {
+  private db: Database;
+
+  constructor(databaseConnection: Database) {
+    this.db = databaseConnection;
+  }
+
+  async save(conversationId: string, messages: Message[]): Promise<void> {
+    await this.db.conversations.upsert({
+      where: { id: conversationId },
+      update: {
+        messages: messages,
+        updatedAt: new Date(),
+      },
+      create: {
+        id: conversationId,
+        messages: messages,
+        createdAt: new Date(),
+      },
+    });
+  }
+
+  async load(conversationId: string): Promise<Message[]> {
+    const conversation = await this.db.conversations.findUnique({
+      where: { id: conversationId },
+    });
+
+    return conversation?.messages || [];
+  }
+
+  async clear(conversationId: string): Promise<void> {
+    await this.db.conversations.update({
+      where: { id: conversationId },
+      data: { messages: [] },
+    });
+  }
+
+  async exists(conversationId: string): Promise<boolean> {
+    const count = await this.db.conversations.count({
+      where: { id: conversationId },
+    });
+    return count > 0;
+  }
+}
+
+// Use custom memory
+const memory = new DatabaseMemory(prismaClient);
+const agent = new Agent(config, provider, toolRegistry, memory);18:["$","$L31",null,{"language":"typescript","children":"$32"}]
+19:["$","h2",null,{"children":"Tenant Buffer Memory"}]
+1a:["$","p",null,{"children":"Multi-tenant aware memory that isolates conversation data by tenant. Essential for multi-tenant applications."}]
+33:T50b,import { Agent, TenantBufferMemory, AnthropicProvider, ToolRegistry } from '@lov3kaizen/agentsea-core';
+
+// Create tenant-aware memory
+const memory = new TenantBufferMemory({ maxMessages: 50 });
+
+// Create agent with tenant memory
+const agent = new Agent(
+  {
+    name: 'support-agent',
+    model: 'claude-sonnet-4-20250514',
+    provider: 'anthropic',
+    systemPrompt: 'You are a customer support assistant.',
+  },
+  new AnthropicProvider(),
+  new ToolRegistry(),
+  { type: 'custom', store: memory },
+);
+
+// Save conversation for specific tenant
+await memory.save('tenant-123', 'conv-456', [
+  { role: 'user', content: 'How do I upgrade my plan?' },
+  { role: 'assistant', content: 'I can help you upgrade your plan...' },
+]);
+
+// Load conversation only for this tenant
+const history = await memory.load('tenant-123', 'conv-456');
+
+// Complete tenant isolation - Tenant A cannot access Tenant B's data
+const tenantAHistory = await memory.load('tenant-a', 'conv-1'); // ✅ Returns tenant A's data
+const tenantBHistory = await memory.load('tenant-b', 'conv-1'); // ✅ Returns tenant B's data (different)
+
+// Clear tenant-specific conversation
+await memory.clear('tenant-123', 'conv-456');
+
+// Get all conversation IDs for a tenant
+const conversationIds = await memory.getConversationIds('tenant-123');1b:["$","$L31",null,{"language":"typescript","children":"$33"}]
+1c:["$","div",null,{"className":"bg-blue-50 border border-blue-200 rounded-lg p-6 mb-8","children":[["$","h3",null,{"className":"text-lg font-semibold mb-2","children":"🏢 Multi-Tenancy Support"}],["$","p",null,{"className":"mb-0","children":["TenantBufferMemory provides complete data isolation between tenants, ensuring that one tenant's conversations are never accessible to another. Use this with the ",["$","$L34",null,{"href":"/docs/multi-tenancy","className":"text-blue-600 hover:underline","children":"Multi-Tenancy system"}]," for production SaaS applications."]}]]}]
+1d:["$","h2",null,{"children":"Managing Conversation History"}]
+1e:["$","p",null,{"children":"Control how conversation history is managed:"}]
+1f:["$","$L31",null,{"language":"typescript","children":"// Clear conversation history\nawait memory.clear('conversation-123');\n\n// Load existing history\nconst history = await memory.load('conversation-123');\n\n// Pass history directly to agent\nconst response = await agent.execute('Hello', {\n  conversationId: 'user-123',\n  sessionData: {},\n  history: history, // Use pre-loaded history\n});\n\n// Check if conversation exists\nconst exists = await memory.exists('conversation-123');\nif (!exists) {\n  console.log('Starting new conversation');\n}"}]
+20:["$","h2",null,{"children":"Session Data"}]
+21:["$","p",null,{"children":"Store additional context alongside messages:"}]
+22:["$","$L31",null,{"language":"typescript","children":"const context = {\n  conversationId: 'user-123',\n  sessionData: {\n    userId: '12345',\n    userName: 'Alice',\n    preferences: {\n      language: 'en',\n      timezone: 'America/Los_Angeles',\n    },\n    metadata: {\n      source: 'web',\n      device: 'desktop',\n    },\n  },\n  history: [],\n};\n\nconst response = await agent.execute('What time is it?', context);\n\n// Agent can reference session data in responses\n// \"Based on your timezone (America/Los_Angeles), it is currently...\""}]
+23:["$","h2",null,{"children":"Memory Best Practices"}]
+24:["$","h3",null,{"children":"Choosing the Right Memory Store"}]
+25:["$","ul",null,{"children":[["$","li",null,{"children":[["$","strong",null,{"children":"BufferMemory"}],": Development, testing, single-server apps"]}],["$","li",null,{"children":[["$","strong",null,{"children":"RedisMemory"}],": Production, multi-server, high availability"]}],["$","li",null,{"children":[["$","strong",null,{"children":"SummaryMemory"}],": Long conversations, token optimization"]}],["$","li",null,{"children":[["$","strong",null,{"children":"TenantBufferMemory"}],": Multi-tenant SaaS applications requiring data isolation"]}]]}]
+26:["$","h3",null,{"children":"Memory Configuration"}]
+27:["$","ul",null,{"children":[["$","li",null,{"children":"Set appropriate message limits to balance context and token usage"}],["$","li",null,{"children":"Use TTL in Redis to automatically expire old conversations"}],["$","li",null,{"children":"Implement cleanup jobs to remove inactive conversations"}],["$","li",null,{"children":"Monitor memory usage in production environments"}]]}]
+28:["$","h3",null,{"children":"Privacy and Security"}]
+29:["$","ul",null,{"children":[["$","li",null,{"children":"Encrypt sensitive data before storing in memory"}],["$","li",null,{"children":"Implement data retention policies"}],["$","li",null,{"children":"Provide user controls to delete their conversation history"}],["$","li",null,{"children":"Use conversation IDs that don't expose user information"}]]}]
+2a:["$","h2",null,{"children":"Comparison Table"}]
+2b:["$","div",null,{"className":"bg-white rounded-lg border border-gray-200 overflow-hidden mb-6","children":["$","table",null,{"className":"min-w-full divide-y divide-gray-200","children":[["$","thead",null,{"className":"bg-gray-50","children":["$","tr",null,{"children":[["$","th",null,{"className":"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider","children":"Feature"}],["$","th",null,{"className":"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider","children":"Buffer"}],["$","th",null,{"className":"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider","children":"Redis"}],["$","th",null,{"className":"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider","children":"Summary"}],["$","th",null,{"className":"px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider","children":"Tenant Buffer"}]]}]}],["$","tbody",null,{"className":"bg-white divide-y divide-gray-200","children":[["$","tr",null,{"children":[["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900","children":"Persistence"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"❌ No"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"✅ Yes"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"⚠️ Depends"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"❌ No"}]]}],["$","tr",null,{"children":[["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900","children":"Speed"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"⚡ Fastest"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"⚡ Fast"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"🐢 Slower"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"⚡ Fastest"}]]}],["$","tr",null,{"children":[["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900","children":"Scalability"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"❌ Single server"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"✅ Multi-server"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"⚠️ Depends"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"✅ Multi-tenant"}]]}],["$","tr",null,{"children":[["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900","children":"Token Usage"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"⚠️ Medium"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"⚠️ Medium"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"✅ Optimized"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"⚠️ Medium"}]]}],["$","tr",null,{"children":[["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900","children":"Setup"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"✅ Simple"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"⚠️ Redis required"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"⚠️ Extra LLM calls"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"✅ Simple"}]]}],["$","tr",null,{"children":[["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900","children":"Tenant Isolation"}],["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"❌ No"}],"$L35","$L36","$L37"]}]]}]]}]}]
+2c:["$","h2",null,{"children":"Next Steps"}]
+2d:["$","ul",null,{"children":[["$","li",null,{"children":["$","$L34",null,{"href":"/docs/agents","children":"Learn more about Agents"}]}],["$","li",null,{"children":["$","$L34",null,{"href":"/docs/workflows","children":"Use Memory in Workflows"}]}],["$","li",null,{"children":["$","$L34",null,{"href":"/examples","children":"View Memory Examples"}]}]]}]
+2e:["$","$L38",null,{"children":["$L39",["$","$L3a",null,{"promise":"$@3b"}]]}]
+2f:["$","$1","h",{"children":[null,[["$","$L3c",null,{"children":"$L3d"}],["$","meta",null,{"name":"next-size-adjust","content":""}]],["$","$L3e",null,{"children":["$","div",null,{"hidden":true,"children":["$","$3f",null,{"fallback":null,"children":"$L40"}]}]}]]}]
+35:["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"⚠️ Manual"}]
+36:["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"⚠️ Manual"}]
+37:["$","td",null,{"className":"px-6 py-4 whitespace-nowrap text-sm text-gray-500","children":"✅ Built-in"}]
+3d:[["$","meta","0",{"charSet":"utf-8"}],["$","meta","1",{"name":"viewport","content":"width=device-width, initial-scale=1"}]]
+39:null
+3b:{"metadata":[["$","title","0",{"children":"AgentSea - Unite and Orchestrate AI Agents"}],["$","meta","1",{"name":"description","content":"Build powerful agentic AI applications with AgentSea. Unite AI agents and services with multi-provider support, workflow orchestration, MCP protocol, and enterprise-grade observability."}]],"error":null,"digest":"$undefined"}
+40:"$3b:metadata"
