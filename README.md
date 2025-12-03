@@ -538,8 +538,8 @@ pnpm type-check
 
 We welcome contributions! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-- 💬 [Discussions](https://github.com/lov3kaizen/agentsea/discussions) - Ask questions and share ideas
-- 🐛 [Issues](https://github.com/lov3kaizen/agentsea/issues) - Report bugs and request features
+- 💬 [Discussions](https://github.com/lovekaizen/agentsea/discussions) - Ask questions and share ideas
+- 🐛 [Issues](https://github.com/lovekaizen/agentsea/issues) - Report bugs and request features
 - 📖 [Documentation](https://agentsea.dev) - Read the full documentation
 
 ## 📄 License

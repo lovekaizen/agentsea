@@ -120,7 +120,7 @@
                     (0, r.jsx)('div', {
                       className: 'flex-none',
                       children: (0, r.jsx)('a', {
-                        href: 'https://github.com/lov3kaizen/agentsea',
+                        href: 'https://github.com/lovekaizen/agentsea',
                         target: '_blank',
                         rel: 'noopener noreferrer',
                         className: 'btn btn-ghost btn-circle',
@@ -173,17 +173,17 @@
                       className: 'grid grid-flow-col gap-4',
                       children: [
                         (0, r.jsx)('a', {
-                          href: 'https://github.com/lov3kaizen/agentsea',
+                          href: 'https://github.com/lovekaizen/agentsea',
                           className: 'link link-hover',
                           children: 'GitHub',
                         }),
                         (0, r.jsx)('a', {
-                          href: 'https://github.com/lov3kaizen/agentsea/discussions',
+                          href: 'https://github.com/lovekaizen/agentsea/discussions',
                           className: 'link link-hover',
                           children: 'Discussions',
                         }),
                         (0, r.jsx)('a', {
-                          href: 'https://github.com/lov3kaizen/agentsea/issues',
+                          href: 'https://github.com/lovekaizen/agentsea/issues',
                           className: 'link link-hover',
                           children: 'Issues',
                         }),

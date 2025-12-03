@@ -60,12 +60,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lov3kaizen/agentsea.git",
+    "url": "https://github.com/lovekaizen/agentsea.git",
     "directory": "packages/nestjs"
   },
   "homepage": "https://agentsea.dev",
   "bugs": {
-    "url": "https://github.com/lov3kaizen/agentsea/issues"
+    "url": "https://github.com/lovekaizen/agentsea/issues"
   },
   "publishConfig": {
     "access": "public"
