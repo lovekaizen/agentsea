@@ -265,7 +265,7 @@ export default function HomePage() {
             </div>
             <div className="flex gap-6 text-sm">
               <Link
-                href="https://github.com/lov3kaizen/agentsea"
+                href="https://github.com/lovekaizen/agentsea"
                 className="text-muted-foreground hover:text-foreground transition-colors"
               >
                 GitHub

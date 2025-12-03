@@ -14,11 +14,11 @@
     "orchestration",
     "workflow"
   ],
-  "author": "lovekaizen <michael@lov3kaizen.com>",
+  "author": "lovekaizen <michael@lovekaizen.com>",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lov3kaizen/agentsea.git"
+    "url": "https://github.com/lovekaizen/agentsea.git"
   },
   "engines": {
     "node": ">=20.0.0",
