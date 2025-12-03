@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-nestjs",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "NestJS integration for AgentSea - Unite and orchestrate AI agents in your NestJS applications",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
