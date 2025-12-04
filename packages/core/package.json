@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-core",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "AgentSea - Unite and orchestrate AI agents. A production-ready ADK for building agentic AI applications with multi-provider support.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -25,6 +25,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@lov3kaizen/agentsea-types": "workspace:*",
     "@anthropic-ai/sdk": "^0.32.0",
     "@google/generative-ai": "^0.21.0",
     "openai": "^4.73.0",

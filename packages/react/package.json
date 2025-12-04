@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-react",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "React components for rendering AgentSea agent responses with formatting support",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -25,6 +25,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@lov3kaizen/agentsea-types": "workspace:*",
     "@lov3kaizen/agentsea-core": "workspace:*",
     "react-markdown": "^9.0.1",
     "remark-gfm": "^4.0.0",
