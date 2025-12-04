@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "bin": {
-    "agentsea": "./dist/cli.js"
+    "sea": "./dist/cli.js"
   },
   "files": [
     "dist",

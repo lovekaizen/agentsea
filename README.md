@@ -339,17 +339,17 @@ const schema = new ConversationSchema({
 npm install -g @lov3kaizen/agentsea-cli
 
 # Initialize configuration
-agentsea init
+sea init
 
 # Start chatting
-agentsea chat
+sea chat
 
 # Run an agent
-agentsea agent run default "What is the capital of France?"
+sea agent run default "What is the capital of France?"
 
 # Manage models (Ollama)
-agentsea model pull llama2
-agentsea model list
+sea model pull llama2
+sea model list
 ```
 
 [See CLI documentation →](./packages/cli)

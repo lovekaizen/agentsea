@@ -49,7 +49,7 @@ import { logger } from './utils/logger';
 const program = new Command();
 
 program
-  .name('agentsea')
+  .name('sea')
   .description(
     'AgentSea CLI - Build and orchestrate AI agents with voice, formatting, MCP, and workflows',
   )
