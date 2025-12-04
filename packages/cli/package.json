@@ -33,6 +33,7 @@
   "author": "lovekaizen",
   "license": "MIT",
   "dependencies": {
+    "@lov3kaizen/agentsea-types": "workspace:*",
     "@lov3kaizen/agentsea-core": "workspace:*",
     "commander": "^11.1.0",
     "chalk": "^4.1.2",

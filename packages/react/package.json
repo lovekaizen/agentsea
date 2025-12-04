@@ -25,6 +25,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
+    "@lov3kaizen/agentsea-types": "workspace:*",
     "@lov3kaizen/agentsea-core": "workspace:*",
     "react-markdown": "^9.0.1",
     "remark-gfm": "^4.0.0",

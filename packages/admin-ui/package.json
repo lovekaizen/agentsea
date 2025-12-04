@@ -15,6 +15,7 @@
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@lov3kaizen/agentsea-types": "workspace:*",
     "@lov3kaizen/agentsea-core": "workspace:*",
     "@hookform/resolvers": "^3.10.0",
     "@monaco-editor/react": "^4.6.0",
