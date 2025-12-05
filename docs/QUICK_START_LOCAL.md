@@ -304,6 +304,6 @@ See more examples in:
 
 ## Need Help?
 
-- 💬 [GitHub Discussions](https://github.com/lovekaizen/aigency/discussions)
-- 🐛 [Report an Issue](https://github.com/lovekaizen/aigency/issues)
-- 📖 [Full Documentation](https://aigency.dev)
+- 💬 [GitHub Discussions](https://github.com/lovekaizen/agentsea/discussions)
+- 🐛 [Report an Issue](https://github.com/lovekaizen/agentsea/issues)
+- 📖 [Full Documentation](https://agentsea.dev)

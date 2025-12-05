@@ -1,6 +1,6 @@
 # Local Models and Open Source Providers
 
-The Aigency ADK provides comprehensive support for running AI agents with local models and open source LLM providers. This allows you to:
+The AgentSea ADK provides comprehensive support for running AI agents with local models and open source LLM providers. This allows you to:
 
 - Run models on your own hardware
 - Maintain complete privacy and data control
@@ -27,7 +27,7 @@ ollama serve
 #### Usage
 
 ```typescript
-import { Agent, OllamaProvider } from '@aigency/core';
+import { Agent, OllamaProvider } from '@lov3kaizen/agentsea-core';
 
 // Create provider
 const provider = new OllamaProvider({
@@ -92,7 +92,7 @@ ollama pull gemma
 #### Usage
 
 ```typescript
-import { Agent, LMStudioProvider } from '@aigency/core';
+import { Agent, LMStudioProvider } from '@lov3kaizen/agentsea-core';
 
 const provider = new LMStudioProvider({
   baseUrl: 'http://localhost:1234/v1', // default
@@ -126,7 +126,7 @@ docker run -p 8080:8080 -v $PWD/models:/models -ti --rm quay.io/go-skynet/local-
 #### Usage
 
 ```typescript
-import { Agent, LocalAIProvider } from '@aigency/core';
+import { Agent, LocalAIProvider } from '@lov3kaizen/agentsea-core';
 
 const provider = new LocalAIProvider({
   baseUrl: 'http://localhost:8080/v1',
@@ -162,7 +162,7 @@ Enable the OpenAI extension in the settings.
 #### Usage
 
 ```typescript
-import { Agent, TextGenerationWebUIProvider } from '@aigency/core';
+import { Agent, TextGenerationWebUIProvider } from '@lov3kaizen/agentsea-core';
 
 const provider = new TextGenerationWebUIProvider({
   baseUrl: 'http://localhost:5000/v1',
@@ -198,7 +198,7 @@ python -m vllm.entrypoints.openai.api_server --model mistralai/Mistral-7B-v0.1
 #### Usage
 
 ```typescript
-import { Agent, VLLMProvider } from '@aigency/core';
+import { Agent, VLLMProvider } from '@lov3kaizen/agentsea-core';
 
 const provider = new VLLMProvider({
   baseUrl: 'http://localhost:8000/v1',
@@ -223,7 +223,7 @@ const agent = new Agent(
 Any service that implements the OpenAI API format can be used:
 
 ```typescript
-import { Agent, OpenAICompatibleProvider } from '@aigency/core';
+import { Agent, OpenAICompatibleProvider } from '@lov3kaizen/agentsea-core';
 
 const provider = new OpenAICompatibleProvider({
   baseUrl: 'https://your-custom-endpoint.com/v1',
@@ -279,7 +279,7 @@ for await (const chunk of agent.streamExecute('Tell me a story', context)) {
 Local models that support function calling can use tools:
 
 ```typescript
-import { ToolRegistry } from '@aigency/core';
+import { ToolRegistry } from '@lov3kaizen/agentsea-core';
 import { z } from 'zod';
 
 const toolRegistry = new ToolRegistry();
@@ -321,10 +321,10 @@ const agent = new Agent(
 
 ### Memory and Context
 
-Local models work with all Aigency ADK memory types:
+Local models work with all AgentSea ADK memory types:
 
 ```typescript
-import { BufferMemory, RedisMemory } from '@aigency/core';
+import { BufferMemory, RedisMemory } from '@lov3kaizen/agentsea-core';
 
 const memory = new BufferMemory(10);
 const toolRegistry = new ToolRegistry();

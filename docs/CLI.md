@@ -17,13 +17,13 @@ Complete guide to using the AgentSea CLI tool (`sea` command).
 ### Global Installation
 
 ```bash
-npm install -g @lov3kaizen/agentagentsea-cli
+npm install -g @lov3kaizen/agentsea-cli
 ```
 
 ### Using npx
 
 ```bash
-npx @lov3kaizen/agentagentsea-cli [command]
+npx @lov3kaizen/agentsea-cli [command]
 ```
 
 ### Verify Installation
@@ -86,7 +86,7 @@ All commands support these options:
 
 ### init
 
-Initialize Aigency CLI configuration.
+Initialize AgentSea CLI configuration.
 
 ```bash
 sea init
@@ -734,7 +734,7 @@ sea --version
 
 ### Scripting
 
-Use Aigency CLI in scripts:
+Use AgentSea CLI in scripts:
 
 ```bash
 #!/bin/bash
@@ -772,4 +772,4 @@ sea agent run default "Analyze PR changes"
 - [Local Models Guide](./LOCAL_MODELS.md)
 - [Provider Reference](./PROVIDERS.md)
 - [Quick Start: Local Models](./QUICK_START_LOCAL.md)
-- [Aigency ADK Documentation](../README.md)
+- [AgentSea ADK Documentation](../README.md)
