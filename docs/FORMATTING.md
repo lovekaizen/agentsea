@@ -16,7 +16,11 @@ Agent responses can be automatically formatted in multiple ways:
 ### Basic Usage
 
 ```typescript
-import { Agent, AnthropicProvider, ToolRegistry } from '@lov3kaizen/agentsea-core';
+import {
+  Agent,
+  AnthropicProvider,
+  ToolRegistry,
+} from '@lov3kaizen/agentsea-core';
 
 const provider = new AnthropicProvider({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -148,7 +152,7 @@ const agent = new Agent(
   formatted: {
     raw: "# Title\n\n**Bold text**...",
     format: "html",
-    rendered: '<div class="aigency-content" data-theme="dark"><h1>Title</h1><p><strong>Bold text</strong>...</p></div>',
+    rendered: '<div class="agentsea-content" data-theme="dark"><h1>Title</h1><p><strong>Bold text</strong>...</p></div>',
     metadata: { ... }
   }
 }
@@ -270,7 +274,7 @@ formatOptions: {
 }
 ```
 
-Wraps content in `<div class="aigency-content" data-theme="dark">`.
+Wraps content in `<div class="agentsea-content" data-theme="dark">`.
 
 ## Using with React
 
@@ -464,25 +468,25 @@ console.log(detectedFormat); // 'html'
 The React components don't include default styles, allowing you to style them as needed. Here's a basic example:
 
 ```css
-.aigency-response {
+.agentsea-response {
   padding: 1rem;
   border-radius: 8px;
   background: #f5f5f5;
 }
 
-.aigency-response[data-theme='dark'] {
+.agentsea-response[data-theme='dark'] {
   background: #1a1a1a;
   color: #e0e0e0;
 }
 
-.aigency-response code {
+.agentsea-response code {
   background: #e0e0e0;
   padding: 0.2rem 0.4rem;
   border-radius: 4px;
   font-family: monospace;
 }
 
-.aigency-response pre {
+.agentsea-response pre {
   background: #2d2d2d;
   color: #f8f8f8;
   padding: 1rem;
@@ -490,13 +494,13 @@ The React components don't include default styles, allowing you to style them as
   overflow-x: auto;
 }
 
-.aigency-response table {
+.agentsea-response table {
   border-collapse: collapse;
   width: 100%;
 }
 
-.aigency-response th,
-.aigency-response td {
+.agentsea-response th,
+.agentsea-response td {
   border: 1px solid #ddd;
   padding: 0.5rem;
 }
