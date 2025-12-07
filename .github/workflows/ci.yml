@@ -35,8 +35,10 @@ jobs:
           node-version: 20
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - name: Build types package first
-        run: pnpm --filter @lov3kaizen/agentsea-types build
+      - name: Build dependency packages first
+        run: |
+          pnpm --filter @lov3kaizen/agentsea-types build
+          pnpm --filter @lov3kaizen/agentsea-core build
       - run: pnpm type-check
 
   test:

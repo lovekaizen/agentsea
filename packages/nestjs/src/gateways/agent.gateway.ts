@@ -6,7 +6,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { AgentContext } from '@lov3kaizen/agentsea-core';
+import { AgentContext, Tool } from '@lov3kaizen/agentsea-core';
 import { AgentService } from '../services/agent.service';
 
 /**
@@ -102,7 +102,7 @@ export class AgentGateway {
       description: agent.config.description,
       model: agent.config.model,
       provider: agent.config.provider,
-      tools: agent.config.tools?.map((t) => ({
+      tools: agent.config.tools?.map((t: Tool) => ({
         name: t.name,
         description: t.description,
       })),
@@ -122,7 +122,7 @@ export class AgentGateway {
         description: agent.config.description,
         model: agent.config.model,
         provider: agent.config.provider,
-        tools: agent.config.tools?.map((t) => t.name) || [],
+        tools: agent.config.tools?.map((t: Tool) => t.name) || [],
       })),
     });
   }

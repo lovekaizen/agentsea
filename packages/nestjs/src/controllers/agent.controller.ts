@@ -8,7 +8,7 @@ import {
   Sse,
 } from '@nestjs/common';
 import { Observable } from 'rxjs';
-import { AgentContext } from '@lov3kaizen/agentsea-core';
+import { AgentContext, Tool } from '@lov3kaizen/agentsea-core';
 import { ExecuteAgentDto } from '../dto/execute-agent.dto';
 import { AgentService } from '../services/agent.service';
 
@@ -114,7 +114,7 @@ export class AgentController {
         description: agent.config.description,
         model: agent.config.model,
         provider: agent.config.provider,
-        tools: agent.config.tools?.map((t) => t.name) || [],
+        tools: agent.config.tools?.map((t: Tool) => t.name) || [],
       })),
     };
   }
@@ -140,7 +140,7 @@ export class AgentController {
         provider: agent.config.provider,
         systemPrompt: agent.config.systemPrompt,
         tools:
-          agent.config.tools?.map((t) => ({
+          agent.config.tools?.map((t: Tool) => ({
             name: t.name,
             description: t.description,
           })) || [],

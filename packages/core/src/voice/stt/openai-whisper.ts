@@ -1,6 +1,6 @@
 import { createReadStream } from 'fs';
 
-import OpenAI from 'openai';
+import OpenAI, { toFile } from 'openai';
 
 import { STTProvider, STTConfig, STTResult } from '../../types/voice';
 
@@ -54,8 +54,8 @@ export class OpenAIWhisperProvider implements STTProvider {
 
       // Handle buffer vs file path
       if (Buffer.isBuffer(audio)) {
-        // Create a File-like object from buffer
-        audioFile = new File([audio], 'audio.mp3', { type: 'audio/mpeg' });
+        // Use OpenAI SDK's toFile helper for Node.js compatibility
+        audioFile = await toFile(audio, 'audio.mp3', { type: 'audio/mpeg' });
       } else if (typeof audio === 'string') {
         // File path
         audioFile = createReadStream(audio);

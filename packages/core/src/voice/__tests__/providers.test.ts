@@ -37,6 +37,11 @@ vi.mock('openai', () => {
       },
       _config: config, // Store config for assertions
     })),
+    // Mock toFile helper for Node.js compatibility
+    toFile: vi.fn().mockImplementation(async (buffer, filename) => ({
+      name: filename,
+      buffer,
+    })),
   };
 });
 
