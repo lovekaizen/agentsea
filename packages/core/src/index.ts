@@ -8,6 +8,25 @@ export { Agent } from './agent/agent';
 export { ToolRegistry } from './tools/tool-registry';
 export * from './tools/built-in';
 
+// Isomorphic Tool Definition
+export {
+  toolDefinition,
+  serverTool,
+  clientTool,
+  hybridTool,
+  toLegacyTool,
+  toLegacyTools,
+  type ToolDefinition,
+  type ToolDefinitionOptions,
+  type ServerTool,
+  type ClientTool,
+  type HybridTool,
+  type ServerExecuteFn,
+  type ClientExecuteFn,
+  type ToolInput,
+  type ToolOutput,
+} from './tools/tool-definition';
+
 // Providers
 export { AnthropicProvider } from './providers/anthropic';
 export { OpenAIProvider } from './providers/openai';
