@@ -35,8 +35,10 @@ jobs:
           node-version: 20
           cache: 'pnpm'
       - run: pnpm install --frozen-lockfile
-      - name: Build types package first
-        run: pnpm --filter @lov3kaizen/agentsea-types build
+      - name: Build dependency packages first
+        run: |
+          pnpm --filter @lov3kaizen/agentsea-types build
+          pnpm --filter @lov3kaizen/agentsea-core build
       - run: pnpm type-check
 
   test:
@@ -57,6 +59,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'pnpm'
+      # Setup Python 3.11 for native module compilation (better-sqlite3)
+      # Python 3.12+ removed distutils which breaks node-gyp
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
 

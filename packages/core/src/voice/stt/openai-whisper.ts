@@ -1,8 +1,18 @@
 import { createReadStream } from 'fs';
 
-import OpenAI from 'openai';
+import OpenAI, { toFile } from 'openai';
 
 import { STTProvider, STTConfig, STTResult } from '../../types/voice';
+
+/**
+ * Configuration for OpenAI Whisper provider
+ */
+export interface OpenAIWhisperConfig {
+  /** API key for authentication */
+  apiKey?: string;
+  /** Base URL for API (allows use with OpenAI-compatible services like LemonFox) */
+  baseURL?: string;
+}
 
 /**
  * OpenAI Whisper Speech-to-Text provider
@@ -12,13 +22,23 @@ import { STTProvider, STTConfig, STTResult } from '../../types/voice';
  * - Multiple languages
  * - Timestamps and word-level timing
  * - File or buffer input
+ * - Custom baseURL for OpenAI-compatible services (e.g., LemonFox)
  */
 export class OpenAIWhisperProvider implements STTProvider {
   private client: OpenAI;
 
-  constructor(apiKey?: string) {
+  /**
+   * Create an OpenAI Whisper provider
+   * @param config - Configuration object or API key string (for backward compatibility)
+   */
+  constructor(config?: string | OpenAIWhisperConfig) {
+    // Handle backward compatibility: string = apiKey only
+    const resolvedConfig: OpenAIWhisperConfig =
+      typeof config === 'string' ? { apiKey: config } : config || {};
+
     this.client = new OpenAI({
-      apiKey: apiKey || process.env.OPENAI_API_KEY,
+      apiKey: resolvedConfig.apiKey || process.env.OPENAI_API_KEY,
+      baseURL: resolvedConfig.baseURL,
     });
   }
 
@@ -34,8 +54,8 @@ export class OpenAIWhisperProvider implements STTProvider {
 
       // Handle buffer vs file path
       if (Buffer.isBuffer(audio)) {
-        // Create a File-like object from buffer
-        audioFile = new File([audio], 'audio.mp3', { type: 'audio/mpeg' });
+        // Use OpenAI SDK's toFile helper for Node.js compatibility
+        audioFile = await toFile(audio, 'audio.mp3', { type: 'audio/mpeg' });
       } else if (typeof audio === 'string') {
         // File path
         audioFile = createReadStream(audio);

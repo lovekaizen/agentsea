@@ -8,6 +8,16 @@ import {
 } from '../../types/voice';
 
 /**
+ * Configuration for OpenAI TTS provider
+ */
+export interface OpenAITTSConfig {
+  /** API key for authentication */
+  apiKey?: string;
+  /** Base URL for API (allows use with OpenAI-compatible services like LemonFox) */
+  baseURL?: string;
+}
+
+/**
  * OpenAI Text-to-Speech provider
  *
  * Supports:
@@ -15,13 +25,23 @@ import {
  * - Multiple models (tts-1, tts-1-hd)
  * - Multiple formats (mp3, opus, aac, flac, wav, pcm)
  * - Speed control
+ * - Custom baseURL for OpenAI-compatible services (e.g., LemonFox)
  */
 export class OpenAITTSProvider implements TTSProvider {
   private client: OpenAI;
 
-  constructor(apiKey?: string) {
+  /**
+   * Create an OpenAI TTS provider
+   * @param config - Configuration object or API key string (for backward compatibility)
+   */
+  constructor(config?: string | OpenAITTSConfig) {
+    // Handle backward compatibility: string = apiKey only
+    const resolvedConfig: OpenAITTSConfig =
+      typeof config === 'string' ? { apiKey: config } : config || {};
+
     this.client = new OpenAI({
-      apiKey: apiKey || process.env.OPENAI_API_KEY,
+      apiKey: resolvedConfig.apiKey || process.env.OPENAI_API_KEY,
+      baseURL: resolvedConfig.baseURL,
     });
   }
 

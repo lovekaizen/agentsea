@@ -67,6 +67,48 @@ result.words?.forEach((word) => {
 **Supported Languages:**
 English, Spanish, French, German, Italian, Portuguese, Dutch, Russian, Chinese, Japanese, Korean, Arabic, Hindi, and 90+ more.
 
+### LemonFox STT
+
+Cost-effective OpenAI-compatible transcription using Whisper v3.
+
+```typescript
+import { LemonFoxSTTProvider } from '@lov3kaizen/agentsea-core';
+
+const sttProvider = new LemonFoxSTTProvider(process.env.LEMONFOX_API_KEY);
+
+// Transcribe audio file
+const result = await sttProvider.transcribe('./audio.mp3', {
+  model: 'whisper-1',
+  language: 'en',
+  responseFormat: 'verbose_json',
+});
+
+console.log('Text:', result.text);
+console.log('Language:', result.language);
+console.log('Duration:', result.duration);
+```
+
+**Alternative: Using OpenAI Whisper with custom baseURL:**
+
+```typescript
+import { OpenAIWhisperProvider } from '@lov3kaizen/agentsea-core';
+
+const sttProvider = new OpenAIWhisperProvider({
+  apiKey: process.env.LEMONFOX_API_KEY,
+  baseURL: 'https://api.lemonfox.ai/v1',
+});
+```
+
+**Features:**
+
+- ✅ High accuracy (Whisper v3)
+- ✅ 100+ languages
+- ✅ Timestamps (segment and word-level)
+- ✅ Speaker diarization
+- ✅ OpenAI-compatible API
+- ✅ Cost-effective ($0.50 per 3 hours)
+- ❌ No streaming
+
 ### Local Whisper
 
 Run Whisper locally for complete privacy.
@@ -168,6 +210,54 @@ for await (const chunk of ttsProvider.synthesizeStream('Long text...', {
 - ✅ Streaming support
 - ✅ Speed control
 - ✅ Multiple formats (mp3, opus, aac, flac, wav, pcm)
+
+### LemonFox TTS
+
+Cost-effective OpenAI-compatible text-to-speech with 50+ voices.
+
+```typescript
+import { LemonFoxTTSProvider } from '@lov3kaizen/agentsea-core';
+
+const ttsProvider = new LemonFoxTTSProvider(process.env.LEMONFOX_API_KEY);
+
+// Synthesize speech
+const result = await ttsProvider.synthesize('Hello, world!', {
+  model: 'tts-1',
+  voice: 'sarah', // or any OpenAI-compatible voice like 'nova'
+  format: 'mp3',
+});
+
+// Save audio
+import { writeFileSync } from 'fs';
+writeFileSync('./output.mp3', result.audio);
+
+// Stream for faster response
+for await (const chunk of ttsProvider.synthesizeStream('Long text...', {
+  voice: 'alloy',
+})) {
+  // Process audio chunks
+}
+```
+
+**Alternative: Using OpenAI TTS with custom baseURL:**
+
+```typescript
+import { OpenAITTSProvider } from '@lov3kaizen/agentsea-core';
+
+const ttsProvider = new OpenAITTSProvider({
+  apiKey: process.env.LEMONFOX_API_KEY,
+  baseURL: 'https://api.lemonfox.ai/v1',
+});
+```
+
+**Features:**
+
+- ✅ 50+ voices across 8 languages
+- ✅ OpenAI-compatible API
+- ✅ Streaming support
+- ✅ Multiple formats (mp3, opus, aac, flac, wav, pcm)
+- ✅ Low latency
+- ✅ Cost-effective ($2.50 per 1M characters, up to 90% savings)
 
 ### ElevenLabs
 
@@ -384,18 +474,20 @@ voiceAgent.setAutoSpeak(false);
 
 ### STT Providers
 
-| Provider       | Quality   | Speed | Cost | Privacy | Streaming | Languages |
-| -------------- | --------- | ----- | ---- | ------- | --------- | --------- |
-| OpenAI Whisper | Excellent | Fast  | $$   | Cloud   | ❌        | 99+       |
-| Local Whisper  | Excellent | Slow  | Free | 100%    | ❌        | 99+       |
+| Provider       | Quality   | Speed | Cost         | Privacy | Streaming | Languages |
+| -------------- | --------- | ----- | ------------ | ------- | --------- | --------- |
+| OpenAI Whisper | Excellent | Fast  | $$           | Cloud   | ❌        | 99+       |
+| LemonFox STT   | Excellent | Fast  | $ (cheapest) | Cloud   | ❌        | 100+      |
+| Local Whisper  | Excellent | Slow  | Free         | 100%    | ❌        | 99+       |
 
 ### TTS Providers
 
-| Provider   | Quality   | Speed | Cost | Privacy | Streaming | Voices |
-| ---------- | --------- | ----- | ---- | ------- | --------- | ------ |
-| OpenAI TTS | Excellent | Fast  | $    | Cloud   | ✅        | 6      |
-| ElevenLabs | Premium   | Fast  | $$$  | Cloud   | ✅        | 100+   |
-| Piper TTS  | Good      | Fast  | Free | 100%    | ❌        | 50+    |
+| Provider     | Quality   | Speed | Cost         | Privacy | Streaming | Voices |
+| ------------ | --------- | ----- | ------------ | ------- | --------- | ------ |
+| OpenAI TTS   | Excellent | Fast  | $            | Cloud   | ✅        | 6      |
+| LemonFox TTS | Excellent | Fast  | $ (cheapest) | Cloud   | ✅        | 50+    |
+| ElevenLabs   | Premium   | Fast  | $$$          | Cloud   | ✅        | 100+   |
+| Piper TTS    | Good      | Fast  | Free         | 100%    | ❌        | 50+    |
 
 ## Examples
 
@@ -488,6 +580,11 @@ writeFileSync('./podcast-episode.mp3', result.audio);
 
 - STT: OpenAI Whisper (accuracy + speed)
 - TTS: OpenAI TTS or ElevenLabs (quality)
+
+**For Cost-Effective Production:**
+
+- STT: LemonFox ($0.50 per 3 hours - lowest on market)
+- TTS: LemonFox ($2.50 per 1M chars - up to 90% savings)
 
 **For Development:**
 
@@ -590,6 +687,7 @@ Set environment variables:
 ```bash
 export OPENAI_API_KEY=your_key
 export ELEVENLABS_API_KEY=your_key
+export LEMONFOX_API_KEY=your_key
 ```
 
 ### "Unsupported audio format"
@@ -628,6 +726,7 @@ const provider = new LocalWhisperProvider({
 - [API Reference](../packages/core/src/types/voice.ts)
 - [OpenAI Whisper](https://platform.openai.com/docs/guides/speech-to-text)
 - [OpenAI TTS](https://platform.openai.com/docs/guides/text-to-speech)
+- [LemonFox AI](https://lemonfox.ai/docs)
 - [ElevenLabs](https://elevenlabs.io/docs)
 - [Piper TTS](https://github.com/rhasspy/piper)
 - [whisper.cpp](https://github.com/ggerganov/whisper.cpp)
