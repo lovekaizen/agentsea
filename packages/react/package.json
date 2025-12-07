@@ -20,7 +20,7 @@
     "dev": "tsup src/index.ts --format cjs,esm --dts --dts-resolve --watch --external react --external react-dom",
     "test": "vitest run --passWithNoTests",
     "test:watch": "vitest",
-    "test:cov": "vitest run --coverage",
+    "test:cov": "vitest run --coverage --passWithNoTests",
     "type-check": "tsc --noEmit",
     "clean": "rm -rf dist"
   },
