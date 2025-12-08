@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-types",
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Type definitions for AgentSea ADK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
