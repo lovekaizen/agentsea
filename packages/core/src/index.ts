@@ -21,6 +21,20 @@ export {
   VLLMProvider,
 } from './providers/openai-compatible';
 
+// Type-Safe Providers (per-model type safety)
+export {
+  createProvider,
+  createAnthropicProvider,
+  createOpenAIProvider,
+  createGeminiProvider,
+  createOllamaProvider,
+  type TypeSafeProvider,
+  type ExtractModel,
+  type ExtractProviderName,
+  type ConfigSupports,
+  type RequireCapability,
+} from './providers/type-safe-provider';
+
 // Memory
 export { BufferMemory } from './memory/buffer-memory';
 export { RedisMemory } from './memory/redis-memory';
