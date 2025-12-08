@@ -12,6 +12,7 @@ AgentSea ADK unites AI agents and services to create powerful, intelligent appli
 ## ✨ Features
 
 - 🤖 **Multi-Provider Support** - Anthropic Claude, OpenAI GPT, Google Gemini
+- 🎯 **Per-Model Type Safety** - Compile-time validation of model-specific options
 - 🏠 **Local & Open Source Models** - Ollama, LM Studio, LocalAI, Text Generation WebUI, vLLM
 - 🎙️ **Voice Support (TTS/STT)** - OpenAI Whisper, ElevenLabs, Piper TTS, Local Whisper
 - 🔗 **MCP Protocol** - First-class Model Context Protocol integration
@@ -128,6 +129,47 @@ const localaiAgent = new Agent(
   toolRegistry,
 );
 ```
+
+### Per-Model Type Safety
+
+Get compile-time validation for model-specific options. Inspired by [TanStack AI](https://tanstack.com/ai/latest/docs/guides/per-model-type-safety):
+
+```typescript
+import { anthropic, openai, createProvider } from '@lov3kaizen/agentsea-core';
+
+// ✅ Valid: Claude 3.5 Sonnet supports tools, system prompts, and extended thinking
+const claudeConfig = anthropic('claude-3-5-sonnet-20241022', {
+  tools: [myTool],
+  systemPrompt: 'You are a helpful assistant',
+  thinking: { type: 'enabled', budgetTokens: 10000 },
+  temperature: 0.7,
+});
+
+// ✅ Valid: o1 supports tools but NOT system prompts
+const o1Config = openai('o1', {
+  tools: [myTool],
+  reasoningEffort: 'high',
+  // systemPrompt: '...' // ❌ TypeScript error - o1 doesn't support system prompts
+});
+
+// ❌ TypeScript error: o1-mini doesn't support tools
+const o1MiniConfig = openai('o1-mini', {
+  // tools: [myTool], // Error: 'tools' does not exist in type
+  reasoningEffort: 'medium',
+});
+
+// Create type-safe providers
+const provider = createProvider(claudeConfig);
+console.log('Supports vision:', provider.supportsCapability('vision')); // true
+```
+
+**Key Benefits:**
+
+- **Zero runtime overhead** - All validation at compile time
+- **IDE autocomplete** - Only valid options appear per model
+- **Model capability registry** - Query what each model supports
+
+[See full per-model type safety documentation →](./docs/PER_MODEL_TYPE_SAFETY.md)
 
 ### Local Models & Open Source
 
@@ -470,6 +512,8 @@ Full documentation available at [agentsea.dev](https://agentsea.dev)
 - [Quick Start](https://agentsea.dev/docs/quick-start)
 - [CLI Guide](./docs/CLI.md)
 - [Agents](https://agentsea.dev/docs/agents)
+- [Providers](https://agentsea.dev/docs/providers)
+- [Per-Model Type Safety](./docs/PER_MODEL_TYPE_SAFETY.md) ⭐ NEW
 - [Tools](https://agentsea.dev/docs/tools)
 - [Workflows](https://agentsea.dev/docs/workflows)
 - [Memory](https://agentsea.dev/docs/memory)
