@@ -21,3 +21,10 @@ export {
   n8nTriggerWebhookTool,
   n8nGetWorkflowTool,
 } from './n8n.tool';
+
+// Export isomorphic tool examples
+export {
+  calculatorDef,
+  calculatorServer,
+  calculatorClient,
+} from './calculator.isomorphic';

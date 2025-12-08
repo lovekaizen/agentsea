@@ -146,6 +146,36 @@ export interface RetryConfig {
 }
 
 /**
+ * Tool execution environment
+ */
+export type ToolEnvironment = 'server' | 'client';
+
+/**
+ * Base tool state for tracking in UI
+ */
+export type ToolCallState =
+  | 'awaiting-input'
+  | 'input-streaming'
+  | 'input-complete'
+  | 'approval-requested'
+  | 'approval-denied'
+  | 'executing'
+  | 'result-streaming'
+  | 'complete'
+  | 'error';
+
+/**
+ * Extended tool call with state tracking for UI
+ */
+export interface TrackedToolCall extends ToolCall {
+  state: ToolCallState;
+  needsApproval?: boolean;
+  approvalMessage?: string;
+  startedAt?: Date;
+  completedAt?: Date;
+}
+
+/**
  * Memory configuration for agents
  */
 export interface MemoryConfig {
