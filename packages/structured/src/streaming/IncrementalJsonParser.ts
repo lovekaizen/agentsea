@@ -115,7 +115,7 @@ export class IncrementalJsonParser {
             const afterNum = remaining.slice(numStr.length);
             if (
               afterNum.length === 0 ||
-              (afterNum.length > 0 && !/[\s,}]/.test(afterNum[0]))
+              (afterNum.length > 0 && !/[\s,}\]]/.test(afterNum[0]))
             ) {
               // Number goes to end of buffer without terminator - might be incomplete
               break;
