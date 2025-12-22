@@ -80,10 +80,13 @@ export class AgenticModule {
   }
 
   static forRootAsync(options: {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     imports?: any[];
     useFactory: (
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ...args: any[]
     ) => Promise<AgenticModuleOptions> | AgenticModuleOptions;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     inject?: any[];
   }): DynamicModule {
     const providers: Provider[] = [

@@ -127,6 +127,7 @@ export function createProvider<TConfig extends ProviderModelConfig>(
       break;
     default: {
       const exhaustiveCheck: never = config;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       throw new Error(`Unknown provider: ${(exhaustiveCheck as any).provider}`);
     }
   }

@@ -63,7 +63,7 @@ export class ToolRegistry {
   /**
    * Execute a tool call
    */
-  async execute(toolCall: ToolCall, context: ToolContext): Promise<any> {
+  async execute(toolCall: ToolCall, context: ToolContext): Promise<unknown> {
     const tool = this.tools.get(toolCall.tool);
 
     if (!tool) {

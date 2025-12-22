@@ -16,7 +16,10 @@ export const httpRequestTool: Tool = {
       .default('GET')
       .describe('HTTP method'),
     headers: z.record(z.string()).optional().describe('HTTP headers'),
-    body: z.any().optional().describe('Request body (for POST, PUT, PATCH)'),
+    body: z
+      .unknown()
+      .optional()
+      .describe('Request body (for POST, PUT, PATCH)'),
     timeout: z
       .number()
       .optional()
@@ -27,7 +30,7 @@ export const httpRequestTool: Tool = {
     url: string;
     method: string;
     headers?: Record<string, string>;
-    body?: any;
+    body?: unknown;
     timeout?: number;
   }) => {
     const controller = new AbortController();

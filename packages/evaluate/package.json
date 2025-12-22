@@ -1,0 +1,102 @@
+{
+  "name": "@lov3kaizen/agentsea-evaluate",
+  "version": "0.5.0",
+  "description": "Comprehensive feedback collection and LLM evaluation platform for Node.js - human-in-the-loop annotation, automated evaluation pipelines, preference dataset generation",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./feedback": {
+      "types": "./dist/feedback/index.d.ts",
+      "import": "./dist/feedback/index.mjs",
+      "require": "./dist/feedback/index.js"
+    },
+    "./evaluation": {
+      "types": "./dist/evaluation/index.d.ts",
+      "import": "./dist/evaluation/index.mjs",
+      "require": "./dist/evaluation/index.js"
+    },
+    "./datasets": {
+      "types": "./dist/datasets/index.d.ts",
+      "import": "./dist/datasets/index.mjs",
+      "require": "./dist/datasets/index.js"
+    },
+    "./annotation": {
+      "types": "./dist/annotation/index.d.ts",
+      "import": "./dist/annotation/index.mjs",
+      "require": "./dist/annotation/index.js"
+    },
+    "./continuous": {
+      "types": "./dist/continuous/index.d.ts",
+      "import": "./dist/continuous/index.mjs",
+      "require": "./dist/continuous/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/feedback/index.ts src/evaluation/index.ts src/datasets/index.ts src/annotation/index.ts src/continuous/index.ts --format cjs,esm --dts --clean --external better-sqlite3 --external @huggingface/hub",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "llm",
+    "evaluation",
+    "feedback",
+    "annotation",
+    "rlhf",
+    "dpo",
+    "preference-learning",
+    "llm-as-judge",
+    "ai",
+    "machine-learning",
+    "nlp",
+    "rag",
+    "quality-assurance"
+  ],
+  "author": "lov3kaizen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lov3kaizen/agentsea.git",
+    "directory": "packages/evaluate"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.0",
+    "nanoid": "^5.0.0",
+    "zod": "^3.22.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "@lov3kaizen/agentsea-core": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@lov3kaizen/agentsea-core": {
+      "optional": true
+    }
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^9.2.0",
+    "@huggingface/hub": "^0.14.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

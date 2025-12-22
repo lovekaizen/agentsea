@@ -666,12 +666,9 @@ export type Provider = 'anthropic' | 'openai' | 'gemini' | 'ollama';
 
 /**
  * All supported models
+ * Note: OllamaModel is `string` so this effectively allows any string
  */
-export type SupportedModel =
-  | AnthropicModel
-  | OpenAIModel
-  | GeminiModel
-  | OllamaModel;
+export type SupportedModel = string;
 
 /**
  * Map provider to its model type

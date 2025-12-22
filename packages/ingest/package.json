@@ -1,0 +1,92 @@
+{
+  "name": "@lov3kaizen/agentsea-ingest",
+  "version": "0.5.0",
+  "description": "Comprehensive document processing pipeline for Node.js - PDF, DOCX, HTML, Markdown parsing with intelligent chunking, table/image extraction, and OCR",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src --ext .ts",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "eventemitter3": "^5.0.1",
+    "file-type": "^19.6.0",
+    "franc": "^6.2.0",
+    "mammoth": "^1.8.0",
+    "marked": "^15.0.4",
+    "nanoid": "^5.0.7",
+    "natural": "^8.0.1",
+    "pdf-parse": "^1.1.1",
+    "xlsx": "^0.18.5",
+    "zod": "^3.24.1"
+  },
+  "optionalDependencies": {
+    "tesseract.js": "^5.1.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "@types/pdf-parse": "^1.1.4",
+    "rimraf": "^6.0.1",
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.3"
+  },
+  "pnpm": {
+    "overrides": {}
+  },
+  "peerDependencies": {
+    "@google-cloud/vision": "^4.0.0",
+    "@lov3kaizen/agentsea-core": "workspace:*",
+    "@lov3kaizen/agentsea-embeddings": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@google-cloud/vision": {
+      "optional": true
+    },
+    "@lov3kaizen/agentsea-core": {
+      "optional": true
+    },
+    "@lov3kaizen/agentsea-embeddings": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "document",
+    "processing",
+    "pdf",
+    "docx",
+    "html",
+    "markdown",
+    "chunking",
+    "rag",
+    "ingestion",
+    "ocr",
+    "table-extraction",
+    "ai",
+    "llm"
+  ],
+  "author": "lov3kaizen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lov3kaizen/agentsea-ingest"
+  }
+}

@@ -50,6 +50,7 @@ export class OpenAIWhisperProvider implements STTProvider {
     config?: STTConfig,
   ): Promise<STTResult> {
     try {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let audioFile: any;
 
       // Handle buffer vs file path
@@ -83,18 +84,21 @@ export class OpenAIWhisperProvider implements STTProvider {
       }
 
       // Verbose JSON response
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const verboseResponse = response as any;
 
       return {
         text: verboseResponse.text,
         language: verboseResponse.language,
         duration: verboseResponse.duration,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         segments: verboseResponse.segments?.map((seg: any) => ({
           id: seg.id,
           start: seg.start,
           end: seg.end,
           text: seg.text,
         })),
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         words: verboseResponse.words?.map((word: any) => ({
           word: word.word,
           start: word.start,

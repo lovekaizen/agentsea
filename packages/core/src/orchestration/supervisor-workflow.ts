@@ -117,7 +117,7 @@ export class SupervisorWorkflow extends Workflow {
    */
   private getNextRoundRobinAgent(context: AgentContext): string | null {
     const agentNames = this.config.agents.map((a) => a.name);
-    const currentIndex = context.metadata?.roundRobinIndex || 0;
+    const currentIndex = (context.metadata?.roundRobinIndex as number) || 0;
     const nextIndex = (currentIndex + 1) % agentNames.length;
 
     // Store the index for next iteration

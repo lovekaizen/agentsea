@@ -48,6 +48,7 @@ export class AnthropicProvider implements LLMProvider {
       temperature: config.temperature,
       system: config.systemPrompt,
       messages: anthropicMessages,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tools: tools as any,
       top_p: config.topP,
       stop_sequences: config.stopSequences,
@@ -55,7 +56,9 @@ export class AnthropicProvider implements LLMProvider {
 
     // Extract text content
     const textContent = response.content
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .filter((block: any) => block.type === 'text')
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .map((block: any) => block.text)
       .join('\n');
 
@@ -97,6 +100,7 @@ export class AnthropicProvider implements LLMProvider {
       temperature: config.temperature,
       system: config.systemPrompt,
       messages: anthropicMessages,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tools: tools as any,
       top_p: config.topP,
       stop_sequences: config.stopSequences,
@@ -170,6 +174,7 @@ export class AnthropicProvider implements LLMProvider {
               type: 'tool_result',
               tool_use_id: message.toolCallId || '',
               content: message.content,
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any);
           }
         }

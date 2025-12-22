@@ -7,6 +7,7 @@ export const AGENT_METADATA = 'agentsea:agent';
  * Decorator to mark a class as an agent handler
  */
 export function Agent(config: Partial<AgentConfig>): ClassDecorator {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return (target: any) => {
     SetMetadata(AGENT_METADATA, config)(target);
     return target;

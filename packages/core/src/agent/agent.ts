@@ -146,6 +146,7 @@ export class Agent {
             latencyMs: 0, // Will be set by execute()
             iterations: this.iterationCount,
           },
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           finishReason: llmResponse.stopReason as any,
         };
 

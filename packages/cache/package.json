@@ -1,0 +1,108 @@
+{
+  "name": "@lov3kaizen/agentsea-cache",
+  "version": "0.5.0",
+  "description": "Semantic caching layer for LLM responses - exact match, semantic similarity, and hybrid strategies",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./stores": {
+      "types": "./dist/stores/index.d.ts",
+      "import": "./dist/stores/index.js"
+    },
+    "./strategies": {
+      "types": "./dist/strategies/index.d.ts",
+      "import": "./dist/strategies/index.js"
+    },
+    "./streaming": {
+      "types": "./dist/streaming/index.d.ts",
+      "import": "./dist/streaming/index.js"
+    },
+    "./analytics": {
+      "types": "./dist/analytics/index.d.ts",
+      "import": "./dist/analytics/index.js"
+    },
+    "./agentsea": {
+      "types": "./dist/integrations/agentsea/index.d.ts",
+      "import": "./dist/integrations/agentsea/index.js"
+    },
+    "./gateway": {
+      "types": "./dist/integrations/gateway/index.d.ts",
+      "import": "./dist/integrations/gateway/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "cache",
+    "semantic-cache",
+    "llm",
+    "gpt",
+    "openai",
+    "anthropic",
+    "claude",
+    "embedding",
+    "vector",
+    "ai",
+    "machine-learning",
+    "agentsea"
+  ],
+  "author": "lov3kaizen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lov3kaizen/agentsea.git",
+    "directory": "packages/cache"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.1",
+    "lru-cache": "^10.4.3",
+    "murmurhash": "^2.0.1",
+    "nanoid": "^5.0.9"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.13",
+    "@types/murmurhash": "^2.0.0",
+    "@types/node": "^20.17.10",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "peerDependencies": {
+    "@lov3kaizen/agentsea-core": ">=0.5.0",
+    "@lov3kaizen/agentsea-embeddings": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@lov3kaizen/agentsea-core": {
+      "optional": true
+    },
+    "@lov3kaizen/agentsea-embeddings": {
+      "optional": true
+    }
+  },
+  "optionalDependencies": {
+    "@pinecone-database/pinecone": "^4.0.0",
+    "better-sqlite3": "^11.7.0",
+    "ioredis": "^5.4.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

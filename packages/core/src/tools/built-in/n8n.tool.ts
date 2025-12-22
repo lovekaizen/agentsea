@@ -13,7 +13,7 @@ export const n8nExecuteWorkflowTool: Tool = {
   parameters: z.object({
     workflowId: z.string().describe('The ID of the workflow to execute'),
     data: z
-      .any()
+      .unknown()
       .optional()
       .describe('Input data to pass to the workflow execution'),
     waitForCompletion: z
@@ -31,7 +31,7 @@ export const n8nExecuteWorkflowTool: Tool = {
   }),
   execute: async (params: {
     workflowId: string;
-    data?: any;
+    data?: unknown;
     waitForCompletion?: boolean;
     apiKey?: string;
     baseUrl?: string;
@@ -208,7 +208,7 @@ export const n8nTriggerWebhookTool: Tool = {
       .enum(['GET', 'POST', 'PUT', 'DELETE', 'PATCH'])
       .default('POST')
       .describe('HTTP method for the webhook'),
-    data: z.any().optional().describe('Data to send to the webhook'),
+    data: z.unknown().optional().describe('Data to send to the webhook'),
     headers: z
       .record(z.string())
       .optional()
@@ -221,7 +221,7 @@ export const n8nTriggerWebhookTool: Tool = {
   execute: async (params: {
     webhookPath: string;
     method?: string;
-    data?: any;
+    data?: unknown;
     headers?: Record<string, string>;
     baseUrl?: string;
   }) => {
@@ -325,7 +325,7 @@ async function pollExecutionStatus(
   baseUrl: string,
   maxAttempts = 30,
   intervalMs = 2000,
-): Promise<any> {
+): Promise<unknown> {
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     const url = `${baseUrl}/api/v1/executions/${executionId}`;
 
