@@ -98,7 +98,7 @@ describe('ParserRegistry', () => {
       const result = await registry.parse(buffer, 'text/plain');
 
       expect(result).toBeDefined();
-      expect(result.type).toBe('text');
+      expect(result.type).toBe('txt');
     });
 
     it('should parse with extension detection', async () => {

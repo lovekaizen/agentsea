@@ -82,7 +82,7 @@ describe('TextParser', () => {
 
     const result = await parser.parse(buffer);
 
-    expect(result.type).toBe('text');
+    expect(result.type).toBe('txt');
     expect(result.text).toBe(text);
   });
 
@@ -92,7 +92,7 @@ describe('TextParser', () => {
 
     const result = await parser.parse(buffer);
 
-    expect(result.metadata.encoding).toBeDefined();
+    expect(result.metadata.custom?.encoding).toBeDefined();
   });
 
   it('should detect language', async () => {

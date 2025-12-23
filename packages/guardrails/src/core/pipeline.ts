@@ -71,8 +71,9 @@ export class Pipeline implements IPipeline {
           : await this.executeSequential(context);
 
       // Update status based on results before building final result
-      // Check if cancelled first
-      if (this.state.status !== 'cancelled') {
+      // Check if cancelled first (status could be changed by cancel() during execution)
+      const currentStatus = this.state.status as PipelineState['status'];
+      if (currentStatus !== 'cancelled') {
         const failed = results.some((r) => !r.passed);
         this.state.status = failed ? 'failed' : 'completed';
       }

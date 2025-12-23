@@ -32,7 +32,7 @@ export class TextParser extends BaseParser {
    * Parse text document
    */
   parse(buffer: Buffer, options?: ParserOptions): Promise<ParseResult> {
-    const result = this.createEmptyResult('text');
+    const result = this.createEmptyResult('txt');
 
     // Detect encoding (simplified - always use utf-8 for now)
     const encoding = (options?.custom?.encoding as string) || 'utf-8';
@@ -43,9 +43,9 @@ export class TextParser extends BaseParser {
     result.metadata = {
       wordCount: this.estimateWordCount(text),
       characterCount: text.length,
-      encoding,
       custom: {
         lineCount: text.split('\n').length,
+        encoding,
       },
     };
 
