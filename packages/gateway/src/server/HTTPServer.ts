@@ -237,7 +237,7 @@ function formatError(error: unknown): {
           error: {
             message: error.message,
             type: 'invalid_request_error',
-            code: (error as any).code,
+            code: (error as Error & { code: string }).code,
           },
         },
       };
@@ -251,12 +251,12 @@ function formatError(error: unknown): {
       'code' in error
     ) {
       return {
-        status: (error as any).statusCode,
+        status: (error as Error & { statusCode: number }).statusCode,
         body: {
           error: {
             message: error.message,
             type: 'gateway_error',
-            code: (error as any).code,
+            code: (error as Error & { code: string }).code,
           },
         },
       };

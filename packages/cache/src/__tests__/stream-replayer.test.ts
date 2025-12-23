@@ -163,8 +163,8 @@ describe('StreamReplayer', () => {
 
       const duration = Date.now() - startTime;
 
-      // Should respect minDelay of 10ms
-      expect(duration).toBeGreaterThanOrEqual(10);
+      // Should respect minDelay of 10ms (allow 2ms tolerance for timer resolution)
+      expect(duration).toBeGreaterThanOrEqual(8);
     });
 
     it('should respect maximum delay', async () => {
