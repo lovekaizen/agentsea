@@ -1,3 +1,5 @@
+import { resolve } from 'path';
+
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -9,6 +11,14 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    deps: {
+      inline: [/@lov3kaizen\/agentsea-/],
+      optimizer: {
+        ssr: {
+          include: [/@lov3kaizen\/agentsea-/],
+        },
+      },
+    },
     include: ['src/**/*.{test,spec}.ts', 'src/__tests__/**/*.ts'],
     coverage: {
       provider: 'v8',
@@ -28,5 +38,11 @@ export default defineConfig({
       },
     },
     testTimeout: 10000,
+  },
+  resolve: {
+    alias: {
+      '@lov3kaizen/agentsea-core': resolve(__dirname, '../core/src/index.ts'),
+      '@lov3kaizen/agentsea-types': resolve(__dirname, '../types/src/index.ts'),
+    },
   },
 });

@@ -11,6 +11,14 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    deps: {
+      inline: [/@lov3kaizen\/agentsea-/],
+      optimizer: {
+        ssr: {
+          include: [/@lov3kaizen\/agentsea-/],
+        },
+      },
+    },
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
@@ -36,6 +44,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      '@lov3kaizen/agentsea-core': resolve(__dirname, '../core/src/index.ts'),
+      '@lov3kaizen/agentsea-types': resolve(__dirname, '../types/src/index.ts'),
     },
   },
 });
