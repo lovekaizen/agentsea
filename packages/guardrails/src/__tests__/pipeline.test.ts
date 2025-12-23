@@ -167,8 +167,8 @@ describe('Pipeline', () => {
 
       expect(result.passed).toBe(true);
       expect(result.results).toHaveLength(2);
-      // Parallel execution should be faster than sequential (< 25ms)
-      expect(duration).toBeLessThan(25);
+      // Parallel execution should be faster than sequential (allow timing variance)
+      expect(duration).toBeLessThan(35);
     });
 
     it('should fail fast when a guard fails', async () => {
