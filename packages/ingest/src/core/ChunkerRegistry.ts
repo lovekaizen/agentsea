@@ -12,6 +12,7 @@ import type {
   Chunk,
   Element,
 } from '../types/index.js';
+import { getBuiltInChunkers } from '../chunking/index.js';
 
 /**
  * Chunker registry for managing chunking strategies
@@ -25,6 +26,13 @@ export class ChunkerRegistry {
       maxTokens: 512,
       overlap: 50,
     };
+
+    // Register built-in chunkers by default unless explicitly disabled
+    if (config.registerBuiltIns !== false) {
+      for (const chunker of getBuiltInChunkers()) {
+        this.register(chunker);
+      }
+    }
 
     // Register custom chunkers
     if (config.customChunkers) {

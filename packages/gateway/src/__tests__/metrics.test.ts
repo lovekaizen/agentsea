@@ -15,6 +15,8 @@ describe('MetricsCollector', () => {
 
     it('should accept custom prefix', () => {
       const custom = new MetricsCollector({ prefix: 'custom_prefix' });
+      // Add a metric to verify prefix works
+      custom.incrementCounter('test_counter', 1);
       const prometheus = custom.toPrometheusFormat();
       expect(prometheus).toContain('custom_prefix_');
     });

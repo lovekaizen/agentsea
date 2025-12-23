@@ -259,14 +259,16 @@ export class HTMLParser extends BaseParser {
         });
       }
 
-      // Get rows (skip first if used as header)
-      const skipFirst = headers.length > 0 && $table.find('thead').length === 0;
-      $table.find('tr').each(function (i: number) {
+      // Get rows - look in tbody if it exists, otherwise use tr outside thead
+      const hasThead = $table.find('thead').length > 0;
+      const $rows = hasThead ? $table.find('tbody tr') : $table.find('tr');
+      const skipFirst = headers.length > 0 && !hasThead;
+      $rows.each(function (i: number) {
         if (skipFirst && i === 0) return;
 
         const row: string[] = [];
         $(this)
-          .find('td, th')
+          .find('td')
           .each(function () {
             row.push($(this).text().trim());
           });

@@ -78,7 +78,8 @@ export class LatencyOptimizedStrategy implements RoutingStrategyInterface {
       (sum, stats) => sum + stats.count,
       0,
     );
-    const isWarmup = totalRequests < (this.config.warmupRequests || 10);
+    const warmupThreshold = this.config.warmupRequests ?? 10;
+    const isWarmup = warmupThreshold > 0 && totalRequests < warmupThreshold;
 
     // Build candidates with latency info
     const candidates: Array<{
@@ -144,8 +145,12 @@ export class LatencyOptimizedStrategy implements RoutingStrategyInterface {
     // Sort by latency (fastest first)
     filtered.sort((a, b) => a.latency - b.latency);
 
-    // During warmup, occasionally try different providers
-    if (isWarmup && Math.random() < 0.3 && filtered.length > 1) {
+    // During warmup, occasionally try different providers (exploration)
+    // When exploring, we randomly select from top 3 providers instead of always picking the fastest
+    const shouldExplore =
+      isWarmup && Math.random() < 0.3 && filtered.length > 1;
+
+    if (shouldExplore) {
       const randomIndex = Math.floor(
         Math.random() * Math.min(3, filtered.length),
       );
@@ -154,7 +159,7 @@ export class LatencyOptimizedStrategy implements RoutingStrategyInterface {
       return {
         provider: selected.provider,
         model: selected.model,
-        reason: `Warmup exploration (${totalRequests}/${this.config.warmupRequests} requests)`,
+        reason: `Warmup exploration (${totalRequests}/${warmupThreshold} requests)`,
         alternatives: filtered
           .filter((c) => c.provider !== selected.provider)
           .slice(0, 3)

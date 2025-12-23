@@ -13,7 +13,7 @@ describe('OpenAIProvider', () => {
   global.fetch = mockFetch as any;
 
   beforeEach(() => {
-    vi.clearAllMocks();
+    mockFetch.mockReset();
 
     provider = new OpenAIProvider({
       apiKey: mockApiKey,
@@ -142,6 +142,13 @@ describe('OpenAIProvider', () => {
     });
 
     it('should handle rate limit errors', async () => {
+      // Create provider with no retries for faster test
+      const noRetryProvider = new OpenAIProvider({
+        apiKey: mockApiKey,
+        maxRetries: 0,
+      });
+
+      // Mock fetch to return rate limit error
       mockFetch.mockResolvedValue({
         ok: false,
         status: 429,
@@ -151,18 +158,27 @@ describe('OpenAIProvider', () => {
         }),
       });
 
-      await expect(provider.embed('test')).rejects.toThrow(
+      await expect(noRetryProvider.embed('test')).rejects.toThrow(
         'Rate limit exceeded',
       );
 
-      const metrics = provider.getMetrics();
+      const metrics = noRetryProvider.getMetrics();
       expect(metrics.rateLimitHits).toBeGreaterThan(0);
     });
 
     it('should handle network errors', async () => {
+      // Create provider with no retries for faster test
+      const noRetryProvider = new OpenAIProvider({
+        apiKey: mockApiKey,
+        maxRetries: 0,
+      });
+
+      // Mock fetch to reject with network error
       mockFetch.mockRejectedValue(new Error('Network error'));
 
-      await expect(provider.embed('test')).rejects.toThrow();
+      await expect(noRetryProvider.embed('test')).rejects.toThrow(
+        'Network error',
+      );
     });
 
     it('should include organization header when provided', async () => {

@@ -17,9 +17,15 @@ class TestProvider extends BaseProvider {
     texts: string[],
     options?: EmbeddingOptions,
   ): Promise<{ vectors: number[][]; tokenCount: number }> {
+    const tokenCount = texts.reduce((sum, t) => sum + this.countTokens(t), 0);
+
+    // Update cost estimate
+    this.metrics.estimatedCostUSD +=
+      (tokenCount / 1000) * (this.info.costPer1K ?? 0);
+
     return {
       vectors: texts.map(() => new Array(this.info.dimensions).fill(0.5)),
-      tokenCount: texts.reduce((sum, t) => sum + this.countTokens(t), 0),
+      tokenCount,
     };
   }
 }
@@ -344,7 +350,8 @@ describe('BaseProvider', () => {
     it('should calculate error rate', async () => {
       const errorProvider = new ErrorProvider({ type: 'error' });
 
-      await expect(errorProvider.embed('test')).rejects.toThrow();
+      // Try embedding which will fail
+      await errorProvider.embedBatch(['test'], { continueOnError: true });
 
       const metrics = errorProvider.getMetrics();
       expect(metrics.errorRate).toBe(1);

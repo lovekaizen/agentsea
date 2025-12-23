@@ -90,20 +90,39 @@ export class StateRestorer {
       return deepClone(recordingCache.get(stepIndex)!);
     }
 
+    // Handle initial state case (stepIndex -1 or before any steps)
+    if (stepIndex < 0) {
+      const state = deepClone(recording.initialState);
+      if (!recordingCache) {
+        this.stateCache.set(cacheKey, new Map());
+      }
+      this.stateCache.get(cacheKey)!.set(stepIndex, deepClone(state));
+      return state;
+    }
+
     // Start from initial state or closest checkpoint
     let state: AgentState;
     let startStep: number;
 
     const checkpoint = this.findClosestCheckpoint(recording, stepIndex);
-    if (checkpoint && checkpoint.stepIndex <= stepIndex) {
-      state = deepClone(checkpoint.state);
-      startStep = checkpoint.stepIndex + 1;
+    if (checkpoint) {
+      if (checkpoint.stepIndex === stepIndex) {
+        // Checkpoint is exactly at target step
+        // But we still need to rebuild from beginning as checkpoint may not have complete state
+        state = deepClone(recording.initialState);
+        startStep = 0;
+      } else {
+        // Checkpoint before target - apply steps from beginning to checkpoint, then from checkpoint to target
+        state = deepClone(recording.initialState);
+        startStep = 0;
+      }
     } else {
+      // No checkpoint, start from initial state
       state = deepClone(recording.initialState);
       startStep = 0;
     }
 
-    // Apply steps to reach target
+    // Apply steps to reach target (inclusive of stepIndex)
     for (let i = startStep; i <= stepIndex && i < recording.steps.length; i++) {
       state = this.applyStep(state, recording.steps[i]);
     }
@@ -317,6 +336,10 @@ export class StateRestorer {
         }
         if (msg.content === undefined && !msg.toolCalls) {
           warnings.push(`Message ${i} has no content or tool calls`);
+        }
+        // Warn about empty content
+        if (typeof msg.content === 'string' && msg.content.trim() === '') {
+          warnings.push(`Message ${i} has empty content`);
         }
       }
     }

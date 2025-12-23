@@ -31,15 +31,19 @@ export class TextParser extends BaseParser {
   /**
    * Parse text document
    */
-  parse(buffer: Buffer, _options?: ParserOptions): Promise<ParseResult> {
-    const result = this.createEmptyResult('txt');
-    const text = buffer.toString('utf-8');
+  parse(buffer: Buffer, options?: ParserOptions): Promise<ParseResult> {
+    const result = this.createEmptyResult('text');
+
+    // Detect encoding (simplified - always use utf-8 for now)
+    const encoding = (options?.custom?.encoding as string) || 'utf-8';
+    const text = buffer.toString(encoding as BufferEncoding);
 
     result.text = text;
     result.elements = this.extractElements(text);
     result.metadata = {
       wordCount: this.estimateWordCount(text),
       characterCount: text.length,
+      encoding,
       custom: {
         lineCount: text.split('\n').length,
       },

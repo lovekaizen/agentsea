@@ -89,7 +89,9 @@ describe('LatencyOptimizedStrategy', () => {
   let registry: ProviderRegistry;
 
   beforeEach(() => {
-    strategy = new LatencyOptimizedStrategy();
+    // Disable warmup by default for deterministic tests
+    // Individual tests can override this if they want to test warmup behavior
+    strategy = new LatencyOptimizedStrategy({ warmupRequests: 0 });
     registry = new ProviderRegistry();
   });
 
@@ -285,6 +287,7 @@ describe('LatencyOptimizedStrategy', () => {
       strategy = new LatencyOptimizedStrategy({ warmupRequests: 10 });
 
       registry.register(new MockProvider('provider-1', ['model-a'], 100));
+      registry.register(new MockProvider('provider-2', ['model-b'], 200));
 
       const request: ChatCompletionRequest = {
         model: 'fastest',

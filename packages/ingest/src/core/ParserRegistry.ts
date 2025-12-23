@@ -10,6 +10,7 @@ import type {
   ParserRegistryConfig,
   ParseResult,
 } from '../types/index.js';
+import { getBuiltInParsers } from '../parsers/index.js';
 
 /**
  * MIME type to extension mapping
@@ -54,6 +55,13 @@ export class ParserRegistry {
 
   constructor(config: ParserRegistryConfig = {}) {
     this.defaultOptions = config.defaultOptions ?? {};
+
+    // Register built-in parsers by default unless explicitly disabled
+    if (config.registerBuiltIns !== false) {
+      for (const parser of getBuiltInParsers()) {
+        this.register(parser);
+      }
+    }
 
     // Register custom parsers
     if (config.customParsers) {
@@ -121,7 +129,12 @@ export class ParserRegistry {
     extension?: string,
     options?: ParserOptions,
   ): Promise<ParseResult> {
-    const parser = this.findParser(mimeType, extension);
+    let parser = this.findParser(mimeType, extension);
+
+    // If no parser found and no MIME type or extension provided, try text parser as fallback
+    if (!parser && !mimeType && !extension) {
+      parser = this.findParser('text/plain', 'txt');
+    }
 
     if (!parser) {
       throw new Error(

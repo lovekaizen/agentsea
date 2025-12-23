@@ -126,15 +126,12 @@ export class ReplayController extends EventEmitter<ReplayControllerEvents> {
    * Step backward one step
    */
   stepBackward(): ExecutionStep | undefined {
-    const prevStep = this.playbackState.currentStep - 1;
-
-    if (prevStep < 0) {
-      // Restore to initial state
-      this.playbackState.currentStep = -1;
-      this.playbackState.state = deepClone(this.recording.initialState);
-      this.session.currentStep = 0;
+    if (this.playbackState.currentStep < 0) {
+      // Already before the beginning
       return undefined;
     }
+
+    const prevStep = this.playbackState.currentStep - 1;
 
     // Get cached state or rebuild
     let state = this.stateHistory.get(prevStep);
@@ -145,12 +142,18 @@ export class ReplayController extends EventEmitter<ReplayControllerEvents> {
 
     this.playbackState.currentStep = prevStep;
     this.playbackState.state = deepClone(state);
-    this.session.currentStep = prevStep;
+    this.session.currentStep = Math.max(0, prevStep);
 
-    const step = this.recording.steps[prevStep];
-    this.emit('step:replayed', step, this.playbackState.state);
+    // Return the step at the previous position (currentStep is 1-indexed relative to steps array)
+    const stepIndex = prevStep - 1;
+    if (stepIndex >= 0 && stepIndex < this.recording.steps.length) {
+      const step = this.recording.steps[stepIndex];
+      this.emit('step:replayed', step, this.playbackState.state);
+      return step;
+    }
 
-    return step;
+    // At initial state (before any steps)
+    return undefined;
   }
 
   /**

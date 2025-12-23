@@ -116,15 +116,34 @@ const DEFAULT_PATTERNS: FailurePattern[] = [
     description: 'Similar steps repeated many times without progress',
     matcher: (recording, steps) => {
       const stepTypes = steps.map((s) => s.type);
-      const windowSize = 10;
+      const windowSize = 3;
 
-      for (let i = 0; i < stepTypes.length - windowSize * 2; i++) {
+      // Need at least 4 repetitions to be considered infinite loop
+      const minRepetitions = 4;
+
+      for (
+        let i = 0;
+        i <= stepTypes.length - windowSize * minRepetitions;
+        i++
+      ) {
         const window1 = stepTypes.slice(i, i + windowSize).join(',');
-        const window2 = stepTypes
-          .slice(i + windowSize, i + windowSize * 2)
-          .join(',');
+        let repetitions = 1;
 
-        if (window1 === window2) {
+        // Count consecutive repetitions
+        for (
+          let j = i + windowSize;
+          j <= stepTypes.length - windowSize;
+          j += windowSize
+        ) {
+          const nextWindow = stepTypes.slice(j, j + windowSize).join(',');
+          if (nextWindow === window1) {
+            repetitions++;
+          } else {
+            break;
+          }
+        }
+
+        if (repetitions >= minRepetitions) {
           return true;
         }
       }
@@ -441,6 +460,25 @@ export class FailureAnalyzer {
               priority: this.getPriorityFromSeverity(factor.severity),
               title: rec,
               description: `Based on pattern: ${pattern.name}`,
+              relatedFactors: [factor.id],
+            });
+          }
+        }
+      } else if (factor.type === 'explicit_error') {
+        // Handle explicit errors without patterns
+        const defaultRecs = [
+          'Review the error message and stack trace',
+          'Add error handling and recovery logic',
+          'Validate inputs before operations',
+        ];
+        for (const rec of defaultRecs) {
+          if (!seenRecommendations.has(rec)) {
+            seenRecommendations.add(rec);
+            recommendations.push({
+              id: generateId('rec'),
+              priority: this.getPriorityFromSeverity(factor.severity),
+              title: rec,
+              description: `Based on explicit error: ${factor.description}`,
               relatedFactors: [factor.id],
             });
           }

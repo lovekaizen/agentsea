@@ -70,6 +70,13 @@ export class Pipeline implements IPipeline {
           ? await this.executeParallel(context)
           : await this.executeSequential(context);
 
+      // Update status based on results before building final result
+      // Check if cancelled first
+      if (this.state.status !== 'cancelled') {
+        const failed = results.some((r) => !r.passed);
+        this.state.status = failed ? 'failed' : 'completed';
+      }
+
       return this.buildResult(results);
     } catch (error) {
       this.state.status = 'failed';

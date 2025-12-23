@@ -195,6 +195,7 @@ function formatError(error: unknown): {
   status: number;
   body: { error: { message: string; type: string; code: string } };
 } {
+  // Check for ValidationError
   if (error instanceof ValidationError) {
     return {
       status: 400,
@@ -208,6 +209,7 @@ function formatError(error: unknown): {
     };
   }
 
+  // Check for GatewayError
   if (error instanceof GatewayError) {
     return {
       status: error.statusCode,
@@ -221,7 +223,46 @@ function formatError(error: unknown): {
     };
   }
 
+  // Check for error objects with name property (for duck typing)
   if (error instanceof Error) {
+    // Check if it has ValidationError-like properties
+    if (
+      'name' in error &&
+      error.name === 'ValidationError' &&
+      'code' in error
+    ) {
+      return {
+        status: 400,
+        body: {
+          error: {
+            message: error.message,
+            type: 'invalid_request_error',
+            code: (error as any).code,
+          },
+        },
+      };
+    }
+
+    // Check if it has GatewayError-like properties
+    if (
+      'name' in error &&
+      error.name === 'GatewayError' &&
+      'statusCode' in error &&
+      'code' in error
+    ) {
+      return {
+        status: (error as any).statusCode,
+        body: {
+          error: {
+            message: error.message,
+            type: 'gateway_error',
+            code: (error as any).code,
+          },
+        },
+      };
+    }
+
+    // Generic error
     return {
       status: 500,
       body: {

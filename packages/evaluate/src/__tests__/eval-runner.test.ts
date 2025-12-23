@@ -143,10 +143,11 @@ describe('EvalRunner', () => {
     });
 
     it('should handle generation errors with retries', async () => {
-      let attempts = 0;
-      const generateFn = vi.fn(async () => {
-        attempts++;
-        if (attempts < 2) {
+      const callCounts = new Map<string, number>();
+      const generateFn = vi.fn(async (input: string) => {
+        const count = (callCounts.get(input) || 0) + 1;
+        callCounts.set(input, count);
+        if (count < 2) {
           throw new Error('Generation failed');
         }
         return 'success';
@@ -156,7 +157,7 @@ describe('EvalRunner', () => {
       const results = await retryRunner.run(dataset, generateFn, [mockMetric]);
 
       expect(results[0].output).toBe('success');
-      expect(generateFn).toHaveBeenCalledTimes(6); // 2 retries per item * 3 items
+      expect(generateFn).toHaveBeenCalledTimes(6); // 2 attempts per item * 3 items
     });
 
     it('should handle metric evaluation errors', async () => {

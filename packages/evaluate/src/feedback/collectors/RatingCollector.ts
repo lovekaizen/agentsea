@@ -22,12 +22,16 @@ export class RatingCollector extends BaseCollector<
   private allowComment: boolean;
   private minRating: StarRating;
   private maxRating: StarRating;
+  private requireComment: 'always' | 'on_low' | 'never';
+  private lowRatingThreshold: number;
 
   constructor(options: RatingCollectorOptions = {}) {
     super(options);
     this.allowComment = options.allowComment ?? true;
     this.minRating = options.minRating ?? 1;
     this.maxRating = options.maxRating ?? 5;
+    this.requireComment = options.requireComment ?? 'never';
+    this.lowRatingThreshold = options.lowRatingThreshold ?? 3;
   }
 
   protected validate(input: CollectRatingInput): void {
@@ -46,18 +50,24 @@ export class RatingCollector extends BaseCollector<
     }
 
     const rating = input.feedback.rating;
-    if (
-      typeof rating !== 'number' ||
-      rating < 1 ||
-      rating > 5 ||
-      !Number.isInteger(rating)
-    ) {
-      throw new Error('feedback.rating must be an integer between 1 and 5');
+    if (typeof rating !== 'number') {
+      throw new Error('feedback.rating must be a number');
     }
     if (rating < this.minRating || rating > this.maxRating) {
       throw new Error(
         `feedback.rating must be between ${this.minRating} and ${this.maxRating}`,
       );
+    }
+
+    // Check comment requirements
+    const isLowRating = rating <= this.lowRatingThreshold;
+    const hasComment = !!input.feedback.comment?.trim();
+
+    if (this.requireComment === 'always' && !hasComment) {
+      throw new Error('Comment is required');
+    }
+    if (this.requireComment === 'on_low' && isLowRating && !hasComment) {
+      throw new Error('Comment is required for low ratings');
     }
   }
 
@@ -70,6 +80,7 @@ export class RatingCollector extends BaseCollector<
       input: input.input,
       output: input.output,
       rating: input.feedback.rating,
+      maxRating: this.maxRating,
       comment: this.allowComment ? input.feedback.comment : undefined,
       userId: input.userId,
       timestamp: this.autoTimestamp ? Date.now() : 0,

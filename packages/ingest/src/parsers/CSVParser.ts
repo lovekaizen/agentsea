@@ -148,7 +148,8 @@ export class CSVParser extends BaseParser {
     let detected = ',';
 
     for (const delimiter of delimiters) {
-      const count = (firstLine.match(new RegExp(delimiter, 'g')) ?? []).length;
+      // Use split instead of regex to avoid special character issues with |
+      const count = firstLine.split(delimiter).length - 1;
       if (count > maxCount) {
         maxCount = count;
         detected = delimiter;

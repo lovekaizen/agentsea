@@ -194,4 +194,6 @@ export interface ParserRegistryConfig {
   customParsers?: Parser[];
   /** Parser overrides by MIME type */
   mimeTypeOverrides?: Record<string, Parser>;
+  /** Register built-in parsers automatically (default: true) */
+  registerBuiltIns?: boolean;
 }

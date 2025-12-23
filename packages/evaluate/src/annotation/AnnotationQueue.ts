@@ -52,6 +52,7 @@ export class AnnotationQueue extends EventEmitter<QueueEvents> {
   getNextItem(annotatorId: string): AnnotationItem | null {
     const assigned = this.annotatorAssignments.get(annotatorId) ?? new Set();
 
+    // First pass: prefer items with no assignments (for efficient distribution)
     for (const item of this.items.values()) {
       // Skip already assigned to this annotator
       if (assigned.has(item.id)) continue;
@@ -59,8 +60,28 @@ export class AnnotationQueue extends EventEmitter<QueueEvents> {
       // Skip completed items
       if (item.status === 'completed') continue;
 
-      // Skip items that have enough annotations
-      if (item.annotations.length >= this.task.annotatorsPerItem) continue;
+      // Skip items that have enough annotators assigned
+      const assignedCount = item.assignedTo?.length ?? 0;
+      if (assignedCount >= this.task.annotatorsPerItem) continue;
+
+      // Prefer unassigned items
+      if (assignedCount === 0) {
+        this.assignItem(item.id, annotatorId);
+        return item;
+      }
+    }
+
+    // Second pass: assign partially assigned items
+    for (const item of this.items.values()) {
+      // Skip already assigned to this annotator
+      if (assigned.has(item.id)) continue;
+
+      // Skip completed items
+      if (item.status === 'completed') continue;
+
+      // Skip items that have enough annotators assigned
+      const assignedCount = item.assignedTo?.length ?? 0;
+      if (assignedCount >= this.task.annotatorsPerItem) continue;
 
       // Assign this item
       this.assignItem(item.id, annotatorId);

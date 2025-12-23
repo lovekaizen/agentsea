@@ -3,24 +3,24 @@
  */
 
 import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { z } from 'zod';
 import { AnnotationQueue } from '../annotation/AnnotationQueue.js';
 import { AnnotationTask } from '../annotation/AnnotationTask.js';
-import type { AnnotationItem, AnnotationSchema } from '../types/index.js';
+import type { AnnotationItem } from '../types/index.js';
 
 describe('AnnotationQueue', () => {
   let task: AnnotationTask;
   let items: AnnotationItem[];
 
   beforeEach(() => {
-    const schema: AnnotationSchema = {
-      type: 'classification',
-      categories: ['good', 'bad', 'neutral'],
-    };
+    const schema = z.object({
+      category: z.enum(['good', 'bad', 'neutral']),
+    });
 
     task = new AnnotationTask({
-      id: 'task-1',
       name: 'Test Task',
       description: 'Test annotation task',
+      instructions: 'Classify the response',
       schema,
       annotatorsPerItem: 2,
     });
@@ -28,27 +28,30 @@ describe('AnnotationQueue', () => {
     items = [
       {
         id: 'item-1',
-        input: 'Test input 1',
-        output: 'Test output 1',
-        status: 'pending',
+        taskId: task.id,
+        data: { input: 'Test input 1', output: 'Test output 1' },
+        status: 'pending' as const,
+        priority: 0,
         annotations: [],
         createdAt: Date.now(),
         updatedAt: Date.now(),
       },
       {
         id: 'item-2',
-        input: 'Test input 2',
-        output: 'Test output 2',
-        status: 'pending',
+        taskId: task.id,
+        data: { input: 'Test input 2', output: 'Test output 2' },
+        status: 'pending' as const,
+        priority: 0,
         annotations: [],
         createdAt: Date.now(),
         updatedAt: Date.now(),
       },
       {
         id: 'item-3',
-        input: 'Test input 3',
-        output: 'Test output 3',
-        status: 'pending',
+        taskId: task.id,
+        data: { input: 'Test input 3', output: 'Test output 3' },
+        status: 'pending' as const,
+        priority: 0,
         annotations: [],
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -95,9 +98,10 @@ describe('AnnotationQueue', () => {
       const singleItem: AnnotationItem[] = [
         {
           id: 'item-1',
-          input: 'Test',
-          output: 'Test',
-          status: 'pending',
+          taskId: task.id,
+          data: { input: 'Test', output: 'Test' },
+          status: 'pending' as const,
+          priority: 0,
           annotations: [],
           createdAt: Date.now(),
           updatedAt: Date.now(),
@@ -122,9 +126,10 @@ describe('AnnotationQueue', () => {
     it('should skip completed items', () => {
       const completedItem: AnnotationItem = {
         id: 'completed',
-        input: 'Test',
-        output: 'Test',
-        status: 'completed',
+        taskId: task.id,
+        data: { input: 'Test', output: 'Test' },
+        status: 'completed' as const,
+        priority: 0,
         annotations: [],
         createdAt: Date.now(),
         updatedAt: Date.now(),
@@ -404,7 +409,7 @@ describe('AnnotationQueue', () => {
 
       const stats = queue.getStats();
 
-      expect(stats.taskId).toBe('task-1');
+      expect(stats.taskId).toBe(task.id);
       expect(stats.totalItems).toBe(3);
       expect(stats.pendingItems).toBe(3);
       expect(stats.assignedItems).toBe(0);
@@ -489,7 +494,7 @@ describe('AnnotationQueue', () => {
       const item = queue.getItem('item-2');
 
       expect(item?.id).toBe('item-2');
-      expect(item?.input).toBe('Test input 2');
+      expect(item?.data.input).toBe('Test input 2');
     });
 
     it('should return undefined for non-existent item', () => {

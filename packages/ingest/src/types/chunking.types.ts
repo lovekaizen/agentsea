@@ -222,4 +222,6 @@ export interface ChunkerRegistryConfig {
   customChunkers?: Chunker[];
   /** Strategy overrides */
   strategyOverrides?: Record<ChunkingStrategy, Chunker>;
+  /** Register built-in chunkers automatically (default: true) */
+  registerBuiltIns?: boolean;
 }

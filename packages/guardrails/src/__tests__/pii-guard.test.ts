@@ -118,12 +118,12 @@ describe('PIIGuard', () => {
     it('should mask multiple PII instances', async () => {
       const guard = new PIIGuard({ onFailure: 'transform' });
       const result = await guard.check(
-        createContext('Email: test@test.com, Phone: 555-1234'),
+        createContext('Email: test@test.com, Phone: 555-123-4567'),
       );
 
       expect(result.transformedContent).toBeDefined();
       expect(result.transformedContent).not.toContain('test@test.com');
-      expect(result.transformedContent).not.toContain('555-1234');
+      expect(result.transformedContent).not.toContain('555-123-4567');
     });
 
     it('should use custom mask format', async () => {

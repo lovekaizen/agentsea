@@ -10,10 +10,21 @@ function createContext(input: string): GuardContext {
   };
 }
 
+// Helper to create guard with low thresholds for single-match detection
+function createLowThresholdGuard(
+  options: Parameters<typeof TopicGuard>[0] = {},
+) {
+  return new TopicGuard({
+    threshold: 0.1, // Low threshold for withConfidence check
+    minConfidence: 0.1, // Low threshold for topic classification
+    ...options,
+  });
+}
+
 describe('TopicGuard', () => {
   describe('topic classification', () => {
     it('should classify technology content', async () => {
-      const guard = new TopicGuard();
+      const guard = createLowThresholdGuard();
       const result = await guard.check(
         createContext('I need help with programming in Python and using APIs'),
       );
@@ -23,7 +34,7 @@ describe('TopicGuard', () => {
     });
 
     it('should classify finance content', async () => {
-      const guard = new TopicGuard();
+      const guard = createLowThresholdGuard();
       const result = await guard.check(
         createContext('What are the best investment strategies for stocks?'),
       );
@@ -32,7 +43,7 @@ describe('TopicGuard', () => {
     });
 
     it('should classify health content', async () => {
-      const guard = new TopicGuard();
+      const guard = createLowThresholdGuard();
       const result = await guard.check(
         createContext('I have symptoms and need medical advice'),
       );
@@ -41,7 +52,7 @@ describe('TopicGuard', () => {
     });
 
     it('should classify politics content', async () => {
-      const guard = new TopicGuard();
+      const guard = createLowThresholdGuard();
       const result = await guard.check(
         createContext('The election results and government policy changes'),
       );
@@ -52,7 +63,7 @@ describe('TopicGuard', () => {
 
   describe('blocked topics', () => {
     it('should block configured topics', async () => {
-      const guard = new TopicGuard({
+      const guard = createLowThresholdGuard({
         blockedTopics: ['gambling', 'weapons'],
       });
 
@@ -65,7 +76,7 @@ describe('TopicGuard', () => {
     });
 
     it('should pass when blocked topic not detected', async () => {
-      const guard = new TopicGuard({
+      const guard = createLowThresholdGuard({
         blockedTopics: ['gambling'],
       });
 
@@ -77,7 +88,7 @@ describe('TopicGuard', () => {
     });
 
     it('should detect weapons topic', async () => {
-      const guard = new TopicGuard({
+      const guard = createLowThresholdGuard({
         blockedTopics: ['weapons'],
       });
 
@@ -90,7 +101,7 @@ describe('TopicGuard', () => {
     });
 
     it('should detect drugs topic', async () => {
-      const guard = new TopicGuard({
+      const guard = createLowThresholdGuard({
         blockedTopics: ['drugs'],
       });
 
@@ -103,7 +114,7 @@ describe('TopicGuard', () => {
     });
 
     it('should detect adult content topic', async () => {
-      const guard = new TopicGuard({
+      const guard = createLowThresholdGuard({
         blockedTopics: ['adult'],
       });
 
@@ -118,7 +129,7 @@ describe('TopicGuard', () => {
 
   describe('allowed topics (whitelist)', () => {
     it('should pass when topic is in allowed list', async () => {
-      const guard = new TopicGuard({
+      const guard = createLowThresholdGuard({
         allowedTopics: ['technology', 'finance'],
       });
 
@@ -131,7 +142,7 @@ describe('TopicGuard', () => {
     });
 
     it('should fail when topic is not in allowed list', async () => {
-      const guard = new TopicGuard({
+      const guard = createLowThresholdGuard({
         allowedTopics: ['technology'],
       });
 
@@ -144,7 +155,7 @@ describe('TopicGuard', () => {
     });
 
     it('should allow all topics when allowlist is empty', async () => {
-      const guard = new TopicGuard({
+      const guard = createLowThresholdGuard({
         allowedTopics: [],
       });
 
@@ -156,7 +167,7 @@ describe('TopicGuard', () => {
 
   describe('custom topic keywords', () => {
     it('should detect custom topics', async () => {
-      const guard = new TopicGuard({
+      const guard = createLowThresholdGuard({
         topicKeywords: {
           pets: ['dog', 'cat', 'pet', 'animal'],
         },
@@ -170,7 +181,7 @@ describe('TopicGuard', () => {
     });
 
     it('should combine custom and default topics', async () => {
-      const guard = new TopicGuard({
+      const guard = createLowThresholdGuard({
         topicKeywords: {
           custom: ['special', 'unique'],
         },
@@ -190,7 +201,7 @@ describe('TopicGuard', () => {
 
   describe('confidence scoring', () => {
     it('should calculate topic scores', async () => {
-      const guard = new TopicGuard();
+      const guard = createLowThresholdGuard();
       const result = await guard.check(
         createContext('Programming with APIs and software'),
       );
@@ -223,7 +234,7 @@ describe('TopicGuard', () => {
 
   describe('multiple topics', () => {
     it('should detect multiple topics', async () => {
-      const guard = new TopicGuard();
+      const guard = createLowThresholdGuard();
       const result = await guard.check(
         createContext(
           'I need help with medical software for hospital databases',
@@ -236,7 +247,7 @@ describe('TopicGuard', () => {
     });
 
     it('should block if any topic is blocked', async () => {
-      const guard = new TopicGuard({
+      const guard = createLowThresholdGuard({
         blockedTopics: ['gambling'],
       });
 
@@ -251,7 +262,9 @@ describe('TopicGuard', () => {
 
   describe('detections', () => {
     it('should include detection details', async () => {
-      const guard = new TopicGuard();
+      const guard = createLowThresholdGuard({
+        blockedTopics: ['technology'],
+      });
       const result = await guard.check(
         createContext('Programming with software'),
       );
@@ -263,7 +276,9 @@ describe('TopicGuard', () => {
     });
 
     it('should provide location information', async () => {
-      const guard = new TopicGuard();
+      const guard = createLowThresholdGuard({
+        blockedTopics: ['technology'],
+      });
       const result = await guard.check(createContext('Programming software'));
 
       const detection = result.detections?.[0];
@@ -302,7 +317,7 @@ describe('TopicGuard', () => {
     });
 
     it('should use configured onFailure action', async () => {
-      const guard = new TopicGuard({
+      const guard = createLowThresholdGuard({
         onFailure: 'warn',
         blockedTopics: ['gambling'],
       });
@@ -316,7 +331,7 @@ describe('TopicGuard', () => {
 
   describe('case insensitivity', () => {
     it('should detect topics regardless of case', async () => {
-      const guard = new TopicGuard();
+      const guard = createLowThresholdGuard();
 
       const lowerResult = await guard.check(
         createContext('programming software'),
@@ -336,7 +351,7 @@ describe('TopicGuard', () => {
 
   describe('keyword matching', () => {
     it('should match whole words only', async () => {
-      const guard = new TopicGuard();
+      const guard = createLowThresholdGuard();
 
       // Should not match partial words
       const result = await guard.check(createContext('scam email'));
@@ -346,7 +361,7 @@ describe('TopicGuard', () => {
     });
 
     it('should count multiple keyword matches', async () => {
-      const guard = new TopicGuard();
+      const guard = createLowThresholdGuard();
       const result = await guard.check(
         createContext('Software programming code API database server cloud AI'),
       );

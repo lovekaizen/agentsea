@@ -179,7 +179,7 @@ export class MetricsCollector {
    * Get all metrics as a summary object
    */
   getSummary(): GatewayMetrics {
-    const requestsTotal = this.getCounter('requests_total');
+    const requestsTotal = this.sumAllCounters('requests_total');
     const requestsSuccess = this.sumCountersByLabel(
       'requests_total',
       'status',
@@ -196,10 +196,11 @@ export class MetricsCollector {
       'true',
     );
 
-    const latencyHistogram = this.getHistogram('request_latency_ms');
-    const avgLatency = latencyHistogram
-      ? latencyHistogram.sum / latencyHistogram.count
-      : 0;
+    const latencyHistogram = this.aggregateHistograms('request_latency_ms');
+    const avgLatency =
+      latencyHistogram.count > 0
+        ? latencyHistogram.sum / latencyHistogram.count
+        : 0;
 
     const inputTokens = this.sumAllCounters('tokens_input_total');
     const outputTokens = this.sumAllCounters('tokens_output_total');
@@ -344,46 +345,63 @@ export class MetricsCollector {
   }
 
   /**
-   * Calculate percentile from histogram (approximate)
+   * Aggregate histograms for a metric name
    */
-  private calculatePercentile(name: string, percentile: number): number {
-    // Aggregate all histograms for this metric
-    let totalCount = 0;
-    const aggregatedBuckets: Array<{ le: number; count: number }> = [];
+  private aggregateHistograms(name: string): HistogramData {
+    const result: HistogramData = {
+      count: 0,
+      sum: 0,
+      buckets: new Map(),
+    };
 
     for (const [key, histogram] of this.histograms) {
       if (key.startsWith(name)) {
-        totalCount += histogram.count;
+        result.count += histogram.count;
+        result.sum += histogram.sum;
         for (const [bucket, count] of histogram.buckets) {
-          const existing = aggregatedBuckets.find((b) => b.le === bucket);
-          if (existing) {
-            existing.count += count;
-          } else {
-            aggregatedBuckets.push({ le: bucket, count });
-          }
+          const existing = result.buckets.get(bucket) || 0;
+          result.buckets.set(bucket, existing + count);
         }
       }
     }
 
-    if (totalCount === 0) return 0;
+    return result;
+  }
+
+  /**
+   * Calculate percentile from histogram (approximate)
+   */
+  private calculatePercentile(name: string, percentile: number): number {
+    const histogram = this.aggregateHistograms(name);
+
+    if (histogram.count === 0) return 0;
 
     // Sort by bucket boundary
-    aggregatedBuckets.sort((a, b) => a.le - b.le);
+    const sortedBuckets = Array.from(histogram.buckets.entries()).sort(
+      ([a], [b]) => a - b,
+    );
 
-    const targetCount = totalCount * percentile;
+    const targetCount = histogram.count * percentile;
     let prevBucket = 0;
+    let prevCount = 0;
 
-    for (const bucket of aggregatedBuckets) {
-      if (bucket.count >= targetCount) {
-        // Linear interpolation within bucket
-        const bucketRange = bucket.le - prevBucket;
-        const fraction =
-          bucket.count > 0
-            ? (targetCount - (bucket.count - 1)) / bucket.count
-            : 0;
+    for (const [bucket, count] of sortedBuckets) {
+      if (count >= targetCount) {
+        // Found the bucket containing our percentile
+        // Linear interpolation within this bucket
+        const bucketRange = bucket - prevBucket;
+        const bucketCount = count - prevCount; // Values in this bucket
+
+        if (bucketCount === 0) {
+          return prevBucket;
+        }
+
+        const positionInBucket = targetCount - prevCount;
+        const fraction = positionInBucket / bucketCount;
         return prevBucket + bucketRange * Math.max(0, Math.min(1, fraction));
       }
-      prevBucket = bucket.le;
+      prevBucket = bucket;
+      prevCount = count;
     }
 
     return prevBucket;

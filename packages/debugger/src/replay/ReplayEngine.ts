@@ -154,8 +154,6 @@ export class ReplayEngine extends EventEmitter<ReplayEngineEvents> {
       this.emit('error', error);
     });
 
-    // Start the replay
-    session.state = 'playing';
     this.emit('replay:started', session);
 
     // Run replay in background
@@ -449,7 +447,11 @@ export class ReplayEngine extends EventEmitter<ReplayEngineEvents> {
    * Pause current replay
    */
   pause(): void {
-    if (this.currentSession && this.currentSession.state === 'playing') {
+    if (
+      this.currentSession &&
+      this.currentSession.state !== 'paused' &&
+      this.currentSession.state !== 'stopped'
+    ) {
       this.currentSession.state = 'paused';
       this.emit('replay:paused', this.currentSession);
     }

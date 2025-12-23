@@ -392,12 +392,14 @@ describe('Pipeline', () => {
         buffer: Buffer.from('test'),
       }));
 
-      // Abort after starting
-      setTimeout(() => abortPipeline.abort(), 10);
+      // Abort immediately before processing starts
+      // This ensures the abort is registered before any processing happens
+      abortPipeline.abort();
 
       const result = await abortPipeline.processBatch(inputs);
 
-      expect(result.skippedCount).toBeGreaterThan(0);
+      // All items should be skipped when aborted before start
+      expect(result.skippedCount).toBe(10);
     });
   });
 

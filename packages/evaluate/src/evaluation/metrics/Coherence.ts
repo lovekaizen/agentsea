@@ -180,11 +180,12 @@ export class Coherence extends BaseMetric {
       [/\byes\b/i, /\bno\b/i],
       [/\balways\b/i, /\bnever\b/i],
       [/\bcan\b/i, /\bcannot\b/i],
+      [/\bcorrect\b.*\bnot correct\b/i, /\bnot correct\b.*\bcorrect\b/i],
     ];
 
     for (const [pattern1, pattern2] of contradictions) {
-      if (pattern1.test(text) && pattern2.test(text)) {
-        // Both contradictory terms present - might be explaining nuance or actual contradiction
+      if (pattern1.test(text) || pattern2.test(text)) {
+        // Contradictory terms present - might be explaining nuance or actual contradiction
         score -= 0.1;
       }
     }
@@ -226,6 +227,19 @@ export class Coherence extends BaseMetric {
       ' the',
       ' a',
       ' an',
+      ' is',
+      ' are',
+      ' was',
+      ' were',
+      ' be',
+      ' been',
+      ' have',
+      ' has',
+      ' had',
+      ' will',
+      ' would',
+      ' should',
+      ' could',
     ];
     for (const ending of incompleteEndings) {
       if (trimmed.endsWith(ending)) {

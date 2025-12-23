@@ -13,7 +13,7 @@ describe('ParserRegistry', () => {
   let registry: ParserRegistry;
 
   beforeEach(() => {
-    registry = new ParserRegistry();
+    registry = new ParserRegistry({ registerBuiltIns: false });
   });
 
   describe('registration', () => {
@@ -98,7 +98,7 @@ describe('ParserRegistry', () => {
       const result = await registry.parse(buffer, 'text/plain');
 
       expect(result).toBeDefined();
-      expect(result.type).toBe('txt');
+      expect(result.type).toBe('text');
     });
 
     it('should parse with extension detection', async () => {
@@ -239,7 +239,7 @@ describe('ChunkerRegistry', () => {
   let registry: ChunkerRegistry;
 
   beforeEach(() => {
-    registry = new ChunkerRegistry();
+    registry = new ChunkerRegistry({ registerBuiltIns: false });
   });
 
   describe('registration', () => {

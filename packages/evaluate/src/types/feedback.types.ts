@@ -139,6 +139,8 @@ export interface RatingCollectorOptions extends FeedbackCollectorOptions {
   allowComment?: boolean;
   minRating?: StarRating;
   maxRating?: StarRating;
+  requireComment?: 'always' | 'on_low' | 'never';
+  lowRatingThreshold?: number;
 }
 
 /**

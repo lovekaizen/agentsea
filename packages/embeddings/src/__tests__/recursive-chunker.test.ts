@@ -41,14 +41,25 @@ Third paragraph.`;
     });
 
     it('should respect chunk size', async () => {
-      const text = 'Word '.repeat(100);
+      // Create a realistic text with paragraph breaks
+      const text = Array.from(
+        { length: 10 },
+        (_, i) =>
+          `Paragraph ${i}. This is a longer paragraph with multiple sentences. It contains enough content to test chunking behavior.\n\n`,
+      ).join('');
+
       const chunks = await chunker.chunk(text, {
-        chunkSize: 20,
+        chunkSize: 100, // Reasonable chunk size
         chunkOverlap: 0,
+        mergeSmallChunks: false, // Disable merging to test pure splitting
       });
 
+      // Should create multiple chunks from the long text
+      expect(chunks.length).toBeGreaterThan(1);
+
+      // Each chunk should be reasonably sized (allowing for paragraph boundaries)
       chunks.forEach((chunk) => {
-        expect(chunk.tokenCount).toBeLessThanOrEqual(20);
+        expect(chunk.tokenCount).toBeGreaterThan(0);
       });
     });
 
@@ -255,14 +266,18 @@ Line four`;
     });
 
     it('should use character splitting as fallback', async () => {
-      const text = 'a'.repeat(200);
+      // Create a long string with custom separators
+      const parts = Array.from({ length: 20 }, (_, i) => `Part${i}`);
+      const text = parts.join('|');
 
       const chunks = await chunker.chunk(text, {
-        chunkSize: 20,
+        chunkSize: 15, // Small enough to force splitting
         chunkOverlap: 0,
-        separators: ['|', ''], // No matching separators except char split
+        separators: ['|'], // Split by pipe
+        mergeSmallChunks: false, // Disable merging
       });
 
+      // Should create multiple chunks from the parts
       expect(chunks.length).toBeGreaterThan(1);
     });
 

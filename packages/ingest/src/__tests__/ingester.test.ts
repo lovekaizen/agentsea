@@ -2,14 +2,39 @@
  * Ingester Tests
  */
 
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { Ingester } from '../core/Ingester.js';
-import { promises as fs } from 'node:fs';
 import type { DocumentInput } from '../types/index.js';
 
-// Mock fs module
-vi.mock('node:fs/promises');
-vi.mock('node:fs');
+// Create mock functions
+const mockStat = vi.fn();
+const mockReadFile = vi.fn();
+const mockReaddir = vi.fn();
+const mockWatch = vi.fn(() => ({ close: vi.fn() }));
+
+// Mock fs modules for dynamic imports
+vi.mock('node:fs/promises', () => ({
+  default: {
+    stat: (...args: unknown[]) => mockStat(...args),
+    readFile: (...args: unknown[]) => mockReadFile(...args),
+    readdir: (...args: unknown[]) => mockReaddir(...args),
+  },
+  stat: (...args: unknown[]) => mockStat(...args),
+  readFile: (...args: unknown[]) => mockReadFile(...args),
+  readdir: (...args: unknown[]) => mockReaddir(...args),
+}));
+
+vi.mock('node:fs', () => ({
+  default: {
+    watch: (...args: unknown[]) => mockWatch(...args),
+  },
+  watch: (...args: unknown[]) => mockWatch(...args),
+  promises: {
+    stat: (...args: unknown[]) => mockStat(...args),
+    readFile: (...args: unknown[]) => mockReadFile(...args),
+    readdir: (...args: unknown[]) => mockReaddir(...args),
+  },
+}));
 
 describe('Ingester', () => {
   let ingester: Ingester;
@@ -19,7 +44,11 @@ describe('Ingester', () => {
       name: 'test-ingester',
       stages: ['load', 'parse', 'chunk'],
     });
-    vi.clearAllMocks();
+    mockStat.mockReset();
+    mockReadFile.mockReset();
+    mockReaddir.mockReset();
+    mockWatch.mockReset();
+    mockWatch.mockReturnValue({ close: vi.fn() });
   });
 
   describe('constructor', () => {
@@ -45,12 +74,11 @@ describe('Ingester', () => {
 
   describe('ingestFile', () => {
     it('should throw error for unsupported file type', async () => {
-      vi.mocked(fs.stat).mockResolvedValue({
-        size: 1000,
-      } as any);
+      mockStat.mockResolvedValue({ size: 1000 });
 
+      // The error message format changed to be more descriptive
       await expect(ingester.ingestFile('/test/file.xyz')).rejects.toThrow(
-        'Unsupported file type',
+        /No parser found|Unsupported file type/,
       );
     });
 
@@ -59,9 +87,7 @@ describe('Ingester', () => {
         fileSizeLimit: 1000,
       });
 
-      vi.mocked(fs.stat).mockResolvedValue({
-        size: 2000,
-      } as any);
+      mockStat.mockResolvedValue({ size: 2000 });
 
       await expect(
         largeFileIngester.ingestFile('/test/file.pdf'),
@@ -74,11 +100,8 @@ describe('Ingester', () => {
         stages: ['load'],
       });
 
-      vi.mocked(fs.stat).mockResolvedValue({
-        size: 3000,
-      } as any);
-
-      vi.mocked(fs.readFile).mockResolvedValue(Buffer.from('test content'));
+      mockStat.mockResolvedValue({ size: 3000 });
+      mockReadFile.mockResolvedValue(Buffer.from('test content'));
 
       const result = await sizedIngester.ingestFile('/test/file.txt');
       expect(result).toBeDefined();
@@ -90,9 +113,7 @@ describe('Ingester', () => {
         supportedMimeTypes: ['application/pdf'],
       });
 
-      vi.mocked(fs.stat).mockResolvedValue({
-        size: 1000,
-      } as any);
+      mockStat.mockResolvedValue({ size: 1000 });
 
       await expect(
         filteredIngester.ingestFile('/test/file.txt'),
@@ -167,14 +188,14 @@ describe('Ingester', () => {
 
   describe('ingestDirectory', () => {
     it('should list files recursively', async () => {
-      vi.mocked(fs.readdir).mockResolvedValue([
+      mockReaddir.mockResolvedValue([
         { name: 'file1.txt', isFile: () => true, isDirectory: () => false },
         { name: 'file2.pdf', isFile: () => true, isDirectory: () => false },
         { name: 'subdir', isFile: () => false, isDirectory: () => true },
-      ] as any);
+      ]);
 
-      vi.mocked(fs.stat).mockResolvedValue({ size: 100 } as any);
-      vi.mocked(fs.readFile).mockResolvedValue(Buffer.from('content'));
+      mockStat.mockResolvedValue({ size: 100 });
+      mockReadFile.mockResolvedValue(Buffer.from('content'));
 
       const mockIngester = new Ingester({ stages: ['load'] });
       const result = await mockIngester.ingestDirectory('/test/dir', {
@@ -185,14 +206,14 @@ describe('Ingester', () => {
     });
 
     it('should filter files by include patterns', async () => {
-      vi.mocked(fs.readdir).mockResolvedValue([
+      mockReaddir.mockResolvedValue([
         { name: 'file1.txt', isFile: () => true, isDirectory: () => false },
         { name: 'file2.pdf', isFile: () => true, isDirectory: () => false },
         { name: 'file3.md', isFile: () => true, isDirectory: () => false },
-      ] as any);
+      ]);
 
-      vi.mocked(fs.stat).mockResolvedValue({ size: 100 } as any);
-      vi.mocked(fs.readFile).mockResolvedValue(Buffer.from('content'));
+      mockStat.mockResolvedValue({ size: 100 });
+      mockReadFile.mockResolvedValue(Buffer.from('content'));
 
       const mockIngester = new Ingester({ stages: ['load'] });
       const result = await mockIngester.ingestDirectory('/test/dir', {
@@ -204,13 +225,13 @@ describe('Ingester', () => {
     });
 
     it('should exclude files by exclude patterns', async () => {
-      vi.mocked(fs.readdir).mockResolvedValue([
+      mockReaddir.mockResolvedValue([
         { name: 'file1.txt', isFile: () => true, isDirectory: () => false },
         { name: 'file2.tmp', isFile: () => true, isDirectory: () => false },
-      ] as any);
+      ]);
 
-      vi.mocked(fs.stat).mockResolvedValue({ size: 100 } as any);
-      vi.mocked(fs.readFile).mockResolvedValue(Buffer.from('content'));
+      mockStat.mockResolvedValue({ size: 100 });
+      mockReadFile.mockResolvedValue(Buffer.from('content'));
 
       const mockIngester = new Ingester({ stages: ['load'] });
       const result = await mockIngester.ingestDirectory('/test/dir', {
@@ -221,19 +242,19 @@ describe('Ingester', () => {
     });
 
     it('should limit number of files processed', async () => {
-      vi.mocked(fs.readdir).mockResolvedValue(
+      mockReaddir.mockResolvedValue(
         Array.from({ length: 10 }, (_, i) => ({
           name: `file${i}.txt`,
           isFile: () => true,
           isDirectory: () => false,
-        })) as any,
+        })),
       );
 
-      vi.mocked(fs.stat).mockResolvedValue({
+      mockStat.mockResolvedValue({
         size: 100,
         mtime: new Date(),
-      } as any);
-      vi.mocked(fs.readFile).mockResolvedValue(Buffer.from('content'));
+      });
+      mockReadFile.mockResolvedValue(Buffer.from('content'));
 
       const mockIngester = new Ingester({ stages: ['load'] });
       const result = await mockIngester.ingestDirectory('/test/dir', {
@@ -296,16 +317,15 @@ describe('Ingester', () => {
     it('should track errors', async () => {
       const errorIngester = new Ingester({
         stages: ['load', 'parse'],
-        errorHandling: { continueOnError: true },
       });
 
-      vi.mocked(fs.readFile).mockRejectedValue(new Error('Read error'));
+      mockStat.mockResolvedValue({ size: 100 });
+      mockReadFile.mockRejectedValue(new Error('Read error'));
 
-      try {
-        await errorIngester.ingestFile('/test/bad-file.txt');
-      } catch {
-        // Expected error
-      }
+      // Errors during processing should increment error count
+      await expect(
+        errorIngester.ingestFile('/test/bad-file.txt'),
+      ).rejects.toThrow();
 
       const status = errorIngester.getStatus();
       expect(status.errorsCount).toBeGreaterThan(0);

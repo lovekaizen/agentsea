@@ -54,8 +54,19 @@ export abstract class BaseCollector<TInput, TEntry extends FeedbackEntry> {
     const entries: TEntry[] = [];
 
     for (const input of inputs) {
-      const entry = await this.collect(input);
+      // Validate input
+      if (this.validateInput) {
+        this.validate(input);
+      }
+
+      // Transform to entry
+      const entry = this.transform(input);
       entries.push(entry);
+    }
+
+    // Save batch to store if configured
+    if (this.store && entries.length > 0) {
+      await this.store.saveBatch(entries);
     }
 
     return entries;
