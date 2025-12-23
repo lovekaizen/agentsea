@@ -45,7 +45,7 @@ export class BestMatchStrategy extends BaseDelegationStrategy {
     this.preferAvailable = config.preferAvailable ?? true;
   }
 
-  selectAgent(
+  async selectAgent(
     task: TaskConfig,
     agents: CrewAgent[],
     _context: ExecutionContext,
@@ -63,10 +63,19 @@ export class BestMatchStrategy extends BaseDelegationStrategy {
       this.createFailure('No agents can handle this task', agents);
     }
 
-    // Filter by minimum score
-    const qualified = ranked.filter((r) => r.score >= this.minimumScore);
+    // Filter by minimum score and capability match
+    const hasRequirements =
+      task.requiredCapabilities && task.requiredCapabilities.length > 0;
+    const qualified = ranked.filter(
+      (r) =>
+        r.score >= this.minimumScore &&
+        (!hasRequirements || r.missingCapabilities.length === 0),
+    );
 
     if (qualified.length === 0) {
+      if (hasRequirements) {
+        this.createFailure('No agents have all required capabilities', agents);
+      }
       this.createFailure(
         `No agents meet minimum score threshold (${this.minimumScore})`,
         agents,

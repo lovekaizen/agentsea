@@ -175,7 +175,8 @@ export class StreamRecorder {
       throw new Error('Not currently recording');
     }
 
-    if (this.chunkIndex >= this.config.maxChunks) {
+    // Check if we've already recorded maxChunks (chunk.index is 0-based, already incremented)
+    if (chunk.index >= this.config.maxChunks) {
       throw new Error('Maximum chunks exceeded');
     }
 

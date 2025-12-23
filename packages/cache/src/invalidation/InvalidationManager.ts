@@ -105,7 +105,10 @@ export class InvalidationManager extends EventEmitter<InvalidationManagerEvents>
       const entry = await this.store.get(key);
       if (!entry) continue;
 
-      const ttl = this.getTTL(entry.request.model, entry.metadata.namespace);
+      // Use entry's TTL if set, otherwise fall back to config-based TTL
+      const ttl =
+        entry.metadata.ttl ??
+        this.getTTL(entry.request.model, entry.metadata.namespace);
       const age = (currentTime - entry.metadata.createdAt) / 1000; // Convert to seconds
 
       if (age >= ttl) {
@@ -240,7 +243,10 @@ export class InvalidationManager extends EventEmitter<InvalidationManagerEvents>
       let shouldInvalidate = false;
 
       // Check TTL
-      const ttl = this.getTTL(entry.request.model, entry.metadata.namespace);
+      // Use entry's TTL if set, otherwise fall back to config-based TTL
+      const ttl =
+        entry.metadata.ttl ??
+        this.getTTL(entry.request.model, entry.metadata.namespace);
       const age = (currentTime - entry.metadata.createdAt) / 1000;
       if (age >= ttl) {
         shouldInvalidate = true;

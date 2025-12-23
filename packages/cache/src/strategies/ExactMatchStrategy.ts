@@ -57,20 +57,43 @@ export class ExactMatchStrategy extends BaseMatchStrategy {
     request: MatchRequest,
     store: BaseCacheStore,
     _similarity?: SimilarityEngine,
-    _options?: MatchOptions,
+    options?: MatchOptions,
   ): Promise<CacheLookupResult> {
     const startTime = performance.now();
 
-    // Generate cache key
-    const key = generateCacheKey(request.model, request.messages, {
+    // Generate cache key with namespace if provided for exact matching
+    const namespace = options?.namespace;
+    const baseKey = generateCacheKey(request.model, request.messages, {
       normalizeWhitespace: this.config.normalizeWhitespace,
       includeTemperature: this.config.hashFields?.includes('temperature'),
     });
+
+    // Include temperature in key if specified (different temps = different cache entries)
+    const tempSuffix =
+      request.temperature !== undefined ? `:t:${request.temperature}` : '';
+    // Include namespace in key for namespace isolation (matching SemanticCache.set behavior)
+    const key =
+      namespace && namespace !== 'default'
+        ? `${baseKey}${tempSuffix}:ns:${namespace}`
+        : `${baseKey}${tempSuffix}`;
 
     // Look up in store
     const entry = await store.get(key);
 
     if (entry) {
+      // Verify namespace match if specified
+      if (
+        namespace &&
+        entry.metadata.namespace &&
+        entry.metadata.namespace !== namespace
+      ) {
+        return {
+          hit: false,
+          latencyMs: performance.now() - startTime,
+          source: 'miss',
+        };
+      }
+
       return {
         hit: true,
         entry,

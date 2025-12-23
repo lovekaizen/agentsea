@@ -5,7 +5,7 @@
  */
 
 import type { TaskConfig } from '../../types';
-import type { CrewAgent } from '../../agents';
+import { AgentCapabilities, type CrewAgent } from '../../agents';
 import type { ExecutionContext } from '../../core';
 import {
   BaseDelegationStrategy,
@@ -38,7 +38,7 @@ export class RoundRobinStrategy extends BaseDelegationStrategy {
     this.wrapAround = config.wrapAround ?? true;
   }
 
-  selectAgent(
+  async selectAgent(
     task: TaskConfig,
     agents: CrewAgent[],
     _context: ExecutionContext,
@@ -50,10 +50,27 @@ export class RoundRobinStrategy extends BaseDelegationStrategy {
     }
 
     // Filter available agents if configured
-    const available = this.skipBusy ? this.filterAvailable(agents) : agents;
+    let available = this.skipBusy ? this.filterAvailable(agents) : agents;
 
     if (available.length === 0) {
       this.createFailure('All agents are busy', agents);
+    }
+
+    // Filter by capability if task has requirements
+    if (task.requiredCapabilities && task.requiredCapabilities.length > 0) {
+      available = available.filter((agent) => {
+        const requiredCaps = task.requiredCapabilities!.map((name) => ({
+          name,
+          description: '',
+          proficiency: 'intermediate' as const,
+        }));
+        const match = AgentCapabilities.match(requiredCaps, agent.capabilities);
+        return match.canExecute;
+      });
+
+      if (available.length === 0) {
+        this.createFailure('No agents have all required capabilities', agents);
+      }
     }
 
     // Ensure index is within bounds

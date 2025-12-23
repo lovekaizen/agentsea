@@ -70,13 +70,13 @@ export class MemoryStorageAdapter implements AnalyticsStorageAdapter {
   /**
    * Update a conversation
    */
-  updateConversation(
+  async updateConversation(
     id: string,
     updates: Partial<Conversation>,
   ): Promise<void> {
     const existing = this.conversations.get(id);
     if (!existing) {
-      throw new Error(`Conversation not found: ${id}`);
+      return Promise.reject(new Error(`Conversation not found: ${id}`));
     }
 
     this.conversations.set(id, {
@@ -84,7 +84,6 @@ export class MemoryStorageAdapter implements AnalyticsStorageAdapter {
       ...updates,
       id: existing.id, // Prevent ID changes
     });
-    return Promise.resolve();
   }
 
   /**

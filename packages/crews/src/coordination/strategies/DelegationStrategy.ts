@@ -148,10 +148,24 @@ export abstract class BaseDelegationStrategy implements DelegationStrategy {
 export class DelegationError extends Error {
   readonly failure: DelegationFailure;
 
-  constructor(failure: DelegationFailure) {
-    super(`Delegation failed: ${failure.reason}`);
+  constructor(
+    failureOrReason: DelegationFailure | string,
+    agents?: CrewAgent[],
+    lastError?: string,
+  ) {
+    if (typeof failureOrReason === 'string') {
+      const failure: DelegationFailure = {
+        reason: failureOrReason,
+        consideredAgents: agents?.map((a) => a.name) ?? [],
+        suggestions: lastError ? [`Last error: ${lastError}`] : undefined,
+      };
+      super(failureOrReason);
+      this.failure = failure;
+    } else {
+      super(`Delegation failed: ${failureOrReason.reason}`);
+      this.failure = failureOrReason;
+    }
     this.name = 'DelegationError';
-    this.failure = failure;
   }
 }
 

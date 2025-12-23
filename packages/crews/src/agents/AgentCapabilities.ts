@@ -15,7 +15,7 @@ import type {
 /**
  * Proficiency weights for scoring
  */
-const _PROFICIENCY_WEIGHTS: Record<ProficiencyLevel, number> = {
+const PROFICIENCY_WEIGHTS: Record<ProficiencyLevel, number> = {
   novice: 0.25,
   intermediate: 0.5,
   expert: 0.75,

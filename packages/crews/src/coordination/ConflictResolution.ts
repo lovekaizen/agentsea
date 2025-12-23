@@ -112,7 +112,7 @@ export class ConflictResolver {
   detectConflict(
     responses: AgentResponse[],
     task: TaskConfig,
-    _context: ExecutionContext,
+    context: ExecutionContext,
   ): Conflict | null {
     if (responses.length < 2) {
       return null;

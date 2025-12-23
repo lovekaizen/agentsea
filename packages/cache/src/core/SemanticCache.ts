@@ -279,9 +279,18 @@ export class SemanticCache extends EventEmitter<SemanticCacheEvents> {
     response: CacheResponseInput,
     options?: WrapOptions,
   ): Promise<void> {
-    const key = generateCacheKey(request.model, request.messages, {
+    const namespace = options?.namespace ?? this.config.namespace;
+    const baseKey = generateCacheKey(request.model, request.messages, {
       normalizeWhitespace: this.config.normalizeWhitespace,
     });
+    // Include temperature in key if specified (different temps = different cache entries)
+    const tempSuffix =
+      request.temperature !== undefined ? `:t:${request.temperature}` : '';
+    // Include namespace in key for namespace isolation (matching ExactMatchStrategy)
+    const key =
+      namespace && namespace !== 'default'
+        ? `${baseKey}${tempSuffix}:ns:${namespace}`
+        : `${baseKey}${tempSuffix}`;
 
     // Generate embedding if semantic matching is enabled and similarity engine is available
     let embedding: number[] | undefined;
@@ -326,7 +335,7 @@ export class SemanticCache extends EventEmitter<SemanticCacheEvents> {
         ttl: options?.ttl ?? this.config.defaultTTL,
         hitCount: 0,
         tags: options?.tags,
-        namespace: options?.namespace ?? this.config.namespace,
+        namespace,
         userId: options?.userId,
         agentId: options?.agentId,
       },

@@ -29,8 +29,8 @@ export interface AgentHierarchy {
  * Hierarchical strategy configuration
  */
 export interface HierarchicalConfig {
-  /** Agent hierarchy */
-  hierarchy?: AgentHierarchy;
+  /** Agent hierarchy (object or array of role names in priority order) */
+  hierarchy?: AgentHierarchy | string[];
   /** Allow managers to handle tasks directly */
   managersCanExecute?: boolean;
   /** Escalate to manager if no worker available */
@@ -50,12 +50,24 @@ export class HierarchicalStrategy extends BaseDelegationStrategy {
   private readonly escalateToManager: boolean;
   private readonly useCapabilityMatching: boolean;
 
+  /** Role priority order (for array-based hierarchy) */
+  private rolePriority: string[] = [];
+
   constructor(config: HierarchicalConfig = {}) {
     super();
-    this.hierarchy = config.hierarchy ?? {
-      managers: [],
-      workers: new Map(),
-    };
+    // Handle array shorthand for hierarchy (role names in priority order)
+    if (Array.isArray(config.hierarchy)) {
+      this.rolePriority = config.hierarchy;
+      this.hierarchy = {
+        managers: [],
+        workers: new Map(),
+      };
+    } else {
+      this.hierarchy = config.hierarchy ?? {
+        managers: [],
+        workers: new Map(),
+      };
+    }
     this.managersCanExecute = config.managersCanExecute ?? false;
     this.escalateToManager = config.escalateToManager ?? true;
     this.useCapabilityMatching = config.useCapabilityMatching ?? true;
@@ -98,6 +110,11 @@ export class HierarchicalStrategy extends BaseDelegationStrategy {
 
     if (agents.length === 0) {
       this.createFailure('No agents available', []);
+    }
+
+    // If role priority is set, use priority-based selection
+    if (this.rolePriority.length > 0) {
+      return this.selectByRolePriority(task, agents, startTime);
     }
 
     // Build agent lookup
@@ -329,6 +346,69 @@ export class HierarchicalStrategy extends BaseDelegationStrategy {
       metadata: {
         strategy: 'hierarchical',
         fallback: true,
+      },
+    });
+  }
+
+  /**
+   * Select agent based on role priority order
+   */
+  private selectByRolePriority(
+    task: TaskConfig,
+    agents: CrewAgent[],
+    startTime: number,
+  ): Promise<DelegationResult> {
+    // Filter by capability if task has requirements
+    let available = this.filterAvailable(agents);
+
+    if (task.requiredCapabilities && task.requiredCapabilities.length > 0) {
+      available = available.filter((agent) => {
+        const requiredCaps = task.requiredCapabilities!.map((name) => ({
+          name,
+          description: '',
+          proficiency: 'intermediate' as const,
+        }));
+        const match = AgentCapabilities.match(requiredCaps, agent.capabilities);
+        return match.canExecute;
+      });
+
+      if (available.length === 0) {
+        this.createFailure('No agents have all required capabilities', agents);
+      }
+    }
+
+    // Sort agents by role priority
+    const sortedAgents = [...available].sort((a, b) => {
+      const aRoleName = a.role.name.toLowerCase();
+      const bRoleName = b.role.name.toLowerCase();
+      const aPriority = this.rolePriority.findIndex(
+        (r) => r.toLowerCase() === aRoleName,
+      );
+      const bPriority = this.rolePriority.findIndex(
+        (r) => r.toLowerCase() === bRoleName,
+      );
+      // Lower index = higher priority, unmatched roles go to end
+      const aScore = aPriority === -1 ? Infinity : aPriority;
+      const bScore = bPriority === -1 ? Infinity : bPriority;
+      return aScore - bScore;
+    });
+
+    if (sortedAgents.length === 0) {
+      this.createFailure('No available agents', agents);
+    }
+
+    const selected = sortedAgents[0];
+
+    return Promise.resolve({
+      selectedAgent: selected.name,
+      reason: `Selected by role priority (${selected.role.name})`,
+      confidence: AgentCapabilities.calculateAgentScore(selected, task),
+      alternativeAgents: sortedAgents.slice(1, 4).map((a) => a.name),
+      decisionTimeMs: Date.now() - startTime,
+      metadata: {
+        strategy: 'hierarchical',
+        rolePriority: this.rolePriority,
+        selectedRole: selected.role.name,
       },
     });
   }

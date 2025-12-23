@@ -115,6 +115,14 @@ export class ConsensusStrategy extends BaseDelegationStrategy {
       };
     }
 
+    // Emit consensus requested event
+    context.emit({
+      type: 'consensus:requested',
+      taskId: task.id!,
+      candidates: candidates.map((c) => c.name),
+      voters: agents.map((a) => a.name),
+    });
+
     // Run voting rounds
     let finalResult: VotingRound | undefined;
     const allRounds: VotingRound[] = [];
@@ -140,6 +148,16 @@ export class ConsensusStrategy extends BaseDelegationStrategy {
       const lastRound = allRounds[allRounds.length - 1];
       const winner = this.breakTie(lastRound.tally, candidates, task);
 
+      // Emit consensus reached event (tie-breaker resolution)
+      context.emit({
+        type: 'consensus:reached',
+        taskId: task.id!,
+        winner: winner.name,
+        rounds: allRounds.length,
+        consensusReached: false,
+        tieBreaker: this.tieBreaker,
+      });
+
       return {
         selectedAgent: winner.name,
         reason: `No consensus after ${this.maxRounds} rounds, resolved by ${this.tieBreaker}`,
@@ -157,6 +175,16 @@ export class ConsensusStrategy extends BaseDelegationStrategy {
         },
       };
     }
+
+    // Emit consensus reached event
+    context.emit({
+      type: 'consensus:reached',
+      taskId: task.id!,
+      winner: finalResult.winner,
+      rounds: allRounds.length,
+      consensusReached: true,
+      agreementRatio: finalResult.agreementRatio,
+    });
 
     return {
       selectedAgent: finalResult.winner,

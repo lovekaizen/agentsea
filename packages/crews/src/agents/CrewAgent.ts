@@ -124,12 +124,14 @@ export class CrewAgent implements CapableAgent {
   async execute(input: string): Promise<AgentExecutionResult> {
     if (!this.executeFunc) {
       // Return mock result if no execute function provided
-      return {
+      const mockResult = {
         output: `[Mock response from ${this.name}]: ${input.slice(0, 100)}...`,
         tokensUsed: Math.floor(Math.random() * 500) + 100,
         latencyMs: Math.floor(Math.random() * 2000) + 500,
         iterations: 1,
       };
+      this.totalTokensUsed += mockResult.tokensUsed;
+      return mockResult;
     }
 
     const systemPrompt = this.role.generateSystemPrompt();

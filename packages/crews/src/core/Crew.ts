@@ -312,21 +312,28 @@ export class Crew {
         }
       }
 
-      // Determine final state
-      const failedTasks = this.taskQueue.getByStatus('failed');
-      if (failedTasks.length > 0) {
-        this.state = 'failed';
-        yield {
-          type: 'crew:error',
-          crewName: this.name,
-          error: `${failedTasks.length} task(s) failed`,
-          recoverable: false,
-        };
-      } else if (this.state !== 'aborted') {
-        this.state = 'completed';
+      // Determine final state (preserve 'aborted' if already aborted)
+      if (this.state === 'aborted') {
+        // Keep aborted state
+      } else {
+        const failedTasks = this.taskQueue.getByStatus('failed');
+        if (failedTasks.length > 0) {
+          this.state = 'failed';
+          yield {
+            type: 'crew:error',
+            crewName: this.name,
+            error: `${failedTasks.length} task(s) failed`,
+            recoverable: false,
+          };
+        } else {
+          this.state = 'completed';
+        }
       }
     } catch (error) {
-      this.state = 'failed';
+      // Only set to failed if not already aborted
+      if (this.state !== 'aborted') {
+        this.state = 'failed';
+      }
       yield {
         type: 'crew:error',
         crewName: this.name,

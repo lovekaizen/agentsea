@@ -50,6 +50,7 @@ export class MemoryCacheStore extends BaseCacheStore {
   private cache: LRUCache<string, CacheEntry>;
   private vectors: Map<string, { id: string; vector: number[] }> = new Map();
   private memoryConfig: MemoryStoreConfig;
+  private closed = false;
 
   constructor(config: MemoryStoreConfig = { type: 'memory' }) {
     super(config);
@@ -173,13 +174,15 @@ export class MemoryCacheStore extends BaseCacheStore {
 
   checkHealth(): Promise<StoreHealth> {
     return Promise.resolve({
-      healthy: true,
+      healthy: !this.closed,
       latencyMs: 0,
       lastCheck: now(),
+      error: this.closed ? 'Store is closed' : undefined,
     });
   }
 
   close(): Promise<void> {
+    this.closed = true;
     this.cache.clear();
     this.vectors.clear();
     return Promise.resolve();
