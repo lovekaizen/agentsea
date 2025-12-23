@@ -4,6 +4,9 @@ export default defineConfig({
   test: {
     globals: true,
     environment: 'node',
+    deps: {
+      inline: [/@lov3kaizen\/agentsea-/],
+    },
     include: [
       'src/**/*.{test,spec}.ts',
       'src/**/__tests__/**/*.{test,spec}.ts',
