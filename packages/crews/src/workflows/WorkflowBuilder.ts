@@ -207,7 +207,7 @@ export class WorkflowBuilder {
         name: s.name,
         type: 'task' as const,
       })),
-      waitForAll: true,
+      waitFor: 'all',
     };
 
     const children: StepDefinition[] = steps.map((s) => ({
@@ -302,7 +302,7 @@ export class WorkflowBuilder {
         expectedOutput: `Result of ${name}`,
         requiredCapabilities: options.requiredCapabilities,
       },
-      timeout: options.timeout,
+      timeoutMs: options.timeout,
     };
 
     this.steps.push({
@@ -331,7 +331,7 @@ export class WorkflowBuilder {
         description,
         expectedOutput: `Result of crew: ${name}`,
       },
-      timeout: options.timeout,
+      timeoutMs: options.timeout,
     };
 
     this.steps.push({

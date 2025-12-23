@@ -42,6 +42,7 @@ export interface ThumbsFeedback extends BaseFeedbackEntry {
 export interface RatingFeedback extends BaseFeedbackEntry {
   type: 'rating';
   rating: StarRating;
+  maxRating?: number;
   comment?: string;
 }
 

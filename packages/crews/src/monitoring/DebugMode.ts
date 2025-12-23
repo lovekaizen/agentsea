@@ -265,6 +265,8 @@ export class DebugMode extends EventEmitter<{
               crewName: this.crew.name,
               metrics: this.crew.getMetrics(),
               success: true,
+              results: [],
+              timestamp: new Date(),
             },
             agentStates: this.getAgentStates(),
             continueExecution: false,
@@ -384,7 +386,7 @@ export class DebugMode extends EventEmitter<{
       const [, agentName, property] = agentMatch;
       const agent = this.context.agents.get(agentName);
       if (agent) {
-        return (agent as Record<string, unknown>)[property];
+        return (agent as unknown as Record<string, unknown>)[property];
       }
     }
 

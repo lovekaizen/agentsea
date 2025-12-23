@@ -5,7 +5,7 @@
  */
 
 import type { RoleConfig } from './role.types';
-import type { TaskResult, TaskState } from './task.types';
+import type { TaskConfig, TaskResult, TaskState } from './task.types';
 import type { CrewEvent } from './event.types';
 
 /**
@@ -247,13 +247,17 @@ export interface TimelineEntry {
   /** Timestamp */
   timestamp: Date;
   /** Event type */
-  type: string;
+  type?: string;
+  /** Event name (alternative to type) */
+  event?: string;
   /** Agent involved (if applicable) */
   agentName?: string;
+  /** Entity ID (crew/task ID) */
+  entityId?: string;
   /** Task involved (if applicable) */
   taskId?: string;
   /** Event description */
-  description: string;
+  description?: string;
   /** Additional data */
   data?: Record<string, unknown>;
 }
@@ -264,22 +268,36 @@ export interface TimelineEntry {
 export interface CrewCheckpoint {
   /** Checkpoint ID */
   id: string;
+  /** Crew ID */
+  crewId?: string;
   /** Crew name */
-  crewName: string;
+  crewName?: string;
   /** Timestamp */
   timestamp: Date;
   /** Current crew status */
-  status: CrewStatus;
+  status?: CrewStatus;
+  /** Current state */
+  state?: CrewStatus;
+  /** Context state */
+  context?: Record<string, unknown>;
   /** Task states */
-  taskStates: TaskState[];
+  taskStates?: TaskState[];
+  /** Task queue (serialized tasks) */
+  taskQueue?: TaskConfig[];
+  /** Results map */
+  results?: Record<string, TaskResult>;
+  /** Timeline entries */
+  timeline?: TimelineEntry[];
+  /** Current iteration */
+  iteration?: number;
   /** Agent states */
-  agentStates: Record<string, unknown>;
+  agentStates?: Record<string, unknown>;
   /** Shared memory state */
   sharedMemory?: Record<string, unknown>;
   /** Context state */
-  contextState: Record<string, unknown>;
+  contextState?: Record<string, unknown>;
   /** Metrics at checkpoint */
-  metrics: Partial<CrewMetrics>;
+  metrics?: Partial<CrewMetrics>;
 }
 
 /**
@@ -305,9 +323,11 @@ export interface CrewExecutionOptions {
  */
 export interface CrewProgress {
   /** Percentage complete (0-100) */
-  percentComplete: number;
+  percentComplete?: number;
+  /** Alternative percentage property */
+  percentage?: number;
   /** Current phase */
-  phase:
+  phase?:
     | 'initializing'
     | 'delegating'
     | 'executing'
@@ -318,7 +338,9 @@ export interface CrewProgress {
   /** Total tasks */
   totalTasks: number;
   /** Currently active agents */
-  activeAgents: string[];
+  activeAgents?: string[];
   /** Current task being processed */
   currentTask?: string;
+  /** Estimated remaining time in milliseconds */
+  estimatedRemainingMs?: number;
 }

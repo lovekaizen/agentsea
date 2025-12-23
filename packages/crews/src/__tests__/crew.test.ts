@@ -337,7 +337,7 @@ describe('Crew', () => {
       const progress = crew.getProgress();
 
       expect(progress.percentage).toBe(0);
-      expect(progress.completedTasks).toBe(0);
+      expect(progress.tasksCompleted).toBe(0);
       expect(progress.totalTasks).toBe(0);
     });
 

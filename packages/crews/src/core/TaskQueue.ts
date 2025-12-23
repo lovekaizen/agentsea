@@ -15,6 +15,8 @@ export interface TaskQueueConfig {
   maxSize?: number;
   /** Enable auto-sorting on enqueue */
   autoSort?: boolean;
+  /** Default priority for tasks */
+  defaultPriority?: 'critical' | 'high' | 'medium' | 'low';
 }
 
 /**

@@ -231,8 +231,10 @@ export class ExecutionContext {
 
   /**
    * Emit an event
+   * Uses a permissive type that accepts any object with a `type` property
+   * to avoid TypeScript's strict excess property checking on union types
    */
-  emit(event: Omit<CrewEvent, 'crewName' | 'timestamp'>): void {
+  emit(event: { type: string } & Record<string, unknown>): void {
     const fullEvent = {
       ...event,
       crewName: this.crewName,

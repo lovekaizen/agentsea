@@ -132,10 +132,7 @@ describe('Workflow Tests', () => {
           { name: 'agent1', role: 'first' },
           { name: 'agent2', role: 'second' },
         ],
-        errorHandling: {
-          strategy: 'continue',
-          defaultResponse: 'Error occurred',
-        },
+        errorHandling: 'continue',
       };
 
       mockAgent1.execute.mockRejectedValue(new Error('Agent 1 failed'));
@@ -148,8 +145,9 @@ describe('Workflow Tests', () => {
 
       const response = await workflow.execute('test', context);
 
-      // Should return error response
+      // Should continue with agent2 when agent1 fails
       expect(response).toBeDefined();
+      expect(response.content).toBe('Response from agent 2');
     });
 
     it('should throw error when no agents produce response', async () => {
@@ -177,7 +175,9 @@ describe('Workflow Tests', () => {
 
       const response = await workflow.execute('test', context);
 
-      expect(response.metadata.latencyMs).toBeGreaterThan(0);
+      // Latency should be a number >= 0 (could be 0 if execution is very fast)
+      expect(typeof response.metadata.latencyMs).toBe('number');
+      expect(response.metadata.latencyMs).toBeGreaterThanOrEqual(0);
     });
   });
 
@@ -254,9 +254,7 @@ describe('Workflow Tests', () => {
           { name: 'agent1', role: 'first' },
           { name: 'agent2', role: 'second' },
         ],
-        errorHandling: {
-          strategy: 'continue',
-        },
+        errorHandling: 'continue',
       };
 
       mockAgent1.execute.mockRejectedValue(new Error('Agent 1 failed'));
@@ -280,6 +278,7 @@ describe('Workflow Tests', () => {
           { name: 'agent1', role: 'first' },
           { name: 'agent2', role: 'second' },
         ],
+        errorHandling: 'continue', // Allow workflow to continue despite errors
       };
 
       mockAgent1.execute.mockRejectedValue(new Error('Failed 1'));

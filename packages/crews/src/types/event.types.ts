@@ -41,10 +41,20 @@ export type CrewEvent =
   | CollaborationMessageEvent
   | HelpRequestedEvent
   | HelpProvidedEvent
+  | HelpRequestEvent
+  | HelpResponseEvent
   | KnowledgeSharedEvent
+  | KnowledgeContributedEvent
   // Conflict events
   | ConflictDetectedEvent
   | ConflictResolvedEvent
+  | ConflictEscalatedEvent
+  // Consensus events
+  | ConsensusRequestedEvent
+  | ConsensusReachedEvent
+  | ConsensusVoteEvent
+  // Auction events
+  | AuctionStartedEvent
   // Workflow events
   | WorkflowStepStartedEvent
   | WorkflowStepCompletedEvent
@@ -290,6 +300,74 @@ export interface ConflictResolvedEvent extends BaseEvent {
   resolution: string;
   resolvedBy: 'voting' | 'manager' | 'merge' | 'escalation';
   accepted: boolean;
+}
+
+export interface ConflictEscalatedEvent extends BaseEvent {
+  type: 'conflict:escalated';
+  conflictId: string;
+  reason: string;
+  escalatedTo: string;
+}
+
+// ============ Collaboration Additional Events ============
+
+export interface HelpRequestEvent extends BaseEvent {
+  type: 'collaboration:help_request';
+  from: string;
+  taskId: string;
+  request: string;
+  targetAgents?: string[];
+}
+
+export interface HelpResponseEvent extends BaseEvent {
+  type: 'collaboration:help_response';
+  from: string;
+  to: string;
+  taskId: string;
+  response: string;
+  helpful: boolean;
+}
+
+export interface KnowledgeContributedEvent extends BaseEvent {
+  type: 'collaboration:knowledge_contributed';
+  contributor: string;
+  topic: string;
+  content: string;
+}
+
+// ============ Consensus Events ============
+
+export interface ConsensusRequestedEvent extends BaseEvent {
+  type: 'consensus:requested';
+  taskId: string;
+  topic: string;
+  options: string[];
+  requiredVotes: number;
+}
+
+export interface ConsensusReachedEvent extends BaseEvent {
+  type: 'consensus:reached';
+  taskId: string;
+  decision: string;
+  votes: Record<string, string>;
+  unanimous: boolean;
+}
+
+export interface ConsensusVoteEvent extends BaseEvent {
+  type: 'consensus:vote';
+  taskId: string;
+  voter: string;
+  vote: string;
+  reason?: string;
+}
+
+// ============ Auction Events ============
+
+export interface AuctionStartedEvent extends BaseEvent {
+  type: 'auction:started';
+  taskId: string;
+  description: string;
+  participants: string[];
 }
 
 // ============ Workflow Events ============

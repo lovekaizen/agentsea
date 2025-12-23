@@ -17,6 +17,12 @@ import type {
   TimelineEntry,
   CrewProgress,
   CrewCheckpoint,
+  CrewEvent,
+  CrewStartedEvent,
+  CrewCompletedEvent,
+  CrewErrorEvent,
+  TaskAssignedEvent,
+  TaskCompletedEvent,
 } from '../types';
 import { Task } from './Task';
 import { TaskQueue } from './TaskQueue';
@@ -57,7 +63,7 @@ export class Crew {
   readonly description?: string;
 
   private readonly config: CrewConfig;
-  private readonly agents: AgentRegistry;
+  private readonly agents: AgentRegistry<CrewAgent>;
   private readonly taskQueue: TaskQueue;
   private readonly delegation: DelegationCoordinator;
   private readonly collaboration: CollaborationManager;
@@ -80,7 +86,7 @@ export class Crew {
     this.maxIterations = config.maxIterations ?? 100;
 
     // Initialize components
-    this.agents = new AgentRegistry();
+    this.agents = new AgentRegistry<CrewAgent>();
     this.taskQueue = new TaskQueue({ defaultPriority: 'medium' });
     this.delegation = new DelegationCoordinator({
       defaultStrategy: config.delegationStrategy,
@@ -227,13 +233,12 @@ export class Crew {
     this.startTime = new Date();
     this.currentIteration = 0;
 
-    const startedEvent: CrewEvent = {
+    yield this.createEvent<CrewStartedEvent>({
       type: 'crew:started',
-      crewName: this.name,
       agentCount: this.agents.getAll().length,
       taskCount: this.taskQueue.size,
-    };
-    yield startedEvent;
+      strategy: this.config.delegationStrategy,
+    });
     this.addTimelineEntry('crew_started', this.name);
 
     // Setup timeout if specified
@@ -254,7 +259,7 @@ export class Crew {
 
         // Get ready tasks
         const readyTasks = this.taskQueue.getReadyTasks(
-          this.context.getCompletedTasks(),
+          this.context.getCompletedTaskIds(),
         );
 
         if (readyTasks.length === 0) {
@@ -281,24 +286,25 @@ export class Crew {
           const delegationResult = await this.delegateTask(task, options);
 
           // Yield delegation event
-          yield {
+          yield this.createEvent<TaskAssignedEvent>({
             type: 'task:assigned',
             taskId: task.id,
-            taskDescription: task.description,
             agentName: delegationResult.selectedAgent,
             reason: delegationResult.reason,
-          };
+            strategy: this.config.delegationStrategy,
+          });
 
           // Execute task
           const taskResult = await this.executeTask(task, delegationResult);
 
           // Yield task result events
-          yield {
+          yield this.createEvent<TaskCompletedEvent>({
             type: 'task:completed',
             taskId: task.id,
-            result: taskResult.output,
+            result: taskResult,
             agentName: delegationResult.selectedAgent,
-          };
+            durationMs: taskResult.latencyMs ?? 0,
+          });
 
           // Yield any queued events
           while (eventQueue.length > 0) {
@@ -306,40 +312,39 @@ export class Crew {
           }
         }
 
-        // Handle paused state
-        while (this.state === 'paused') {
+        // Handle paused state (state can change asynchronously via abort/pause)
+        while ((this.state as CrewStatus) === 'paused') {
           await this.sleep(100);
         }
       }
 
       // Determine final state (preserve 'aborted' if already aborted)
-      if (this.state === 'aborted') {
+      // Note: state can change asynchronously via abort() method
+      if ((this.state as CrewStatus) === 'aborted') {
         // Keep aborted state
       } else {
         const failedTasks = this.taskQueue.getByStatus('failed');
         if (failedTasks.length > 0) {
           this.state = 'failed';
-          yield {
+          yield this.createEvent<CrewErrorEvent>({
             type: 'crew:error',
-            crewName: this.name,
             error: `${failedTasks.length} task(s) failed`,
-            recoverable: false,
-          };
+            fatal: true,
+          });
         } else {
           this.state = 'completed';
         }
       }
     } catch (error) {
       // Only set to failed if not already aborted
-      if (this.state !== 'aborted') {
+      if ((this.state as CrewStatus) !== 'aborted') {
         this.state = 'failed';
       }
-      yield {
+      yield this.createEvent<CrewErrorEvent>({
         type: 'crew:error',
-        crewName: this.name,
         error: error instanceof Error ? error.message : String(error),
-        recoverable: false,
-      };
+        fatal: true,
+      });
     } finally {
       if (timeoutId) {
         clearTimeout(timeoutId);
@@ -348,12 +353,12 @@ export class Crew {
     }
 
     // Emit crew completed
-    yield {
+    yield this.createEvent<CrewCompletedEvent>({
       type: 'crew:completed',
-      crewName: this.name,
       metrics: this.getMetrics(),
       success: this.state === 'completed',
-    };
+      results: Array.from(this.results.values()),
+    });
     this.addTimelineEntry('crew_completed', this.name);
   }
 
@@ -419,7 +424,7 @@ export class Crew {
       task.complete(result);
       this.results.set(task.id, result);
       this.context.markTaskCompleted(task.id, result);
-      this.agents.recordSuccess(agent.name);
+      this.agents.recordTaskCompletion(agent.name, true);
       this.addTimelineEntry('task_completed', task.id, {
         agent: agent.name,
         success: true,
@@ -431,7 +436,6 @@ export class Crew {
 
       // Check for retry
       if (task.canRetry()) {
-        task.incrementRetryCount();
         this.addTimelineEntry('task_retried', task.id, {
           agent: agent.name,
           error: errorMsg,
@@ -441,7 +445,8 @@ export class Crew {
           type: 'task:retried',
           taskId: task.id,
           agentName: agent.name,
-          attemptNumber: task.getRetryCount(),
+          attempt: task.attempts,
+          maxAttempts: task.maxRetries + 1,
           reason: errorMsg,
         });
 
@@ -452,7 +457,7 @@ export class Crew {
 
       // Task failed
       task.fail(errorMsg);
-      this.agents.recordFailure(agent.name);
+      this.agents.recordTaskCompletion(agent.name, false);
       this.addTimelineEntry('task_failed', task.id, {
         agent: agent.name,
         error: errorMsg,
@@ -490,7 +495,7 @@ export class Crew {
       this.state = 'paused';
       this.context.emit({
         type: 'crew:paused',
-        crewName: this.name,
+        pendingTasks: this.taskQueue.getByStatus('pending').length,
       });
       this.addTimelineEntry('crew_paused', this.name);
     }
@@ -504,7 +509,6 @@ export class Crew {
       this.state = 'running';
       this.context.emit({
         type: 'crew:resumed',
-        crewName: this.name,
       });
       this.addTimelineEntry('crew_resumed', this.name);
     }
@@ -519,8 +523,9 @@ export class Crew {
       this.context.abort();
       this.context.emit({
         type: 'crew:aborted',
-        crewName: this.name,
         reason: 'User requested abort',
+        completedTasks: this.taskQueue.getByStatus('completed').length,
+        pendingTasks: this.taskQueue.getByStatus('pending').length,
       });
       this.addTimelineEntry('crew_aborted', this.name);
     }
@@ -614,7 +619,7 @@ export class Crew {
 
     return {
       percentage: total > 0 ? (completed / total) * 100 : 0,
-      completedTasks: completed,
+      tasksCompleted: completed,
       totalTasks: total,
       currentTask: this.taskQueue.getByStatus('in_progress')[0]?.description,
       estimatedRemainingMs: 0, // Would need historical data
@@ -637,9 +642,10 @@ export class Crew {
     return {
       id: nanoid(),
       crewId: this.id,
+      crewName: this.name,
       timestamp: new Date(),
       state: this.state,
-      context: this.context?.createCheckpoint(),
+      contextState: this.context ? this.context.exportState() : undefined,
       taskQueue: this.taskQueue.getAll().map((t) => t.toConfig()),
       results: Object.fromEntries(this.results),
       timeline: [...this.timeline],
@@ -661,20 +667,26 @@ export class Crew {
     this.timeline.length = 0;
 
     // Restore tasks
-    for (const taskConfig of checkpoint.taskQueue) {
-      this.addTask(taskConfig);
+    if (checkpoint.taskQueue) {
+      for (const taskConfig of checkpoint.taskQueue) {
+        this.addTask(taskConfig);
+      }
     }
 
     // Restore results
-    for (const [taskId, result] of Object.entries(checkpoint.results)) {
-      this.results.set(taskId, result);
+    if (checkpoint.results) {
+      for (const [taskId, result] of Object.entries(checkpoint.results)) {
+        this.results.set(taskId, result);
+      }
     }
 
     // Restore timeline
-    this.timeline.push(...checkpoint.timeline);
+    if (checkpoint.timeline) {
+      this.timeline.push(...checkpoint.timeline);
+    }
 
     // Restore iteration
-    this.currentIteration = checkpoint.iteration;
+    this.currentIteration = checkpoint.iteration ?? 0;
   }
 
   // ============ Utilities ============
@@ -700,6 +712,19 @@ export class Crew {
    */
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  /**
+   * Create a properly typed event
+   */
+  private createEvent<T extends CrewEvent>(
+    event: Omit<T, 'crewName' | 'timestamp'>,
+  ): T {
+    return {
+      ...event,
+      crewName: this.name,
+      timestamp: new Date(),
+    } as T;
   }
 
   /**

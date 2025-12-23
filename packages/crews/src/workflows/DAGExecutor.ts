@@ -89,10 +89,11 @@ export class DAGExecutor {
    */
   async execute(context: ExecutionContext): Promise<DAGResult> {
     const startTime = Date.now();
+    const events: DAGEvent[] = [];
 
     // Collect events from stream
-    for await (const _event of this.executeStream(context)) {
-      // Events are being processed
+    for await (const event of this.executeStream(context)) {
+      events.push(event);
     }
 
     // Build result
@@ -291,13 +292,14 @@ export class DAGExecutor {
     }
 
     // Get handler
-    const handler = this._handlers.get(node.name);
+    const nodeName = node.name ?? node.id;
+    const handler = this._handlers.get(nodeName);
 
     if (!handler) {
       return {
         nodeId: node.id,
         result: null,
-        error: `No handler found for node: ${node.name}`,
+        error: `No handler found for node: ${nodeName}`,
       };
     }
 
@@ -306,13 +308,13 @@ export class DAGExecutor {
 
     // Execute with timeout
     const timeout =
-      (node.stepConfig as WorkflowStepConfig)?.timeout ??
+      (node.stepConfig as WorkflowStepConfig)?.timeoutMs ??
       this.config.defaultTimeout;
 
     try {
       const result = await Promise.race([
         handler(workflowContext),
-        this.createTimeout(timeout, node.name),
+        this.createTimeout(timeout, nodeName),
       ]);
 
       return { nodeId: node.id, result };
@@ -340,19 +342,21 @@ export class DAGExecutor {
       if (state?.result) {
         const depNode = this.dag.nodes.find((n) => n.id === depId);
         if (depNode) {
-          stepResults.set(depNode.name, state.result);
+          const depNodeName = depNode.name ?? depNode.id;
+          stepResults.set(depNodeName, state.result);
         }
       }
     }
 
     return {
-      stepName: node.name,
+      stepName: node.name ?? node.id,
       stepResults,
-      variables: new Map(context.getAll()),
-      setVariable: (key, value) => context.set(key, value),
-      getVariable: (key) => context.get(key),
-      emit: (event) => context.emit(event),
-      isAborted: () => context.isAborted() || this.aborted,
+      variables: new Map(context.entries()),
+      setVariable: (key: string, value: unknown) => context.set(key, value),
+      getVariable: (key: string) => context.get(key),
+      emit: (event: Record<string, unknown>) =>
+        context.emit(event as { type: string } & Record<string, unknown>),
+      isAborted: () => context.isAborted || this.aborted,
     };
   }
 
@@ -476,9 +480,10 @@ export class DAGExecutor {
     // Check for missing dependencies
     const nodeIds = new Set(this.dag.nodes.map((n) => n.id));
     for (const node of this.dag.nodes) {
+      const nodeName = node.name ?? node.id;
       for (const depId of node.dependencies ?? []) {
         if (!nodeIds.has(depId)) {
-          errors.push(`Node "${node.name}" has missing dependency: ${depId}`);
+          errors.push(`Node "${nodeName}" has missing dependency: ${depId}`);
         }
       }
     }
@@ -491,8 +496,9 @@ export class DAGExecutor {
 
     // Check for missing handlers
     for (const node of this.dag.nodes) {
-      if (!this._handlers.has(node.name)) {
-        warnings.push(`Node "${node.name}" has no handler`);
+      const nodeName = node.name ?? node.id;
+      if (!this._handlers.has(nodeName)) {
+        warnings.push(`Node "${nodeName}" has no handler`);
       }
     }
 

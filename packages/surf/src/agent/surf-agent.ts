@@ -350,7 +350,7 @@ export class SurfAgent {
       switch (action.action) {
         case 'click': {
           const point = scalePoint(params.x as number, params.y as number);
-          return this.backend.click(point, {
+          return await this.backend.click(point, {
             button: params.button as 'left' | 'right' | 'middle' | undefined,
             modifiers: params.modifiers as ModifierKey[] | undefined,
           });
@@ -358,7 +358,7 @@ export class SurfAgent {
 
         case 'doubleClick': {
           const point = scalePoint(params.x as number, params.y as number);
-          return this.backend.doubleClick(point, {
+          return await this.backend.doubleClick(point, {
             button: params.button as 'left' | 'right' | 'middle' | undefined,
           });
         }
@@ -371,12 +371,12 @@ export class SurfAgent {
           if (params.x !== undefined && params.y !== undefined) {
             options.point = scalePoint(params.x as number, params.y as number);
           }
-          return this.backend.typeText(params.text as string, options);
+          return await this.backend.typeText(params.text as string, options);
         }
 
         case 'scroll': {
           const point = scalePoint(params.x as number, params.y as number);
-          return this.backend.scroll(
+          return await this.backend.scroll(
             params.direction as 'up' | 'down' | 'left' | 'right',
             point,
             {
@@ -392,14 +392,14 @@ export class SurfAgent {
             params.fromY as number,
           );
           const to = scalePoint(params.toX as number, params.toY as number);
-          return this.backend.drag(from, to, {
+          return await this.backend.drag(from, to, {
             button: params.button as 'left' | 'right' | 'middle' | undefined,
             durationMs: params.durationMs as number | undefined,
           });
         }
 
         case 'keyPress': {
-          return this.backend.keyPress(
+          return await this.backend.keyPress(
             params.key as string,
             params.modifiers as ModifierKey[] | undefined,
           );
@@ -407,11 +407,11 @@ export class SurfAgent {
 
         case 'moveCursor': {
           const point = scalePoint(params.x as number, params.y as number);
-          return this.backend.moveCursor(point);
+          return await this.backend.moveCursor(point);
         }
 
         case 'wait': {
-          return this.backend.wait(params.ms as number);
+          return await this.backend.wait(params.ms as number);
         }
 
         default:

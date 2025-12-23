@@ -10,6 +10,7 @@ import type {
   RankedAgent,
   ProficiencyLevel,
   TaskConfig,
+  TaskResult,
 } from '../types';
 
 /**
@@ -28,6 +29,21 @@ const PROFICIENCY_WEIGHTS: Record<ProficiencyLevel, number> = {
 export interface CapableAgent {
   name: string;
   capabilities: Capability[];
+  /** Optional: busy state */
+  isBusy?: boolean;
+  /** Optional: execute a task */
+  executeTask?: (task: TaskConfig) => Promise<TaskResult>;
+  /** Optional: get agent statistics */
+  getStats?: () => {
+    name: string;
+    role?: string;
+    tasksCompleted: number;
+    tasksFailed: number;
+    totalTokensUsed: number;
+    successRate?: number;
+    isBusy?: boolean;
+    currentTask?: string;
+  };
 }
 
 /**

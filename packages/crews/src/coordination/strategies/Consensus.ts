@@ -300,7 +300,7 @@ export class ConsensusStrategy extends BaseDelegationStrategy {
 
     // Vote for top candidate
     const selected = scores[0];
-    if (!selected) return null;
+    if (!selected) return Promise.resolve(null);
 
     // Calculate weight
     let weight = 1;

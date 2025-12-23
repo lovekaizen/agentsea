@@ -257,7 +257,7 @@ describe('ACPClient', () => {
     });
   });
 
-  describe('createCheckout', () => {
+  describe('createCheckoutSession', () => {
     it('should create checkout session', async () => {
       const mockSession = {
         id: 'session-1',
@@ -271,7 +271,7 @@ describe('ACPClient', () => {
         json: async () => mockSession,
       });
 
-      const result = await client.createCheckout('cart-1');
+      const result = await client.createCheckoutSession('cart-1');
 
       expect(result.data).toEqual(mockSession);
       expect(global.fetch).toHaveBeenCalledWith(
@@ -295,24 +295,28 @@ describe('ACPClient', () => {
     });
 
     it('should handle timeout', async () => {
+      // Mock fetch to simulate a request that respects the abort signal
       (global.fetch as any).mockImplementation(
-        () =>
-          new Promise((resolve) => {
-            setTimeout(
-              () => resolve({ ok: true, json: async () => ({}) }),
-              100000,
-            );
+        (_url: string, options: { signal?: AbortSignal }) =>
+          new Promise((_resolve, reject) => {
+            // Listen for abort signal
+            if (options?.signal) {
+              options.signal.addEventListener('abort', () => {
+                reject(new DOMException('Aborted', 'AbortError'));
+              });
+            }
           }),
       );
 
       const shortTimeoutClient = new ACPClient({
         baseUrl: 'https://api.example.com',
-        timeout: 100,
+        timeout: 50,
       });
 
       const result = await shortTimeoutClient.searchProducts({ query: 'test' });
 
       expect(result.error).toBeDefined();
+      expect(result.error?.code).toBe('REQUEST_FAILED');
     });
   });
 

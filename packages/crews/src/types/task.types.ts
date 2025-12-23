@@ -69,6 +69,8 @@ export interface TaskResult {
   iterations: number;
   /** Total tokens used */
   tokensUsed: number;
+  /** Latency in milliseconds */
+  latencyMs?: number;
   /** Cost in USD */
   cost?: number;
   /** Agent that completed the task */

@@ -218,10 +218,19 @@ describe('RedisMemory', () => {
       expect(mockRedis.quit).toHaveBeenCalled();
     });
 
-    it('should handle disconnect errors gracefully', async () => {
-      mockRedis.quit.mockRejectedValue(new Error('Connection already closed'));
+    it('should propagate disconnect errors', async () => {
+      // Reset mock to ensure clean state
+      mockRedis.quit.mockReset();
+      mockRedis.quit.mockRejectedValueOnce(
+        new Error('Connection already closed'),
+      );
 
-      await expect(memory.disconnect()).rejects.toThrow();
+      await expect(memory.disconnect()).rejects.toThrow(
+        'Connection already closed',
+      );
+
+      // Reset for afterEach cleanup
+      mockRedis.quit.mockResolvedValue('OK');
     });
   });
 

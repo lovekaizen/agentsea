@@ -2,28 +2,29 @@ import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
 import { MCPClient } from '../client';
 import { MCPServerConfig } from '../types';
 
-// Mock transport
+// Create a shared mock transport instance
+const mockTransportInstance = {
+  connect: vi.fn().mockResolvedValue(undefined),
+  send: vi.fn(),
+  on: vi.fn(),
+  emit: vi.fn(),
+  close: vi.fn(),
+};
+
+// Mock transport with shared instance
 vi.mock('../transport', () => ({
-  StdioTransport: vi.fn().mockImplementation(() => ({
-    connect: vi.fn(),
-    send: vi.fn(),
-    on: vi.fn(),
-    emit: vi.fn(),
-  })),
-  SSETransport: vi.fn().mockImplementation(() => ({
-    connect: vi.fn(),
-    send: vi.fn(),
-    on: vi.fn(),
-    emit: vi.fn(),
-  })),
+  StdioTransport: vi.fn().mockImplementation(() => mockTransportInstance),
+  SSETransport: vi.fn().mockImplementation(() => mockTransportInstance),
 }));
 
 describe('MCPClient', () => {
   let client: MCPClient;
-  let mockTransport: any;
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset mock implementations
+    mockTransportInstance.connect.mockResolvedValue(undefined);
+    mockTransportInstance.on.mockImplementation(() => {});
   });
 
   afterEach(() => {
@@ -68,10 +69,6 @@ describe('MCPClient', () => {
 
       client = new MCPClient(config);
 
-      // Mock transport
-      mockTransport = (client as any).transport;
-      const handleMessageSpy = vi.spyOn(client as any, 'handleMessage');
-
       // Mock sendRequest to return initialization response
       const sendRequestSpy = vi
         .spyOn(client as any, 'sendRequest')
@@ -86,21 +83,22 @@ describe('MCPClient', () => {
           },
         });
 
-      // Mock transport methods
-      const connectMock = vi.fn().mockResolvedValue(undefined);
-      const onMock = vi.fn();
-
-      (client as any).transport = {
-        connect: connectMock,
-        on: onMock,
-      };
-
       await client.connect();
 
-      expect(connectMock).toHaveBeenCalled();
-      expect(onMock).toHaveBeenCalledWith('message', expect.any(Function));
-      expect(onMock).toHaveBeenCalledWith('error', expect.any(Function));
-      expect(onMock).toHaveBeenCalledWith('disconnect', expect.any(Function));
+      // Verify transport methods were called
+      expect(mockTransportInstance.connect).toHaveBeenCalled();
+      expect(mockTransportInstance.on).toHaveBeenCalledWith(
+        'message',
+        expect.any(Function),
+      );
+      expect(mockTransportInstance.on).toHaveBeenCalledWith(
+        'error',
+        expect.any(Function),
+      );
+      expect(mockTransportInstance.on).toHaveBeenCalledWith(
+        'disconnect',
+        expect.any(Function),
+      );
       expect(sendRequestSpy).toHaveBeenCalledWith({
         jsonrpc: '2.0',
         id: expect.any(Number),
@@ -120,25 +118,15 @@ describe('MCPClient', () => {
 
       client = new MCPClient(config);
 
-      const sendRequestSpy = vi
-        .spyOn(client as any, 'sendRequest')
-        .mockResolvedValue({
-          result: {
-            serverInfo: { name: 'test-server', version: '1.0.0' },
-          },
-        });
-
-      const connectMock = vi.fn().mockResolvedValue(undefined);
-      const onMock = vi.fn();
-
-      (client as any).transport = {
-        connect: connectMock,
-        on: onMock,
-      };
+      vi.spyOn(client as any, 'sendRequest').mockResolvedValue({
+        result: {
+          serverInfo: { name: 'test-server', version: '1.0.0' },
+        },
+      });
 
       await client.connect();
 
-      expect(connectMock).toHaveBeenCalled();
+      expect(mockTransportInstance.connect).toHaveBeenCalled();
     });
 
     it('should emit initialized event', async () => {
@@ -151,22 +139,12 @@ describe('MCPClient', () => {
 
       client = new MCPClient(config);
 
-      const sendRequestSpy = vi
-        .spyOn(client as any, 'sendRequest')
-        .mockResolvedValue({
-          result: {
-            serverInfo: { name: 'test-server', version: '1.0.0' },
-            capabilities: {},
-          },
-        });
-
-      const connectMock = vi.fn().mockResolvedValue(undefined);
-      const onMock = vi.fn();
-
-      (client as any).transport = {
-        connect: connectMock,
-        on: onMock,
-      };
+      vi.spyOn(client as any, 'sendRequest').mockResolvedValue({
+        result: {
+          serverInfo: { name: 'test-server', version: '1.0.0' },
+          capabilities: {},
+        },
+      });
 
       const emitSpy = vi.spyOn(client, 'emit');
 
@@ -477,14 +455,17 @@ describe('MCPClient', () => {
 
       client = new MCPClient(config);
 
-      const disconnectMock = vi.fn();
-      (client as any).transport = {
-        disconnect: disconnectMock,
-      };
+      // First connect to set up transport
+      vi.spyOn(client as any, 'sendRequest').mockResolvedValue({
+        result: { serverInfo: { name: 'test', version: '1.0.0' } },
+      });
 
+      await client.connect();
+
+      // Now disconnect
       await client.disconnect();
 
-      expect(disconnectMock).toHaveBeenCalled();
+      expect(mockTransportInstance.close).toHaveBeenCalled();
     });
 
     it('should handle disconnect when no transport', async () => {
@@ -496,9 +477,10 @@ describe('MCPClient', () => {
       };
 
       client = new MCPClient(config);
-      (client as any).transport = null;
+      // Don't connect, transport is null
 
-      await expect(client.disconnect()).resolves.not.toThrow();
+      // Should not throw
+      await client.disconnect();
     });
   });
 
@@ -516,18 +498,13 @@ describe('MCPClient', () => {
       const errorHandler = vi.fn();
       client.on('error', errorHandler);
 
-      const connectMock = vi.fn().mockResolvedValue(undefined);
+      // Store callbacks when on() is called
       let errorCallback: ((error: Error) => void) | undefined;
-      const onMock = vi.fn().mockImplementation((event: string, cb: any) => {
+      mockTransportInstance.on.mockImplementation((event: string, cb: any) => {
         if (event === 'error') {
           errorCallback = cb;
         }
       });
-
-      (client as any).transport = {
-        connect: connectMock,
-        on: onMock,
-      };
 
       vi.spyOn(client as any, 'sendRequest').mockResolvedValue({
         result: { serverInfo: { name: 'test', version: '1.0.0' } },
@@ -535,6 +512,7 @@ describe('MCPClient', () => {
 
       await client.connect();
 
+      // Trigger error callback
       const testError = new Error('Transport error');
       errorCallback?.(testError);
 
@@ -554,18 +532,13 @@ describe('MCPClient', () => {
       const disconnectHandler = vi.fn();
       client.on('disconnect', disconnectHandler);
 
-      const connectMock = vi.fn().mockResolvedValue(undefined);
+      // Store callbacks when on() is called
       let disconnectCallback: (() => void) | undefined;
-      const onMock = vi.fn().mockImplementation((event: string, cb: any) => {
+      mockTransportInstance.on.mockImplementation((event: string, cb: any) => {
         if (event === 'disconnect') {
           disconnectCallback = cb;
         }
       });
-
-      (client as any).transport = {
-        connect: connectMock,
-        on: onMock,
-      };
 
       vi.spyOn(client as any, 'sendRequest').mockResolvedValue({
         result: { serverInfo: { name: 'test', version: '1.0.0' } },
@@ -573,6 +546,7 @@ describe('MCPClient', () => {
 
       await client.connect();
 
+      // Trigger disconnect callback
       disconnectCallback?.();
 
       expect(disconnectHandler).toHaveBeenCalled();

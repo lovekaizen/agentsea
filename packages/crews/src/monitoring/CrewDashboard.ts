@@ -7,7 +7,7 @@
 import { EventEmitter } from 'eventemitter3';
 import type { Crew } from '../core/Crew';
 import type {
-  CrewStatus,
+  CrewStatusDetails,
   CrewMetrics,
   CrewEvent,
   TimelineEntry,
@@ -60,7 +60,7 @@ export interface DashboardConfig {
  */
 export class CrewDashboard extends EventEmitter<{
   update: (update: DashboardUpdate) => void;
-  statusChange: (status: CrewStatus) => void;
+  statusChange: (status: CrewStatusDetails) => void;
   agentUpdate: (agent: AgentStatus) => void;
   error: (error: Error) => void;
 }> {
@@ -68,7 +68,7 @@ export class CrewDashboard extends EventEmitter<{
   private readonly config: Required<DashboardConfig>;
   private readonly events: CrewEvent[] = [];
   private updateTimer?: ReturnType<typeof setInterval>;
-  private lastStatus?: CrewStatus;
+  private lastStatus?: CrewStatusDetails;
   private subscribed: boolean = false;
 
   constructor(crew: Crew, config: DashboardConfig = {}) {
@@ -150,7 +150,7 @@ export class CrewDashboard extends EventEmitter<{
   /**
    * Get current crew status
    */
-  getCrewStatus(): CrewStatus {
+  getCrewStatus(): CrewStatusDetails {
     return this.crew.getStatus();
   }
 
@@ -208,16 +208,14 @@ export class CrewDashboard extends EventEmitter<{
 
     if (filter?.agent) {
       filtered = filtered.filter((e) => {
-        const anyEvent = e as Record<string, unknown>;
+        const anyEvent = e as unknown as Record<string, unknown>;
         return anyEvent.agentName === filter.agent;
       });
     }
 
     if (filter?.since) {
       filtered = filtered.filter((e) => {
-        const anyEvent = e as Record<string, unknown>;
-        const timestamp = anyEvent.timestamp as Date | undefined;
-        return timestamp && timestamp >= filter.since!;
+        return e.timestamp >= filter.since!;
       });
     }
 
@@ -366,7 +364,7 @@ export class CrewDashboard extends EventEmitter<{
  */
 export interface DashboardSnapshot {
   timestamp: Date;
-  status: CrewStatus;
+  status: CrewStatusDetails;
   metrics: CrewMetrics;
   agents: Record<string, AgentStatus>;
   progress: ReturnType<CrewDashboard['getProgress']>;

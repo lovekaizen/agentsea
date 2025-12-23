@@ -190,7 +190,7 @@ describe('SummaryMemory', () => {
       expect(call[1].temperature).toBe(0.3);
     });
 
-    it('should handle summarization errors', async () => {
+    it('should handle summarization errors gracefully', async () => {
       (mockProvider.generateResponse as any).mockRejectedValue(
         new Error('Summarization failed'),
       );
@@ -200,8 +200,12 @@ describe('SummaryMemory', () => {
         messages.push({ role: 'user', content: `Message ${i}` });
       }
 
-      // Should handle error gracefully
-      await expect(memory.save('conv-1', messages)).rejects.toThrow();
+      // Should handle error gracefully by using fallback (concatenation)
+      await memory.save('conv-1', messages);
+
+      // Verify the save succeeded despite summarization failure
+      const loaded = await memory.load('conv-1');
+      expect(loaded.length).toBeGreaterThan(0);
     });
 
     it('should use specified summary model', async () => {

@@ -110,7 +110,7 @@ export class CheckpointManager {
       timestamp: new Date(),
       stepIndex: state.currentStepIndex,
       stepResults: state.stepResults,
-      variables: state.variables,
+      variables: Object.fromEntries(state.variables),
       metadata: state.metadata,
     };
 
@@ -248,10 +248,13 @@ export class CheckpointManager {
     }
 
     return {
-      currentStepIndex: checkpoint.stepIndex,
-      stepResults: checkpoint.stepResults,
-      variables: checkpoint.variables,
-      metadata: checkpoint.metadata,
+      currentStepIndex: checkpoint.stepIndex ?? 0,
+      stepResults:
+        checkpoint.stepResults instanceof Map
+          ? checkpoint.stepResults
+          : new Map(Object.entries(checkpoint.stepResults)),
+      variables: new Map(Object.entries(checkpoint.variables)),
+      metadata: checkpoint.metadata ?? {},
     };
   }
 
