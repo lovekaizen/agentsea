@@ -66,9 +66,9 @@ export interface ProviderInstanceConfig {
 export interface AgentContext {
   conversationId: string;
   userId?: string;
-  sessionData: Record<string, any>;
+  sessionData: Record<string, unknown>;
   history: Message[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -110,7 +110,8 @@ export interface Tool {
   name: string;
   description: string;
   parameters: z.ZodSchema;
-  execute: (params: any, context: ToolContext) => Promise<any>;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  execute: (params: any, context: ToolContext) => Promise<unknown>;
   retryConfig?: RetryConfig;
 }
 
@@ -120,7 +121,7 @@ export interface Tool {
 export interface ToolContext {
   agentName: string;
   conversationId: string;
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 /**
@@ -129,8 +130,8 @@ export interface ToolContext {
 export interface ToolCall {
   id: string;
   tool: string;
-  parameters: any;
-  result?: any;
+  parameters: unknown;
+  result?: unknown;
   error?: string;
 }
 
@@ -234,7 +235,7 @@ export interface LLMResponse {
     inputTokens: number;
     outputTokens: number;
   };
-  rawResponse: any;
+  rawResponse: unknown;
 }
 
 /**

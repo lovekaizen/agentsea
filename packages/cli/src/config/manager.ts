@@ -44,6 +44,17 @@ export interface AigenticConfig {
   agents: Record<string, AgentConfig>;
   mcpServers?: Record<string, MCPServerConfig>;
   workflows?: Record<string, WorkflowConfig>;
+  // New package configs - using unknown for flexibility
+  crews?: Record<string, unknown>;
+  guardrails?: Record<string, unknown>;
+  memoryStores?: Record<string, unknown>;
+  prompts?: Record<string, unknown>;
+  surfConfigs?: Record<string, unknown>;
+  embeddingConfigs?: Record<string, unknown>;
+  gateways?: Record<string, unknown>;
+  evaluations?: Record<string, unknown>;
+  budgets?: Record<string, unknown>;
+  ingestPipelines?: Record<string, unknown>;
 }
 
 /**
@@ -60,6 +71,16 @@ export class ConfigManager {
         agents: {},
         mcpServers: {},
         workflows: {},
+        crews: {},
+        guardrails: {},
+        memoryStores: {},
+        prompts: {},
+        surfConfigs: {},
+        embeddingConfigs: {},
+        gateways: {},
+        evaluations: {},
+        budgets: {},
+        ingestPipelines: {},
       },
     });
   }
@@ -75,6 +96,13 @@ export class ConfigManager {
    * Save the full configuration
    */
   saveConfig(config: AigenticConfig): void {
+    this.conf.store = config;
+  }
+
+  /**
+   * Set the full configuration (alias for saveConfig)
+   */
+  setConfig(config: AigenticConfig): void {
     this.conf.store = config;
   }
 

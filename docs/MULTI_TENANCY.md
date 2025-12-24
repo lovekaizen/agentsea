@@ -333,7 +333,11 @@ export class AppModule {}
 
 ```typescript
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { TenantGuard, Tenant, TenantContext } from '@lov3kaizen/agentsea-nestjs';
+import {
+  TenantGuard,
+  Tenant,
+  TenantContext,
+} from '@lov3kaizen/agentsea-nestjs';
 
 @Controller('agents')
 @UseGuards(TenantGuard)

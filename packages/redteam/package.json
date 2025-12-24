@@ -1,0 +1,104 @@
+{
+  "name": "@lov3kaizen/agentsea-redteam",
+  "version": "0.5.0",
+  "description": "AI Safety & Red Teaming Toolkit for proactive security testing of AI agents",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "import": "./dist/core/index.js"
+    },
+    "./attacks": {
+      "types": "./dist/attacks/index.d.ts",
+      "import": "./dist/attacks/index.js"
+    },
+    "./scanning": {
+      "types": "./dist/scanning/index.d.ts",
+      "import": "./dist/scanning/index.js"
+    },
+    "./benchmarks": {
+      "types": "./dist/benchmarks/index.d.ts",
+      "import": "./dist/benchmarks/index.js"
+    },
+    "./detection": {
+      "types": "./dist/detection/index.d.ts",
+      "import": "./dist/detection/index.js"
+    },
+    "./compliance": {
+      "types": "./dist/compliance/index.d.ts",
+      "import": "./dist/compliance/index.js"
+    },
+    "./audit": {
+      "types": "./dist/audit/index.d.ts",
+      "import": "./dist/audit/index.js"
+    },
+    "./continuous": {
+      "types": "./dist/continuous/index.d.ts",
+      "import": "./dist/continuous/index.js"
+    },
+    "./integrations": {
+      "types": "./dist/integrations/index.d.ts",
+      "import": "./dist/integrations/index.js"
+    },
+    "./types": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/types/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "attacks"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "ai",
+    "security",
+    "red-team",
+    "jailbreak",
+    "llm",
+    "safety",
+    "testing",
+    "vulnerability",
+    "compliance",
+    "audit",
+    "agentsea"
+  ],
+  "author": "LoveKaizen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lovekaizen/agentsea.git",
+    "directory": "packages/redteam"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.1",
+    "nanoid": "^5.0.9"
+  },
+  "devDependencies": {
+    "tsup": "^8.5.0",
+    "typescript": "^5.9.3",
+    "vitest": "^3.2.1"
+  },
+  "peerDependencies": {
+    "@lov3kaizen/agentsea-core": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@lov3kaizen/agentsea-core": {
+      "optional": true
+    }
+  }
+}

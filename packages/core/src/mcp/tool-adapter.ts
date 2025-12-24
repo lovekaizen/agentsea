@@ -18,8 +18,11 @@ export function mcpToolToAgenticTool(
     name: mcpTool.name,
     description: mcpTool.description,
     parameters: zodSchema,
-    execute: async (params: any, _context: ToolContext) => {
-      const response = await client.callTool(mcpTool.name, params);
+    execute: async (params: unknown, _context: ToolContext) => {
+      const response = await client.callTool(
+        mcpTool.name,
+        params as Record<string, unknown> | undefined,
+      );
 
       if (response.isError) {
         throw new Error(
@@ -46,39 +49,43 @@ export function mcpToolToAgenticTool(
 /**
  * Convert JSON Schema to Zod schema (simplified implementation)
  */
-function jsonSchemaToZod(schema: any): z.ZodSchema {
+function jsonSchemaToZod(schema: Record<string, unknown>): z.ZodSchema {
   if (schema.type === 'object') {
     const shape: Record<string, z.ZodSchema> = {};
 
     for (const [key, value] of Object.entries(schema.properties || {})) {
-      const propSchema = value as any;
+      const propSchema = value as Record<string, unknown>;
       let zodType: z.ZodSchema;
 
       switch (propSchema.type) {
         case 'string':
           zodType = z.string();
-          if (propSchema.description) {
+          if (typeof propSchema.description === 'string') {
             zodType = zodType.describe(propSchema.description);
           }
           break;
 
         case 'number':
           zodType = z.number();
-          if (propSchema.description) {
+          if (typeof propSchema.description === 'string') {
             zodType = zodType.describe(propSchema.description);
           }
           break;
 
         case 'boolean':
           zodType = z.boolean();
-          if (propSchema.description) {
+          if (typeof propSchema.description === 'string') {
             zodType = zodType.describe(propSchema.description);
           }
           break;
 
         case 'array':
-          zodType = z.array(jsonSchemaToZod(propSchema.items || {}));
-          if (propSchema.description) {
+          zodType = z.array(
+            jsonSchemaToZod(
+              (propSchema.items as Record<string, unknown>) || {},
+            ),
+          );
+          if (typeof propSchema.description === 'string') {
             zodType = zodType.describe(propSchema.description);
           }
           break;
@@ -92,7 +99,8 @@ function jsonSchemaToZod(schema: any): z.ZodSchema {
       }
 
       // Make optional if not in required array
-      if (!schema.required?.includes(key)) {
+      const required = schema.required as string[] | undefined;
+      if (!required?.includes(key)) {
         zodType = zodType.optional();
       }
 

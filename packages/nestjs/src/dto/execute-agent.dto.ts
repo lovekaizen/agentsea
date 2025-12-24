@@ -28,7 +28,7 @@ export class ExecuteAgentDto {
 
   @IsOptional()
   @IsObject()
-  sessionData?: Record<string, any>;
+  sessionData?: Record<string, unknown>;
 
   @IsOptional()
   @IsArray()
@@ -36,7 +36,7 @@ export class ExecuteAgentDto {
 
   @IsOptional()
   @IsObject()
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 
   @IsOptional()
   @IsEnum(['text', 'markdown', 'html', 'react'])

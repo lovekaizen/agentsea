@@ -151,19 +151,24 @@ Security guidelines:
 /**
  * Display formatted response
  */
-function displayResponse(response: any): void {
-  console.log(`Agent: ${response.content}\n`);
+function displayResponse(response: unknown): void {
+  const res = response as {
+    content: string;
+    toolCalls?: Array<{ tool: string }>;
+    metadata: { tokensUsed: number; latencyMs: number };
+  };
+  console.log(`Agent: ${res.content}\n`);
 
-  if (response.toolCalls && response.toolCalls.length > 0) {
+  if (res.toolCalls && res.toolCalls.length > 0) {
     console.log('Tools executed:');
-    response.toolCalls.forEach((call: any) => {
+    res.toolCalls.forEach((call) => {
       console.log(`  • ${call.tool}`);
     });
     console.log();
   }
 
   console.log(
-    `Metrics: ${response.metadata.tokensUsed} tokens, ${response.metadata.latencyMs}ms`,
+    `Metrics: ${res.metadata.tokensUsed} tokens, ${res.metadata.latencyMs}ms`,
   );
   console.log('─'.repeat(80));
 }

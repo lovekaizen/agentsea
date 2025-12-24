@@ -1,0 +1,85 @@
+{
+  "name": "@lov3kaizen/agentsea-costs",
+  "version": "0.5.0",
+  "description": "AI cost management platform with real-time tracking, budget enforcement, and optimization",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "ai",
+    "llm",
+    "cost-management",
+    "budget",
+    "token-counting",
+    "analytics",
+    "optimization",
+    "billing"
+  ],
+  "author": "lov3kaizen",
+  "license": "MIT",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
+    "croner": "^9.0.0",
+    "decimal.js": "^10.4.3",
+    "eventemitter3": "^5.0.1",
+    "nanoid": "^5.0.7",
+    "tiktoken": "^1.0.18",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.11",
+    "@types/node": "^22.10.2",
+    "@types/pg": "^8.11.10",
+    "better-sqlite3": "^11.6.0",
+    "eslint": "^9.17.0",
+    "pg": "^8.13.1",
+    "stripe": "^17.4.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "peerDependencies": {
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0",
+    "better-sqlite3": "^11.0.0",
+    "pg": "^8.0.0",
+    "stripe": "^17.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@nestjs/common": {
+      "optional": true
+    },
+    "@nestjs/core": {
+      "optional": true
+    },
+    "better-sqlite3": {
+      "optional": true
+    },
+    "pg": {
+      "optional": true
+    },
+    "stripe": {
+      "optional": true
+    }
+  }
+}

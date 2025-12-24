@@ -62,14 +62,14 @@ export class TenantManager {
   /**
    * Get tenant by ID
    */
-  async getTenant(tenantId: string): Promise<Tenant | null> {
+  getTenant(tenantId: string): Promise<Tenant | null> {
     return this.storage.getTenant(tenantId);
   }
 
   /**
    * Get tenant by slug
    */
-  async getTenantBySlug(slug: string): Promise<Tenant | null> {
+  getTenantBySlug(slug: string): Promise<Tenant | null> {
     return this.storage.getTenantBySlug(slug);
   }
 

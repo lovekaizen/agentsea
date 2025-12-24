@@ -139,8 +139,16 @@ export class GeminiProvider implements LLMProvider {
     const toolCalls: ToolCall[] = [];
 
     // Gemini tool calls would be in rawResponse
-    if (response.rawResponse?.functionCalls) {
-      for (const call of response.rawResponse.functionCalls()) {
+    const rawResponse = response.rawResponse as
+      | {
+          functionCalls?: () => Array<{
+            name: string;
+            args: Record<string, unknown>;
+          }>;
+        }
+      | undefined;
+    if (rawResponse?.functionCalls) {
+      for (const call of rawResponse.functionCalls()) {
         toolCalls.push({
           id: `call-${Date.now()}-${Math.random()}`,
           tool: call.name,

@@ -1,0 +1,86 @@
+{
+  "name": "@lov3kaizen/agentsea-gateway",
+  "version": "0.5.0",
+  "description": "High-performance TypeScript-native LLM gateway with unified API access, intelligent routing, semantic caching, and cost optimization",
+  "keywords": [
+    "llm",
+    "gateway",
+    "proxy",
+    "openai",
+    "anthropic",
+    "gemini",
+    "router",
+    "caching",
+    "rate-limiting",
+    "ai",
+    "typescript"
+  ],
+  "author": "LoveKaizen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lovekaizen/agentsea",
+    "directory": "packages/gateway"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./nestjs": {
+      "types": "./dist/integrations/nestjs/index.d.ts",
+      "require": "./dist/integrations/nestjs/index.js",
+      "import": "./dist/integrations/nestjs/index.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "type-check": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "hono": "^4.6.0",
+    "@hono/node-server": "^1.13.0",
+    "tiktoken": "^1.0.18",
+    "pino": "^9.5.0",
+    "pino-pretty": "^13.0.0",
+    "lru-cache": "^11.0.0",
+    "murmurhash": "^2.0.1"
+  },
+  "peerDependencies": {
+    "@lov3kaizen/agentsea-core": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@lov3kaizen/agentsea-core": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@types/node": "^22.9.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
+  },
+  "optionalDependencies": {
+    "ioredis": "^5.4.0",
+    "@opentelemetry/api": "^1.9.0",
+    "@opentelemetry/sdk-node": "^0.56.0",
+    "prom-client": "^15.1.0"
+  },
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

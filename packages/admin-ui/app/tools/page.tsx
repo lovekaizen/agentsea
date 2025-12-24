@@ -52,7 +52,7 @@ export default function ToolsPage() {
   const filteredTools = builtInTools.filter(
     (tool) =>
       tool.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      tool.description.toLowerCase().includes(searchQuery.toLowerCase())
+      tool.description.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -100,7 +100,10 @@ export default function ToolsPage() {
             {filteredTools.map((tool) => {
               const Icon = tool.icon;
               return (
-                <Card key={tool.id} className="hover:shadow-lg transition-shadow">
+                <Card
+                  key={tool.id}
+                  className="hover:shadow-lg transition-shadow"
+                >
                   <CardHeader>
                     <div className="flex items-start gap-3">
                       <div className="rounded-lg bg-green-100 p-2">
@@ -130,7 +133,9 @@ export default function ToolsPage() {
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Wrench className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No MCP servers configured</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                No MCP servers configured
+              </h3>
               <p className="text-sm text-muted-foreground mb-4 text-center max-w-sm">
                 Connect MCP servers to extend agent capabilities
               </p>
@@ -145,7 +150,9 @@ export default function ToolsPage() {
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
               <Plus className="h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No custom tools yet</h3>
+              <h3 className="text-lg font-semibold mb-2">
+                No custom tools yet
+              </h3>
               <p className="text-sm text-muted-foreground mb-4 text-center max-w-sm">
                 Create custom tools with your own logic
               </p>

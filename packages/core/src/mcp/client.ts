@@ -23,7 +23,7 @@ export class MCPClient extends EventEmitter {
   private pendingRequests = new Map<
     string | number,
     {
-      resolve: (value: any) => void;
+      resolve: (value: MCPMessage) => void;
       reject: (error: Error) => void;
     }
   >();
@@ -105,7 +105,7 @@ export class MCPClient extends EventEmitter {
    */
   async callTool(
     name: string,
-    args?: Record<string, any>,
+    args?: Record<string, unknown>,
   ): Promise<MCPCallToolResponse> {
     const response = await this.sendRequest({
       jsonrpc: '2.0',
@@ -131,7 +131,7 @@ export class MCPClient extends EventEmitter {
       params: {},
     });
 
-    return response.result.resources as MCPResource[];
+    return (response.result as { resources: MCPResource[] }).resources;
   }
 
   /**
@@ -161,13 +161,16 @@ export class MCPClient extends EventEmitter {
       params: {},
     });
 
-    return response.result.prompts as MCPPrompt[];
+    return (response.result as { prompts: MCPPrompt[] }).prompts;
   }
 
   /**
    * Get a prompt
    */
-  async getPrompt(name: string, args?: Record<string, string>): Promise<any> {
+  async getPrompt(
+    name: string,
+    args?: Record<string, string>,
+  ): Promise<unknown> {
     const response = await this.sendRequest({
       jsonrpc: '2.0',
       id: this.nextId(),

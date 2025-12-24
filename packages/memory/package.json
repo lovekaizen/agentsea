@@ -1,0 +1,141 @@
+{
+  "name": "@lov3kaizen/agentsea-memory",
+  "version": "0.5.0",
+  "description": "Advanced memory management system for AI agents with semantic retrieval, hierarchical structures, and multi-agent support",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/index.d.mts",
+        "default": "./dist/index.mjs"
+      },
+      "require": {
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
+      }
+    },
+    "./stores": {
+      "import": {
+        "types": "./dist/stores/index.d.mts",
+        "default": "./dist/stores/index.mjs"
+      },
+      "require": {
+        "types": "./dist/stores/index.d.ts",
+        "default": "./dist/stores/index.js"
+      }
+    },
+    "./retrieval": {
+      "import": {
+        "types": "./dist/retrieval/index.d.mts",
+        "default": "./dist/retrieval/index.mjs"
+      },
+      "require": {
+        "types": "./dist/retrieval/index.d.ts",
+        "default": "./dist/retrieval/index.js"
+      }
+    },
+    "./structures": {
+      "import": {
+        "types": "./dist/structures/index.d.mts",
+        "default": "./dist/structures/index.mjs"
+      },
+      "require": {
+        "types": "./dist/structures/index.d.ts",
+        "default": "./dist/structures/index.js"
+      }
+    },
+    "./processing": {
+      "import": {
+        "types": "./dist/processing/index.d.mts",
+        "default": "./dist/processing/index.mjs"
+      },
+      "require": {
+        "types": "./dist/processing/index.d.ts",
+        "default": "./dist/processing/index.js"
+      }
+    },
+    "./sharing": {
+      "import": {
+        "types": "./dist/sharing/index.d.mts",
+        "default": "./dist/sharing/index.mjs"
+      },
+      "require": {
+        "types": "./dist/sharing/index.d.ts",
+        "default": "./dist/sharing/index.js"
+      }
+    },
+    "./debug": {
+      "import": {
+        "types": "./dist/debug/index.d.mts",
+        "default": "./dist/debug/index.mjs"
+      },
+      "require": {
+        "types": "./dist/debug/index.d.ts",
+        "default": "./dist/debug/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/stores/index.ts src/retrieval/index.ts src/structures/index.ts src/processing/index.ts src/sharing/index.ts src/debug/index.ts --format cjs,esm --dts --clean --external better-sqlite3 --external pg --external ioredis --external @pinecone-database/pinecone",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "lint": "eslint src/",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.0",
+    "nanoid": "^5.0.0",
+    "lru-cache": "^10.0.0"
+  },
+  "peerDependencies": {
+    "@lov3kaizen/agentsea-core": ">=0.5.0",
+    "@lov3kaizen/agentsea-embeddings": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@lov3kaizen/agentsea-core": {
+      "optional": true
+    },
+    "@lov3kaizen/agentsea-embeddings": {
+      "optional": true
+    }
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^11.0.0",
+    "pg": "^8.11.0",
+    "ioredis": "^5.3.0",
+    "@pinecone-database/pinecone": "^2.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/node": "^20.10.0",
+    "@types/pg": "^8.10.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "keywords": [
+    "memory",
+    "ai",
+    "agents",
+    "semantic-retrieval",
+    "vector-database",
+    "llm",
+    "agentsea"
+  ],
+  "author": "lov3kaizen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lov3kaizen/agentsea.git",
+    "directory": "packages/memory"
+  }
+}

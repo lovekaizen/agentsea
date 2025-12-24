@@ -25,7 +25,9 @@ import { useStore } from '@/lib/store';
 
 export default function PlaygroundPage() {
   const { agents, workflows } = useStore();
-  const [selectedType, setSelectedType] = useState<'agent' | 'workflow'>('agent');
+  const [selectedType, setSelectedType] = useState<'agent' | 'workflow'>(
+    'agent',
+  );
   const [selectedId, setSelectedId] = useState('');
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
@@ -42,7 +44,9 @@ export default function PlaygroundPage() {
 
     // Simulate execution (replace with actual API call)
     setTimeout(() => {
-      setOutput((prev) => prev + '\nExecution completed!\n\nThis is a demo response.');
+      setOutput(
+        (prev) => prev + '\nExecution completed!\n\nThis is a demo response.',
+      );
       setIsRunning(false);
     }, 2000);
   };
@@ -96,7 +100,10 @@ export default function PlaygroundPage() {
             <CardContent className="space-y-4">
               <div className="space-y-2">
                 <label className="text-sm font-medium">Type</label>
-                <Select value={selectedType} onValueChange={(v: any) => setSelectedType(v)}>
+                <Select
+                  value={selectedType}
+                  onValueChange={(v: any) => setSelectedType(v)}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -109,7 +116,9 @@ export default function PlaygroundPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">
-                  {selectedType === 'agent' ? 'Select Agent' : 'Select Workflow'}
+                  {selectedType === 'agent'
+                    ? 'Select Agent'
+                    : 'Select Workflow'}
                 </label>
                 <Select value={selectedId} onValueChange={setSelectedId}>
                   <SelectTrigger>

@@ -16,7 +16,7 @@ export interface ACPProduct {
   };
   images?: string[];
   variants?: ACPProductVariant[];
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -59,7 +59,7 @@ export interface ACPCart {
     amount: number;
     currency: string;
   };
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -79,7 +79,7 @@ export interface ACPCheckoutSession {
   };
   createdAt: string;
   updatedAt: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -90,7 +90,7 @@ export interface ACPCustomer {
   email: string;
   name?: string;
   phone?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -112,7 +112,7 @@ export interface ACPPaymentMethod {
   type: 'card' | 'delegated' | 'wallet' | 'bank_transfer';
   token?: string;
   delegatedProvider?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -126,7 +126,7 @@ export interface ACPPaymentIntent {
   };
   status: 'pending' | 'processing' | 'succeeded' | 'failed' | 'cancelled';
   paymentMethod?: ACPPaymentMethod;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -155,7 +155,7 @@ export interface ACPOrder {
   trackingNumber?: string;
   createdAt: string;
   updatedAt: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -200,7 +200,7 @@ export interface ACPDelegatedPaymentConfig {
   merchantAccountId: string;
   returnUrl?: string;
   cancelUrl?: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -228,7 +228,7 @@ export interface ACPResponse<T> {
   error?: {
     code: string;
     message: string;
-    details?: any;
+    details?: unknown;
   };
 }
 

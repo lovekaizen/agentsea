@@ -85,7 +85,7 @@ export async function initCommand(): Promise<void> {
       type: 'input',
       name: 'baseUrl',
       message: 'Enter the base URL for the local provider:',
-      default: (answers: any) => {
+      default: (answers: { localProvider?: string }) => {
         switch (answers.localProvider) {
           case 'ollama':
             return 'http://localhost:11434';
@@ -116,7 +116,10 @@ export async function initCommand(): Promise<void> {
       type: 'input',
       name: 'agentModel',
       message: 'Model name:',
-      default: (answers: any) => {
+      default: (answers: {
+        cloudProvider?: string;
+        localProvider?: string;
+      }) => {
         if (answers.cloudProvider === 'anthropic')
           return 'claude-sonnet-4-20250514';
         if (answers.cloudProvider === 'openai') return 'gpt-4-turbo-preview';
@@ -154,7 +157,7 @@ export async function initCommand(): Promise<void> {
   // Save provider configuration
   configManager.setProvider(providerName, {
     name: providerName,
-    type: providerType as any,
+    type: providerType,
     apiKey: answers.apiKey,
     baseUrl: answers.baseUrl,
     timeout: 60000,

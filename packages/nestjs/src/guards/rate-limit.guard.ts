@@ -69,6 +69,7 @@ export class RateLimitGuard implements CanActivate {
  */
 export function RateLimit(options: RateLimitOptions): MethodDecorator {
   return (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     _target: any,
     _propertyKey: string | symbol,
     descriptor: PropertyDescriptor,

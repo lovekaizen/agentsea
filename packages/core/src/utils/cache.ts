@@ -1,6 +1,7 @@
 /**
  * Simple in-memory cache with TTL support
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class Cache<T = any> {
   private store = new Map<
     string,
@@ -144,6 +145,7 @@ export class Cache<T = any> {
 /**
  * LRU (Least Recently Used) Cache
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class LRUCache<T = any> {
   private cache = new Map<string, T>();
 

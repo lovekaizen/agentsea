@@ -35,7 +35,7 @@ export class ACPClient {
   private async request<T>(
     method: string,
     endpoint: string,
-    body?: any,
+    body?: unknown,
   ): Promise<ACPResponse<T>> {
     const url = `${this.config.baseUrl}${endpoint}`;
     const headers: Record<string, string> = {

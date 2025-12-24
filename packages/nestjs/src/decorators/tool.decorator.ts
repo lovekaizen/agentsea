@@ -12,6 +12,7 @@ export interface ToolOptions {
  */
 export function Tool(options: ToolOptions): MethodDecorator {
   return (
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     target: any,
     propertyKey: string | symbol,
     descriptor: PropertyDescriptor,

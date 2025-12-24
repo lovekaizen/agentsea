@@ -47,7 +47,7 @@ export function WorkflowCanvas({
       setEdges(newEdges);
       onEdgesChange?.(newEdges);
     },
-    [edges, setEdges, onEdgesChange]
+    [edges, setEdges, onEdgesChange],
   );
 
   const onNodesChangeWrapper = useCallback(
@@ -55,7 +55,7 @@ export function WorkflowCanvas({
       handleNodesChange(changes);
       onNodesChange?.(nodes);
     },
-    [handleNodesChange, nodes, onNodesChange]
+    [handleNodesChange, nodes, onNodesChange],
   );
 
   const onEdgesChangeWrapper = useCallback(
@@ -63,7 +63,7 @@ export function WorkflowCanvas({
       handleEdgesChange(changes);
       onEdgesChange?.(edges);
     },
-    [handleEdgesChange, edges, onEdgesChange]
+    [handleEdgesChange, edges, onEdgesChange],
   );
 
   return (

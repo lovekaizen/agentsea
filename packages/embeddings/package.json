@@ -1,0 +1,102 @@
+{
+  "name": "@lov3kaizen/agentsea-embeddings",
+  "version": "0.5.0",
+  "description": "Vector embedding lifecycle management toolkit for Node.js - versioning, caching, chunking, drift detection, and migration",
+  "main": "dist/index.js",
+  "module": "dist/index.mjs",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.js"
+    },
+    "./chunking": {
+      "types": "./dist/chunking/index.d.ts",
+      "import": "./dist/chunking/index.mjs",
+      "require": "./dist/chunking/index.js"
+    },
+    "./caching": {
+      "types": "./dist/caching/index.d.ts",
+      "import": "./dist/caching/index.mjs",
+      "require": "./dist/caching/index.js"
+    },
+    "./stores": {
+      "types": "./dist/stores/index.d.ts",
+      "import": "./dist/stores/index.mjs",
+      "require": "./dist/stores/index.js"
+    },
+    "./providers": {
+      "types": "./dist/providers/index.d.ts",
+      "import": "./dist/providers/index.mjs",
+      "require": "./dist/providers/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/chunking/index.ts src/caching/index.ts src/stores/index.ts src/providers/index.ts --format cjs,esm --dts --clean --external ioredis --external better-sqlite3 --external chromadb --external @pinecone-database/pinecone --external @qdrant/js-client-rest --external weaviate-ts-client --external cohere-ai --external ollama",
+    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "keywords": [
+    "embeddings",
+    "vector",
+    "rag",
+    "chunking",
+    "caching",
+    "openai",
+    "cohere",
+    "pinecone",
+    "weaviate",
+    "chroma",
+    "llm",
+    "ai",
+    "machine-learning",
+    "nlp"
+  ],
+  "author": "lov3kaizen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lov3kaizen/agentsea.git",
+    "directory": "packages/embeddings"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.0",
+    "lru-cache": "^10.0.0",
+    "nanoid": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/better-sqlite3": "^7.6.0",
+    "@types/node": "^20.0.0",
+    "tsup": "^8.0.0",
+    "typescript": "^5.3.0",
+    "vitest": "^1.0.0"
+  },
+  "peerDependencies": {
+    "@lov3kaizen/agentsea-core": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@lov3kaizen/agentsea-core": {
+      "optional": true
+    }
+  },
+  "optionalDependencies": {
+    "ioredis": "^5.3.0",
+    "better-sqlite3": "^9.2.0",
+    "@pinecone-database/pinecone": "^2.0.0",
+    "weaviate-ts-client": "^2.0.0",
+    "chromadb": "^1.7.0",
+    "@qdrant/js-client-rest": "^1.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

@@ -168,7 +168,10 @@ export function AgentForm({ agent, onSubmit, onCancel }: AgentFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Provider</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a provider" />
@@ -193,7 +196,10 @@ export function AgentForm({ agent, onSubmit, onCancel }: AgentFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Model</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select a model" />
@@ -270,7 +276,10 @@ export function AgentForm({ agent, onSubmit, onCancel }: AgentFormProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Memory Type</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Select memory type" />

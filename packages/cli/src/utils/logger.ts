@@ -94,7 +94,7 @@ export class Logger {
   /**
    * Log JSON with syntax highlighting
    */
-  json(data: any): void {
+  json(data: unknown): void {
     console.log(JSON.stringify(data, null, 2));
   }
 

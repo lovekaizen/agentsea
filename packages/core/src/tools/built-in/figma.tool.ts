@@ -253,6 +253,7 @@ export const figmaPostCommentTool: Tool = {
 
     const url = `https://api.figma.com/v1/files/${params.fileKey}/comments`;
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const body: any = {
       message: params.message,
     };

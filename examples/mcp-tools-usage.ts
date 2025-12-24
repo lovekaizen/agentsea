@@ -20,7 +20,7 @@ import {
   n8nGetWorkflowTool,
 } from '@lov3kaizen/agentsea-core';
 
-async function figmaExample() {
+async function _figmaExample() {
   console.log('=== Figma Tool Examples ===\n');
 
   const agent = new Agent({
@@ -74,7 +74,7 @@ async function figmaExample() {
   console.log('Comments Response:', response3.content);
 }
 
-async function n8nExample() {
+async function _n8nExample() {
   console.log('\n=== n8n Tool Examples ===\n');
 
   const agent = new Agent({
@@ -140,7 +140,7 @@ async function n8nExample() {
   console.log('Execution Status Response:', response4.content);
 }
 
-async function combinedExample() {
+async function _combinedExample() {
   console.log('\n=== Combined Workflow Example ===\n');
 
   // Create an agent that can use both Figma and n8n tools

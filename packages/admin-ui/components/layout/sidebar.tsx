@@ -36,7 +36,7 @@ export function Sidebar() {
     <aside
       className={cn(
         'fixed left-0 top-0 z-40 h-screen border-r bg-background transition-all duration-300',
-        sidebarCollapsed ? 'w-16' : 'w-64'
+        sidebarCollapsed ? 'w-16' : 'w-64',
       )}
     >
       <div className="flex h-full flex-col">
@@ -57,7 +57,7 @@ export function Sidebar() {
             <ChevronLeft
               className={cn(
                 'h-5 w-5 transition-transform',
-                sidebarCollapsed && 'rotate-180'
+                sidebarCollapsed && 'rotate-180',
               )}
             />
           </Button>
@@ -66,7 +66,8 @@ export function Sidebar() {
         {/* Navigation */}
         <nav className="flex-1 space-y-1 p-2">
           {navigation.map((item) => {
-            const isActive = pathname === item.href || pathname?.startsWith(item.href + '/');
+            const isActive =
+              pathname === item.href || pathname?.startsWith(item.href + '/');
             return (
               <Link
                 key={item.name}
@@ -76,7 +77,7 @@ export function Sidebar() {
                   isActive
                     ? 'bg-primary text-primary-foreground'
                     : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground',
-                  sidebarCollapsed && 'justify-center px-2'
+                  sidebarCollapsed && 'justify-center px-2',
                 )}
                 title={sidebarCollapsed ? item.name : undefined}
               >
@@ -95,7 +96,7 @@ export function Sidebar() {
             href="/settings"
             className={cn(
               'flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground',
-              sidebarCollapsed && 'justify-center px-2'
+              sidebarCollapsed && 'justify-center px-2',
             )}
             title={sidebarCollapsed ? 'Settings' : undefined}
           >

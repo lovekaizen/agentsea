@@ -9,8 +9,12 @@ export interface Span {
   name: string;
   startTime: Date;
   endTime?: Date;
-  attributes: Record<string, any>;
-  events: Array<{ timestamp: Date; name: string; attributes?: any }>;
+  attributes: Record<string, unknown>;
+  events: Array<{
+    timestamp: Date;
+    name: string;
+    attributes?: Record<string, unknown>;
+  }>;
   status: 'ok' | 'error';
   error?: Error;
 }
@@ -68,7 +72,7 @@ export class Tracer {
   /**
    * Add attributes to a span
    */
-  setAttributes(spanId: string, attributes: Record<string, any>): void {
+  setAttributes(spanId: string, attributes: Record<string, unknown>): void {
     const span = this.spans.get(spanId);
     if (span) {
       span.attributes = { ...span.attributes, ...attributes };
@@ -81,7 +85,7 @@ export class Tracer {
   addEvent(
     spanId: string,
     name: string,
-    attributes?: Record<string, any>,
+    attributes?: Record<string, unknown>,
   ): void {
     const span = this.spans.get(spanId);
     if (span) {

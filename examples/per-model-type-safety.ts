@@ -22,8 +22,8 @@ import {
 
   // Type-safe provider factories
   createProvider,
-  createAnthropicProvider,
-  createOpenAIProvider,
+  createAnthropicProvider as _createAnthropicProvider,
+  createOpenAIProvider as _createOpenAIProvider,
 
   // Model registry utilities
   getModelInfo,
@@ -204,12 +204,15 @@ console.log(
 /**
  * Example: A function that only accepts models with tool support
  */
+// eslint-disable-next-line @typescript-eslint/no-redundant-type-constituents
 function runAgentWithTools<T extends OpenAIModel | AnthropicModel>(
   model: T,
   tools: Tool[],
 ): void {
   // This function signature ensures the model supports tools
-  console.log(`\nRunning agent with model: ${model} and ${tools.length} tools`);
+  console.log(
+    `\nRunning agent with model: ${String(model)} and ${tools.length} tools`,
+  );
 }
 
 // ✅ Works - these models support tools

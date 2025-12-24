@@ -48,8 +48,15 @@ interface WorkflowSidebarProps {
 }
 
 export function WorkflowSidebar({ onAddNode }: WorkflowSidebarProps) {
-  const handleDragStart = (event: React.DragEvent, nodeType: string, data: any) => {
-    event.dataTransfer.setData('application/reactflow', JSON.stringify({ nodeType, data }));
+  const handleDragStart = (
+    event: React.DragEvent,
+    nodeType: string,
+    data: any,
+  ) => {
+    event.dataTransfer.setData(
+      'application/reactflow',
+      JSON.stringify({ nodeType, data }),
+    );
     event.dataTransfer.effectAllowed = 'move';
   };
 
@@ -81,7 +88,9 @@ export function WorkflowSidebar({ onAddNode }: WorkflowSidebarProps) {
                       <div
                         className={`rounded-lg p-2 bg-${template.color}-100`}
                       >
-                        <Icon className={`h-4 w-4 text-${template.color}-600`} />
+                        <Icon
+                          className={`h-4 w-4 text-${template.color}-600`}
+                        />
                       </div>
                       <div className="flex-1 text-left">
                         <div className="font-semibold text-sm">

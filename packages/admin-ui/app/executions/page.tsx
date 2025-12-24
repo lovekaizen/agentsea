@@ -88,7 +88,9 @@ export default function ExecutionsPage() {
             <CardDescription>Completed</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.completed}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {stats.completed}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -96,7 +98,9 @@ export default function ExecutionsPage() {
             <CardDescription>Failed</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-red-600">{stats.failed}</div>
+            <div className="text-2xl font-bold text-red-600">
+              {stats.failed}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -104,7 +108,9 @@ export default function ExecutionsPage() {
             <CardDescription>Running</CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{stats.running}</div>
+            <div className="text-2xl font-bold text-blue-600">
+              {stats.running}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -133,7 +139,10 @@ export default function ExecutionsPage() {
         </TabsList>
 
         <TabsContent value="all" className="mt-6">
-          <ExecutionsTable executions={filterExecutions()} getStatusIcon={getStatusIcon} />
+          <ExecutionsTable
+            executions={filterExecutions()}
+            getStatusIcon={getStatusIcon}
+          />
         </TabsContent>
 
         <TabsContent value="completed" className="mt-6">
