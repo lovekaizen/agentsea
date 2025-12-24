@@ -184,9 +184,7 @@ export function getRoleMetadata(
 /**
  * Get task metadata from a class
  */
-export function getTaskMetadata(
-  target: Function,
-): Array<{
+export function getTaskMetadata(target: Function): Array<{
   methodKey: string | symbol;
   config: Partial<TaskConfig>;
   handler: Function;

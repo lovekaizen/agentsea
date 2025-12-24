@@ -44,7 +44,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     // Calculate stats
-    const completedExecutions = executions.filter((e) => e.status === 'completed').length;
+    const completedExecutions = executions.filter(
+      (e) => e.status === 'completed',
+    ).length;
     const totalExecutions = executions.length || 1; // Avoid division by zero
 
     setStats({
@@ -102,7 +104,9 @@ export default function DashboardPage() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Available Tools</CardTitle>
+            <CardTitle className="text-sm font-medium">
+              Available Tools
+            </CardTitle>
             <Wrench className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -218,8 +222,8 @@ export default function DashboardPage() {
                           execution.status === 'completed'
                             ? 'default'
                             : execution.status === 'failed'
-                            ? 'destructive'
-                            : 'secondary'
+                              ? 'destructive'
+                              : 'secondary'
                         }
                       >
                         {execution.status === 'completed' && (

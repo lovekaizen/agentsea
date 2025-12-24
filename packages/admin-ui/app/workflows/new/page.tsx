@@ -24,7 +24,9 @@ export default function NewWorkflowPage() {
   const { addWorkflow } = useStore();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [type, setType] = useState<'sequential' | 'parallel' | 'supervisor'>('sequential');
+  const [type, setType] = useState<'sequential' | 'parallel' | 'supervisor'>(
+    'sequential',
+  );
   const [nodes, setNodes] = useState<any[]>([]);
   const [edges, setEdges] = useState<any[]>([]);
 
@@ -92,7 +94,10 @@ export default function NewWorkflowPage() {
 
               <div className="space-y-2">
                 <label className="text-sm font-medium">Type</label>
-                <Select value={type} onValueChange={(value: any) => setType(value)}>
+                <Select
+                  value={type}
+                  onValueChange={(value: any) => setType(value)}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>

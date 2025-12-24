@@ -157,9 +157,7 @@ export class GatewayCache extends EventEmitter<GatewayCacheEvents> {
   /**
    * Get cached response for a request
    */
-  async get(
-    request: GatewayRequest,
-  ): Promise<{
+  async get(request: GatewayRequest): Promise<{
     hit: boolean;
     response?: GatewayResponse;
     similarity?: number;

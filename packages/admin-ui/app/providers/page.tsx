@@ -51,7 +51,7 @@ export default function ProvidersPage() {
   const filteredProviders = availableProviders.filter(
     (provider) =>
       provider.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      provider.description.toLowerCase().includes(searchQuery.toLowerCase())
+      provider.description.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -134,9 +134,9 @@ export default function ProvidersPage() {
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            API keys are encrypted and stored securely in your local database. They are
-            never sent to external servers except when making API calls to the respective
-            providers.
+            API keys are encrypted and stored securely in your local database.
+            They are never sent to external servers except when making API calls
+            to the respective providers.
           </p>
         </CardContent>
       </Card>
