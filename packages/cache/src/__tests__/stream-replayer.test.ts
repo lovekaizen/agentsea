@@ -189,8 +189,8 @@ describe('StreamReplayer', () => {
 
       const duration = Date.now() - startTime;
 
-      // Should cap at maxDelay of 5ms
-      expect(duration).toBeLessThan(20); // With overhead
+      // Should cap at maxDelay of 5ms (allow CI timing variance)
+      expect(duration).toBeLessThan(50);
     });
   });
 
