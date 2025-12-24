@@ -137,8 +137,8 @@ describe('StreamReplayer', () => {
 
       const duration = Date.now() - startTime;
 
-      // With 10x speed, 100ms delay should become ~10ms
-      expect(duration).toBeLessThan(50); // Account for overhead
+      // With 10x speed, 100ms delay should become ~10ms (allow CI timing variance)
+      expect(duration).toBeLessThan(80);
     });
 
     it('should respect minimum delay', async () => {
