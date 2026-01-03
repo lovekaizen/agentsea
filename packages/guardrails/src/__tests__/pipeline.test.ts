@@ -147,10 +147,22 @@ describe('Pipeline', () => {
     });
 
     it('should execute all guards in parallel', async () => {
+      // Track when each guard starts execution
+      const startTimes: number[] = [];
+
       const guards = [
-        new MockGuard('guard-1', true, 10),
-        new MockGuard('guard-2', true, 10),
+        new MockGuard('guard-1', true, 50),
+        new MockGuard('guard-2', true, 50),
       ];
+
+      // Wrap check to record start times
+      guards.forEach((guard, index) => {
+        const originalGuardCheck = guard.check.bind(guard);
+        guard.check = async (context: GuardContext) => {
+          startTimes[index] = Date.now();
+          return originalGuardCheck(context);
+        };
+      });
 
       const pipeline = new Pipeline(
         {
@@ -161,14 +173,13 @@ describe('Pipeline', () => {
         guards,
       );
 
-      const start = Date.now();
       const result = await pipeline.execute(createContext());
-      const duration = Date.now() - start;
 
       expect(result.passed).toBe(true);
       expect(result.results).toHaveLength(2);
-      // Parallel execution should be faster than sequential (allow CI timing variance)
-      expect(duration).toBeLessThan(50);
+      // Parallel execution: both guards should start within 20ms of each other
+      const startDelta = Math.abs(startTimes[0] - startTimes[1]);
+      expect(startDelta).toBeLessThan(20);
     });
 
     it('should fail fast when a guard fails', async () => {
