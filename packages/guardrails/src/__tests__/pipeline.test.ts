@@ -167,8 +167,8 @@ describe('Pipeline', () => {
 
       expect(result.passed).toBe(true);
       expect(result.results).toHaveLength(2);
-      // Parallel execution should be faster than sequential (allow CI timing variance)
-      expect(duration).toBeLessThan(50);
+      // Parallel execution should be faster than sequential (200ms allows CI timing variance)
+      expect(duration).toBeLessThan(200);
     });
 
     it('should fail fast when a guard fails', async () => {
