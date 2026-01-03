@@ -132,10 +132,17 @@ export const fileListTool: Tool = {
 
         // Recurse if needed
         if (params.recursive && item.isDirectory()) {
-          const subItems = await fileListTool.execute(
+          const subItems = (await fileListTool.execute(
             { path: fullPath, recursive: true },
             { agentName: '', conversationId: '', metadata: {} },
-          );
+          )) as {
+            items?: Array<{
+              name: string;
+              path: string;
+              type: 'file' | 'directory';
+              size?: number;
+            }>;
+          };
           if (Array.isArray(subItems.items)) {
             results.push(...subItems.items);
           }

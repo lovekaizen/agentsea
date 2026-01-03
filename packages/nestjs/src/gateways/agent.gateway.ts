@@ -6,7 +6,7 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Server, Socket } from 'socket.io';
-import { AgentContext, Tool } from '@lov3kaizen/agentsea-core';
+import { AgentContext, Tool, Message } from '@lov3kaizen/agentsea-core';
 import { AgentService } from '../services/agent.service';
 
 /**
@@ -36,9 +36,9 @@ export class AgentGateway {
       input: string;
       conversationId?: string;
       userId?: string;
-      sessionData?: Record<string, any>;
-      history?: any[];
-      metadata?: Record<string, any>;
+      sessionData?: Record<string, unknown>;
+      history?: Message[];
+      metadata?: Record<string, unknown>;
     },
   ) {
     const { agentName, input, ...contextData } = data;

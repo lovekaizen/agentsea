@@ -1,0 +1,89 @@
+{
+  "name": "@lov3kaizen/agentsea-crews",
+  "version": "0.5.0",
+  "description": "Multi-agent orchestration framework for AgentSea. Build, compose, and orchestrate agent crews with role-based coordination, task delegation, and workflow automation.",
+  "main": "./dist/index.js",
+  "module": "./dist/index.mjs",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "require": "./dist/index.js",
+      "import": "./dist/index.mjs"
+    },
+    "./nestjs": {
+      "types": "./dist/nestjs/index.d.ts",
+      "require": "./dist/nestjs/index.js",
+      "import": "./dist/nestjs/index.mjs"
+    },
+    "./templates": {
+      "types": "./dist/templates/index.d.ts",
+      "require": "./dist/templates/index.js",
+      "import": "./dist/templates/index.mjs"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup src/index.ts src/nestjs/index.ts src/templates/index.ts --format cjs,esm --clean --external reflect-metadata --external @nestjs/common --external @nestjs/core",
+    "dev": "tsup src/index.ts src/nestjs/index.ts src/templates/index.ts --format cjs,esm --dts --watch --external reflect-metadata --external @nestjs/common --external @nestjs/core",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:cov": "vitest run --coverage",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.0",
+    "nanoid": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@vitest/coverage-v8": "^1.2.0",
+    "tsup": "^8.0.1",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.0"
+  },
+  "peerDependencies": {
+    "@lov3kaizen/agentsea-core": "workspace:*",
+    "@nestjs/common": "^10.0.0",
+    "@nestjs/core": "^10.0.0"
+  },
+  "peerDependenciesMeta": {
+    "@nestjs/common": {
+      "optional": true
+    },
+    "@nestjs/core": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "agentsea",
+    "crews",
+    "multi-agent",
+    "orchestration",
+    "agents",
+    "ai",
+    "llm",
+    "delegation",
+    "workflow",
+    "collaboration",
+    "typescript"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "author": "lovekaizen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lovekaizen/agentsea.git",
+    "directory": "packages/crews"
+  },
+  "homepage": "https://agentsea.dev",
+  "publishConfig": {
+    "access": "public"
+  }
+}

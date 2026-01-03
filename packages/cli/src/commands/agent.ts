@@ -58,7 +58,7 @@ export async function createAgentCommand(): Promise<void> {
       type: 'input',
       name: 'model',
       message: 'Model name:',
-      default: (answers: any) => {
+      default: (answers: { provider: string }) => {
         const provider = providers[answers.provider];
         switch (provider.type) {
           case 'anthropic':

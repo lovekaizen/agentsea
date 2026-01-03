@@ -16,7 +16,7 @@ export interface MCPTool {
   description: string;
   inputSchema: {
     type: 'object';
-    properties: Record<string, any>;
+    properties: Record<string, unknown>;
     required?: string[];
   };
 }
@@ -63,7 +63,7 @@ export interface MCPCallToolRequest {
   method: 'tools/call';
   params: {
     name: string;
-    arguments?: Record<string, any>;
+    arguments?: Record<string, unknown>;
   };
 }
 
@@ -109,11 +109,11 @@ export interface MCPMessage {
   jsonrpc: '2.0';
   id?: string | number;
   method?: string;
-  params?: any;
-  result?: any;
+  params?: unknown;
+  result?: unknown;
   error?: {
     code: number;
     message: string;
-    data?: any;
+    data?: unknown;
   };
 }

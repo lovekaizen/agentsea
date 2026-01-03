@@ -6,7 +6,7 @@ import { z } from 'zod';
 export interface ConversationTurn {
   role: 'user' | 'assistant' | 'system';
   content: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   timestamp?: Date;
 }
 
@@ -15,9 +15,9 @@ export interface ConversationTurn {
  */
 export interface ConversationState {
   currentStep: string;
-  data: Record<string, any>;
+  data: Record<string, unknown>;
   history: ConversationTurn[];
-  metadata: Record<string, any>;
+  metadata: Record<string, unknown>;
 }
 
 /**
@@ -27,12 +27,12 @@ export interface ConversationStep {
   id: string;
   prompt: string;
   schema?: z.ZodSchema;
-  next?: string | ((response: any, state: ConversationState) => string);
+  next?: string | ((response: unknown, state: ConversationState) => string);
   onComplete?: (
-    response: any,
+    response: unknown,
     state: ConversationState,
   ) => void | Promise<void>;
-  validation?: (response: any) => boolean | Promise<boolean>;
+  validation?: (response: unknown) => boolean | Promise<boolean>;
   errorMessage?: string;
   maxRetries?: number;
 }
@@ -156,7 +156,7 @@ export class ConversationSchema {
 
     try {
       // Parse and validate response
-      let parsedResponse: any = userResponse;
+      let parsedResponse: unknown = userResponse;
 
       if (currentStep.schema) {
         try {
@@ -259,7 +259,10 @@ export class ConversationSchema {
    * Extract structured data from natural language response
    * This is a simple implementation - you can enhance it with LLM-based extraction
    */
-  private extractDataFromResponse(response: string, _schema: z.ZodSchema): any {
+  private extractDataFromResponse(
+    response: string,
+    _schema: z.ZodSchema,
+  ): unknown {
     // For now, just return the response
     // In a real implementation, you would use an LLM to extract structured data
     return response;

@@ -46,6 +46,7 @@ export class OllamaProvider implements LLMProvider {
     const ollamaMessages = this.convertMessages(messages, config.systemPrompt);
 
     // Build request payload
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const payload: any = {
       model: config.model,
       messages: ollamaMessages,
@@ -100,6 +101,7 @@ export class OllamaProvider implements LLMProvider {
     const ollamaMessages = this.convertMessages(messages, config.systemPrompt);
 
     // Build request payload
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const payload: any = {
       model: config.model,
       messages: ollamaMessages,
@@ -203,11 +205,23 @@ export class OllamaProvider implements LLMProvider {
    * Parse tool calls from the LLM response
    */
   parseToolCalls(response: LLMResponse): ToolCall[] {
-    const rawResponse = response.rawResponse;
+    const rawResponse = response.rawResponse as
+      | {
+          message?: {
+            tool_calls?: Array<{
+              id?: string;
+              function?: {
+                name?: string;
+                arguments?: string | Record<string, unknown>;
+              };
+            }>;
+          };
+        }
+      | undefined;
     const toolCalls: ToolCall[] = [];
 
     // Check if the response has tool calls
-    if (rawResponse.message?.tool_calls) {
+    if (rawResponse?.message?.tool_calls) {
       for (const toolCall of rawResponse.message.tool_calls) {
         toolCalls.push({
           id: toolCall.id || Math.random().toString(36),
@@ -226,7 +240,9 @@ export class OllamaProvider implements LLMProvider {
   /**
    * Convert generic messages to Ollama format
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private convertMessages(messages: Message[], systemPrompt?: string): any[] {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const converted: any[] = [];
 
     // Add system message if provided
@@ -268,6 +284,7 @@ export class OllamaProvider implements LLMProvider {
   /**
    * Make a request to Ollama API
    */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private async makeRequest(endpoint: string, payload: any): Promise<any> {
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), this.timeout);

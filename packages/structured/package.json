@@ -1,0 +1,77 @@
+{
+  "name": "@lov3kaizen/agentsea-structured",
+  "version": "0.5.0",
+  "description": "TypeScript-native structured output framework - Zod schema enforcement for LLM responses",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint src --ext .ts",
+    "lint:fix": "eslint src --ext .ts --fix",
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "keywords": [
+    "ai",
+    "llm",
+    "structured-output",
+    "zod",
+    "json",
+    "schema",
+    "openai",
+    "anthropic",
+    "instructor",
+    "typescript"
+  ],
+  "author": "lov3kaizen",
+  "license": "MIT",
+  "dependencies": {
+    "eventemitter3": "^5.0.1",
+    "nanoid": "^5.0.7",
+    "zod": "^3.24.1",
+    "zod-to-json-schema": "^3.24.1"
+  },
+  "devDependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
+    "@types/node": "^22.10.2",
+    "@vitest/coverage-v8": "^2.1.9",
+    "eslint": "^9.17.0",
+    "openai": "^4.77.0",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "peerDependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "@google/generative-ai": "^0.20.0",
+    "openai": "^4.50.0"
+  },
+  "peerDependenciesMeta": {
+    "@anthropic-ai/sdk": {
+      "optional": true
+    },
+    "@google/generative-ai": {
+      "optional": true
+    },
+    "openai": {
+      "optional": true
+    }
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

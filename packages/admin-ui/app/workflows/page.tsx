@@ -28,7 +28,7 @@ export default function WorkflowsPage() {
   const filteredWorkflows = workflows.filter(
     (workflow) =>
       workflow.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      workflow.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      workflow.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -72,8 +72,8 @@ export default function WorkflowsPage() {
             </div>
             <h3 className="text-lg font-semibold mb-2">No workflows yet</h3>
             <p className="text-sm text-muted-foreground mb-4 text-center max-w-sm">
-              Create your first workflow to orchestrate multiple agents and automate
-              complex tasks
+              Create your first workflow to orchestrate multiple agents and
+              automate complex tasks
             </p>
             <Button asChild>
               <Link href="/workflows/new">
@@ -86,7 +86,10 @@ export default function WorkflowsPage() {
       ) : (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
           {filteredWorkflows.map((workflow) => (
-            <Card key={workflow.id} className="hover:shadow-lg transition-shadow">
+            <Card
+              key={workflow.id}
+              className="hover:shadow-lg transition-shadow"
+            >
               <CardHeader>
                 <div className="flex items-start justify-between">
                   <div className="flex-1">

@@ -18,7 +18,7 @@ export default function DashboardLayout({
       <div
         className={cn(
           'transition-all duration-300',
-          sidebarCollapsed ? 'pl-16' : 'pl-64'
+          sidebarCollapsed ? 'pl-16' : 'pl-64',
         )}
       >
         <Header />

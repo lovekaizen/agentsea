@@ -167,8 +167,10 @@ export class ElevenLabsTTSProvider implements TTSProvider {
         throw new Error('Failed to fetch voices');
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: any = await response.json();
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return data.voices.map((voice: any) => ({
         id: voice.voice_id,
         name: voice.name,
@@ -199,7 +201,9 @@ export class ElevenLabsTTSProvider implements TTSProvider {
         throw new Error('Failed to fetch models');
       }
 
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const data: any = await response.json();
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return data.map((model: any) => model.model_id);
     } catch (error) {
       // Return default models if API call fails

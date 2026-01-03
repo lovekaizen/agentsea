@@ -88,11 +88,9 @@ function calculate(
  * // { result: 8 }
  * ```
  */
-export const calculatorServer = calculatorDef.server(
-  async ({ operation, a, b }) => {
-    return calculate(operation, a, b);
-  },
-);
+export const calculatorServer = calculatorDef.server(({ operation, a, b }) => {
+  return Promise.resolve(calculate(operation, a, b));
+});
 
 /**
  * Client-side calculator implementation

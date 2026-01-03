@@ -10,6 +10,9 @@ jobs:
   lint:
     name: Lint
     runs-on: ubuntu-latest
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
@@ -25,6 +28,9 @@ jobs:
   type-check:
     name: Type Check
     runs-on: ubuntu-latest
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
@@ -49,7 +55,10 @@ jobs:
       matrix:
         node-version: [18, 20, 22]
         os: [ubuntu-latest, windows-latest, macos-latest]
-
+    env:
+      # Skip Puppeteer Chrome download - use system Chromium instead
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
@@ -64,12 +73,22 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.11'
+      # Install Chromium for puppeteer tests (Linux only)
+      - name: Install Chromium (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser
+          echo "PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser" >> $GITHUB_ENV
       - run: pnpm install --frozen-lockfile
       - run: pnpm test
 
   coverage:
     name: Coverage
     runs-on: ubuntu-latest
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2
@@ -79,6 +98,11 @@ jobs:
         with:
           node-version: 20
           cache: 'pnpm'
+      - name: Install Chromium
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y chromium-browser
+          echo "PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser" >> $GITHUB_ENV
       - run: pnpm install --frozen-lockfile
       - run: pnpm test:cov
       - uses: codecov/codecov-action@v3
@@ -90,6 +114,9 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
+    env:
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: 'true'
     steps:
       - uses: actions/checkout@v4
       - uses: pnpm/action-setup@v2

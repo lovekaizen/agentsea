@@ -24,7 +24,9 @@ export function WorkflowNode({ data, isConnectable }: any) {
               </div>
               <div>
                 <h3 className="font-semibold text-sm">{data.label}</h3>
-                <p className="text-xs text-muted-foreground capitalize">{data.type}</p>
+                <p className="text-xs text-muted-foreground capitalize">
+                  {data.type}
+                </p>
               </div>
             </div>
             <Button variant="ghost" size="icon" className="h-6 w-6">
@@ -32,7 +34,9 @@ export function WorkflowNode({ data, isConnectable }: any) {
             </Button>
           </div>
           {data.description && (
-            <p className="text-xs text-muted-foreground mt-2">{data.description}</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              {data.description}
+            </p>
           )}
           {data.agentCount && (
             <div className="mt-2">

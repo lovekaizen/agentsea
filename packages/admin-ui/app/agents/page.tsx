@@ -28,7 +28,7 @@ export default function AgentsPage() {
   const filteredAgents = agents.filter(
     (agent) =>
       agent.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      agent.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      agent.description?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   return (
@@ -72,7 +72,8 @@ export default function AgentsPage() {
             </div>
             <h3 className="text-lg font-semibold mb-2">No agents yet</h3>
             <p className="text-sm text-muted-foreground mb-4 text-center max-w-sm">
-              Create your first AI agent to get started with autonomous task execution
+              Create your first AI agent to get started with autonomous task
+              execution
             </p>
             <Button asChild>
               <Link href="/agents/new">
@@ -87,7 +88,10 @@ export default function AgentsPage() {
           {filteredAgents.map((agent) => {
             const tools = agent.tools ? JSON.parse(agent.tools) : [];
             return (
-              <Card key={agent.id} className="hover:shadow-lg transition-shadow">
+              <Card
+                key={agent.id}
+                className="hover:shadow-lg transition-shadow"
+              >
                 <CardHeader>
                   <div className="flex items-start justify-between">
                     <div className="flex-1">
@@ -140,7 +144,12 @@ export default function AgentsPage() {
                       <Badge variant="secondary">{tools.length} tools</Badge>
                     </div>
                   )}
-                  <Button asChild variant="outline" size="sm" className="w-full mt-2">
+                  <Button
+                    asChild
+                    variant="outline"
+                    size="sm"
+                    className="w-full mt-2"
+                  >
                     <Link href={`/agents/${agent.id}`}>
                       <Edit className="mr-2 h-4 w-4" />
                       Configure

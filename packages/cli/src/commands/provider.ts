@@ -101,7 +101,7 @@ export async function addProviderCommand(): Promise<void> {
       type: 'input',
       name: 'baseUrl',
       message: 'Base URL:',
-      default: (answers: any) => {
+      default: (answers: { type: string }) => {
         if (answers.type === 'ollama') return 'http://localhost:11434';
         if (answers.type === 'openai-compatible')
           return 'http://localhost:1234';

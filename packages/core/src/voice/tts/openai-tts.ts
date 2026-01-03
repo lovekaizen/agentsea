@@ -52,6 +52,7 @@ export class OpenAITTSProvider implements TTSProvider {
     try {
       const response = await this.client.audio.speech.create({
         model: config?.model || 'tts-1',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         voice: (config?.voice as any) || 'alloy',
         input: text,
         speed: config?.speed || 1.0,
@@ -85,6 +86,7 @@ export class OpenAITTSProvider implements TTSProvider {
     try {
       const response = await this.client.audio.speech.create({
         model: config?.model || 'tts-1',
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         voice: (config?.voice as any) || 'alloy',
         input: text,
         speed: config?.speed || 1.0,

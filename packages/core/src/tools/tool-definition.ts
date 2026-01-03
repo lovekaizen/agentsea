@@ -403,31 +403,41 @@ export function clientTool<
 /**
  * Type helper to extract input type from a tool definition
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ToolInput<T> =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends ToolDefinition<infer TInput, any>
     ? z.infer<TInput>
-    : T extends ServerTool<infer TInput, any>
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      T extends ServerTool<infer TInput, any>
       ? z.infer<TInput>
-      : T extends ClientTool<infer TInput, any>
+      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        T extends ClientTool<infer TInput, any>
         ? z.infer<TInput>
         : never;
 
 /**
  * Type helper to extract output type from a tool definition
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ToolOutput<T> =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   T extends ToolDefinition<any, infer TOutput>
     ? z.infer<TOutput>
-    : T extends ServerTool<any, infer TOutput>
+    : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      T extends ServerTool<any, infer TOutput>
       ? z.infer<TOutput>
-      : T extends ClientTool<any, infer TOutput>
+      : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        T extends ClientTool<any, infer TOutput>
         ? z.infer<TOutput>
         : never;
 
 /**
  * Convert any tool implementation to the legacy Tool interface
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function toLegacyTool(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   tool: ServerTool<any, any> | ClientTool<any, any> | HybridTool<any, any>,
 ): Tool {
   return tool.toTool();
@@ -436,8 +446,10 @@ export function toLegacyTool(
 /**
  * Convert multiple tools to legacy Tool interface
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function toLegacyTools(
   tools: Array<
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     ServerTool<any, any> | ClientTool<any, any> | HybridTool<any, any>
   >,
 ): Tool[] {

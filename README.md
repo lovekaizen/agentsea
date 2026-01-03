@@ -17,11 +17,16 @@ AgentSea ADK unites AI agents and services to create powerful, intelligent appli
 - 🎙️ **Voice Support (TTS/STT)** - OpenAI Whisper, ElevenLabs, Piper TTS, Local Whisper
 - 🔗 **MCP Protocol** - First-class Model Context Protocol integration
 - 🛒 **ACP Protocol** - Agentic Commerce Protocol for e-commerce integration
-- 🔄 **Multi-Agent Workflows** - Sequential, parallel, and supervisor orchestration
+- 🔄 **Multi-Agent Crews** - Role-based coordination with delegation strategies
 - 💬 **Conversation Schemas** - Structured conversational experiences with validation
-- 🧠 **Advanced Memory** - Buffer, Redis, and summary-based memory stores
+- 🧠 **Advanced Memory** - Episodic, semantic, and working memory with multi-agent sharing
 - 🔧 **Built-in Tools** - 8 production-ready tools + custom tool support
-- 📊 **Full Observability** - Logging, metrics, and distributed tracing
+- 🛡️ **Guardrails** - Input/output validation, content filtering, and safety checks
+- 📊 **LLM Evaluation** - Metrics, LLM-as-Judge, human feedback, and continuous monitoring
+- 🌐 **LLM Gateway** - OpenAI-compatible API with intelligent routing and load balancing
+- 🔍 **Embeddings** - Multi-provider embeddings with caching and quality metrics
+- 🌐 **Browser Automation** - Web agents with Playwright, Puppeteer, and native backends
+- 📈 **Full Observability** - Logging, metrics, and distributed tracing
 - 🎯 **NestJS Integration** - Decorators, modules, and dependency injection
 - 🌐 **REST API & Streaming** - HTTP endpoints, SSE streaming, WebSocket support
 - 🚀 **Production Ready** - Rate limiting, caching, error handling, retries
@@ -437,9 +442,34 @@ export class AppModule {}
 
 ## 📦 Packages
 
+### Core Packages
+
 - **[@lov3kaizen/agentsea-core](./packages/core)** - Framework-agnostic core library
-- **[@lov3kaizen/agentsea-cli](./packages/cli)** - Command-line interface
+- **[@lov3kaizen/agentsea-types](./packages/types)** - Shared TypeScript type definitions
 - **[@lov3kaizen/agentsea-nestjs](./packages/nestjs)** - NestJS integration with decorators
+- **[@lov3kaizen/agentsea-cli](./packages/cli)** - Command-line interface
+
+### Agent Orchestration
+
+- **[@lov3kaizen/agentsea-crews](./packages/crews)** - Multi-agent orchestration with role-based coordination
+- **[@lov3kaizen/agentsea-gateway](./packages/gateway)** - OpenAI-compatible LLM gateway with routing
+
+### Memory & Retrieval
+
+- **[@lov3kaizen/agentsea-memory](./packages/memory)** - Advanced memory with semantic retrieval and multi-agent support
+- **[@lov3kaizen/agentsea-embeddings](./packages/embeddings)** - Embedding providers with caching and quality metrics
+
+### Safety & Evaluation
+
+- **[@lov3kaizen/agentsea-guardrails](./packages/guardrails)** - Input/output validation and content filtering
+- **[@lov3kaizen/agentsea-evaluate](./packages/evaluate)** - LLM evaluation, human feedback, and continuous monitoring
+
+### Automation
+
+- **[@lov3kaizen/agentsea-surf](./packages/surf)** - Browser automation for web agents
+
+### Examples
+
 - **[examples](./examples)** - Example applications
 
 ## 🏗️ Architecture
@@ -484,17 +514,29 @@ AgentSea follows a clean, layered architecture:
 
 Autonomous AI entities that can reason, use tools, and maintain conversation context.
 
+### Crews
+
+Multi-agent teams with defined roles, delegation strategies, and coordinated task execution.
+
 ### Tools
 
 Functions that agents can call to perform specific tasks (API calls, calculations, etc.).
 
-### Workflows
-
-Orchestrate multiple agents in sequential, parallel, or supervised patterns.
-
 ### Memory
 
-Manage conversation context with Buffer, Redis, or Summary memory stores.
+Hierarchical memory system with episodic, semantic, and working memory structures. Supports multi-agent sharing with access control.
+
+### Guardrails
+
+Input validation, output filtering, and safety checks to ensure responsible AI behavior.
+
+### Evaluation
+
+LLM-as-Judge, human feedback collection, and continuous monitoring for quality assurance.
+
+### Gateway
+
+OpenAI-compatible API gateway with intelligent routing, load balancing, and fallback handling.
 
 ### MCP
 
@@ -508,22 +550,41 @@ Define structured conversation flows with validation and dynamic routing.
 
 Full documentation available at [agentsea.dev](https://agentsea.dev)
 
+### Getting Started
+
 - [Installation](https://agentsea.dev/docs/installation)
 - [Quick Start](https://agentsea.dev/docs/quick-start)
 - [CLI Guide](./docs/CLI.md)
+
+### Core Concepts
+
 - [Agents](https://agentsea.dev/docs/agents)
 - [Providers](https://agentsea.dev/docs/providers)
-- [Per-Model Type Safety](./docs/PER_MODEL_TYPE_SAFETY.md) ⭐ NEW
+- [Per-Model Type Safety](./docs/PER_MODEL_TYPE_SAFETY.md)
 - [Tools](https://agentsea.dev/docs/tools)
-- [Workflows](https://agentsea.dev/docs/workflows)
-- [Memory](https://agentsea.dev/docs/memory)
-- [MCP Integration](https://agentsea.dev/docs/mcp-overview)
 - [Conversation Schemas](https://agentsea.dev/docs/conversation)
+
+### Package Documentation
+
+- [Crews - Multi-Agent Orchestration](./packages/crews/README.md)
+- [Memory - Advanced Memory Systems](./packages/memory/README.md)
+- [Embeddings - Embedding Providers](./packages/embeddings/README.md)
+- [Gateway - LLM Gateway](./packages/gateway/README.md)
+- [Guardrails - Safety & Validation](./packages/guardrails/README.md)
+- [Evaluate - LLM Evaluation](./packages/evaluate/README.md)
+- [Surf - Browser Automation](./packages/surf/README.md)
+
+### Integrations
+
+- [MCP Integration](https://agentsea.dev/docs/mcp-overview)
 - [Local Models & Open Source](./docs/LOCAL_MODELS.md)
 - [Voice Features (TTS/STT)](./docs/VOICE.md)
 - [Provider Reference](./docs/PROVIDERS.md)
-- [Observability](https://agentsea.dev/docs/observability)
 - [NestJS Integration](https://agentsea.dev/docs/nestjs)
+
+### Operations
+
+- [Observability](https://agentsea.dev/docs/observability)
 - [API Reference](https://agentsea.dev/api)
 
 ## 🛠️ Development
@@ -560,23 +621,34 @@ pnpm type-check
 - [x] Voice support (TTS/STT) with multiple providers
 - [x] Command-line interface (CLI)
 - [x] MCP protocol integration
-- [x] Multi-agent workflows (sequential, parallel, supervisor)
+- [x] Multi-agent crews with role-based coordination
+- [x] Delegation strategies (round-robin, best-match, auction, hierarchical)
 - [x] Conversation schema system
-- [x] Advanced memory stores (Buffer, Redis, Summary)
+- [x] Advanced memory stores (Buffer, Redis, PostgreSQL, SQLite, Pinecone)
+- [x] Memory structures (Episodic, Semantic, Working)
+- [x] Multi-agent memory sharing with access control
+- [x] LLM Gateway with OpenAI-compatible API
+- [x] Intelligent routing (round-robin, least-latency, cost-based)
+- [x] Guardrails for input/output validation
+- [x] Content filtering and safety checks
+- [x] LLM evaluation metrics and LLM-as-Judge
+- [x] Human feedback collection and preference learning
+- [x] Continuous evaluation monitoring
+- [x] Embeddings with multi-provider support
+- [x] Browser automation (Playwright, Puppeteer, native)
 - [x] Built-in tools (8 tools + custom support)
 - [x] Observability (logging, metrics, tracing)
-- [x] NestJS integration
+- [x] NestJS integration for all packages
 - [x] Rate limiting and caching
 - [x] Comprehensive test suite
-- [x] TypeScript definitions
+- [x] TypeScript definitions with strict type safety
 - [x] CI/CD workflows
 
 ### 🚧 In Progress
 
-- [ ] Vector-based memory
 - [ ] Admin UI for monitoring
 - [ ] Additional MCP tools/servers
-- [ ] More provider integrations
+- [ ] Computer use agent (screenshot, click, type)
 
 ## 🤝 Contributing
 

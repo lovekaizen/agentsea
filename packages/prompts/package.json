@@ -1,0 +1,89 @@
+{
+  "name": "@lov3kaizen/agentsea-prompts",
+  "version": "0.5.0",
+  "description": "Self-hosted prompt management with Git-like version control, environment promotion, A/B testing, and team collaboration",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./client": {
+      "types": "./dist/sdk/Client.d.ts",
+      "import": "./dist/sdk/Client.js"
+    },
+    "./storage": {
+      "types": "./dist/storage/index.d.ts",
+      "import": "./dist/storage/index.js"
+    },
+    "./testing": {
+      "types": "./dist/testing/index.d.ts",
+      "import": "./dist/testing/index.js"
+    },
+    "./integrations/agentsea": {
+      "types": "./dist/integrations/agentsea/index.d.ts",
+      "import": "./dist/integrations/agentsea/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "typecheck": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "dependencies": {
+    "handlebars": "^4.7.8",
+    "nanoid": "^5.0.9",
+    "diff": "^7.0.0",
+    "zod": "^3.24.1",
+    "eventemitter3": "^5.0.1",
+    "murmurhash": "^2.0.1"
+  },
+  "devDependencies": {
+    "@types/diff": "^7.0.0",
+    "@types/node": "^20.17.10",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^11.7.0",
+    "pg": "^8.13.1",
+    "@aws-sdk/client-s3": "^3.721.0"
+  },
+  "peerDependencies": {
+    "@lov3kaizen/agentsea-core": "workspace:*"
+  },
+  "peerDependenciesMeta": {
+    "@lov3kaizen/agentsea-core": {
+      "optional": true
+    }
+  },
+  "keywords": [
+    "prompt-management",
+    "llm",
+    "ai",
+    "prompts",
+    "version-control",
+    "a/b-testing",
+    "agentsea"
+  ],
+  "author": "lovekaizen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lov3kaizen/agentsea.git",
+    "directory": "packages/prompts"
+  }
+}

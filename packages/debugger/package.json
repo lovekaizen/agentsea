@@ -1,0 +1,99 @@
+{
+  "name": "@lov3kaizen/agentsea-debugger",
+  "version": "0.5.0",
+  "description": "AI Agent debugger with step-through execution, decision tree visualization, checkpoint replay, and what-if scenario testing",
+  "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    },
+    "./recording": {
+      "types": "./dist/recording/index.d.ts",
+      "import": "./dist/recording/index.js"
+    },
+    "./replay": {
+      "types": "./dist/replay/index.d.ts",
+      "import": "./dist/replay/index.js"
+    },
+    "./visualization": {
+      "types": "./dist/visualization/index.d.ts",
+      "import": "./dist/visualization/index.js"
+    },
+    "./analysis": {
+      "types": "./dist/analysis/index.d.ts",
+      "import": "./dist/analysis/index.js"
+    },
+    "./storage": {
+      "types": "./dist/storage/index.d.ts",
+      "import": "./dist/storage/index.js"
+    },
+    "./agentsea": {
+      "types": "./dist/integrations/agentsea/index.d.ts",
+      "import": "./dist/integrations/agentsea/index.js"
+    }
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsup",
+    "dev": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "lint": "eslint src --ext .ts",
+    "type-check": "tsc --noEmit",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "debugger",
+    "ai",
+    "agent",
+    "replay",
+    "checkpoint",
+    "decision-tree",
+    "visualization",
+    "what-if",
+    "agentsea",
+    "llm"
+  ],
+  "author": "lov3kaizen",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lov3kaizen/agentsea.git",
+    "directory": "packages/debugger"
+  },
+  "dependencies": {
+    "eventemitter3": "^5.0.1",
+    "lru-cache": "^10.4.3",
+    "nanoid": "^5.0.9",
+    "deep-diff": "^1.0.2"
+  },
+  "devDependencies": {
+    "@types/deep-diff": "^1.0.5",
+    "@types/node": "^20.17.10",
+    "tsup": "^8.3.5",
+    "typescript": "^5.7.2",
+    "vitest": "^2.1.8"
+  },
+  "peerDependencies": {
+    "@lov3kaizen/agentsea-core": ">=0.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@lov3kaizen/agentsea-core": {
+      "optional": true
+    }
+  },
+  "optionalDependencies": {
+    "better-sqlite3": "^11.7.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

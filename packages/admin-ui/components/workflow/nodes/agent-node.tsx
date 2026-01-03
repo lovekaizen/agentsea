@@ -32,7 +32,9 @@ export function AgentNode({ data, isConnectable }: any) {
             </Button>
           </div>
           {data.description && (
-            <p className="text-xs text-muted-foreground mt-2">{data.description}</p>
+            <p className="text-xs text-muted-foreground mt-2">
+              {data.description}
+            </p>
           )}
           {data.tools && data.tools.length > 0 && (
             <div className="flex flex-wrap gap-1 mt-2">
