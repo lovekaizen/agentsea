@@ -49,12 +49,16 @@ export class PuppeteerBackend extends BaseBackend {
   }
 
   async connect(): Promise<void> {
+    // Dynamic import - prefer puppeteer-core (no bundled Chrome), fallback to puppeteer
+    // Use variable to prevent TypeScript from resolving types for optional peer deps
+    const puppeteerCore = 'puppeteer-core';
+    const puppeteerFull = 'puppeteer';
+
     try {
-      // Dynamic import - prefer puppeteer-core (no bundled Chrome), fallback to puppeteer
       try {
-        this.puppeteer = await import('puppeteer-core');
+        this.puppeteer = await import(puppeteerCore);
       } catch {
-        this.puppeteer = await import('puppeteer');
+        this.puppeteer = await import(puppeteerFull);
       }
     } catch {
       throw new Error(
