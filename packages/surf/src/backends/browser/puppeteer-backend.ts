@@ -50,11 +50,15 @@ export class PuppeteerBackend extends BaseBackend {
 
   async connect(): Promise<void> {
     try {
-      // Dynamic import of puppeteer
-      this.puppeteer = await import('puppeteer');
+      // Dynamic import - prefer puppeteer-core (no bundled Chrome), fallback to puppeteer
+      try {
+        this.puppeteer = await import('puppeteer-core');
+      } catch {
+        this.puppeteer = await import('puppeteer');
+      }
     } catch {
       throw new Error(
-        'Puppeteer is required but not installed. Install with: npm install puppeteer',
+        'Puppeteer is required but not installed. Install with: npm install puppeteer-core',
       );
     }
 
@@ -68,8 +72,15 @@ export class PuppeteerBackend extends BaseBackend {
       ],
     };
 
+    // Set executable path - required for puppeteer-core
     if (this.options.executablePath) {
       launchOptions.executablePath = this.options.executablePath;
+    } else {
+      // Try to find system Chromium for puppeteer-core
+      const chromiumPath = this.findChromiumPath();
+      if (chromiumPath) {
+        launchOptions.executablePath = chromiumPath;
+      }
     }
 
     this.browser = await this.puppeteer.default.launch(launchOptions);
@@ -412,6 +423,38 @@ export class PuppeteerBackend extends BaseBackend {
   getTitle(): Promise<string> {
     this.ensureConnected();
     return this.page.title();
+  }
+
+  /**
+   * Find system Chromium executable path
+   */
+  private findChromiumPath(): string | undefined {
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const fs = require('fs') as typeof import('fs');
+    const possiblePaths = [
+      // Environment variable (preferred for CI)
+      process.env.PUPPETEER_EXECUTABLE_PATH,
+      process.env.CHROMIUM_PATH,
+      // Linux
+      '/usr/bin/chromium',
+      '/usr/bin/chromium-browser',
+      '/usr/bin/google-chrome',
+      '/usr/bin/google-chrome-stable',
+      // macOS
+      '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      '/Applications/Chromium.app/Contents/MacOS/Chromium',
+      // Windows
+      'C:\\Program Files\\Google\\Chrome\\Application\\chrome.exe',
+      'C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome.exe',
+    ];
+
+    for (const chromePath of possiblePaths) {
+      if (chromePath && fs.existsSync(chromePath)) {
+        return chromePath;
+      }
+    }
+
+    return undefined;
   }
 
   /**
