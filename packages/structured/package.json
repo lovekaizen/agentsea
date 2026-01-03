@@ -70,5 +70,8 @@
     "openai": {
       "optional": true
     }
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
