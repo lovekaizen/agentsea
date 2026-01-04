@@ -21,12 +21,14 @@ AgentSea ADK unites AI agents and services to create powerful, intelligent appli
 - 💬 **Conversation Schemas** - Structured conversational experiences with validation
 - 🧠 **Advanced Memory** - Episodic, semantic, and working memory with multi-agent sharing
 - 🔧 **Built-in Tools** - 8 production-ready tools + custom tool support
-- 🛡️ **Guardrails** - Input/output validation, content filtering, and safety checks
+- 🛡️ **Guardrails** - Content safety, prompt injection detection, PII filtering, and validation
 - 📊 **LLM Evaluation** - Metrics, LLM-as-Judge, human feedback, and continuous monitoring
-- 🌐 **LLM Gateway** - OpenAI-compatible API with intelligent routing and load balancing
+- 🌐 **LLM Gateway** - OpenAI-compatible API with intelligent routing, caching, and cost optimization
 - 🔍 **Embeddings** - Multi-provider embeddings with caching and quality metrics
+- 📝 **Structured Output** - TypeScript-native Zod schema enforcement for LLM responses
+- 📥 **Document Ingestion** - Flexible pipeline with parsers, chunkers, and transformers
 - 🌐 **Browser Automation** - Web agents with Playwright, Puppeteer, and native backends
-- 📈 **Full Observability** - Logging, metrics, and distributed tracing
+- 📈 **Full Observability** - Logging, metrics, distributed tracing, and cost tracking
 - 🎯 **NestJS Integration** - Decorators, modules, and dependency injection
 - 🌐 **REST API & Streaming** - HTTP endpoints, SSE streaming, WebSocket support
 - 🚀 **Production Ready** - Rate limiting, caching, error handling, retries
@@ -452,21 +454,40 @@ export class AppModule {}
 ### Agent Orchestration
 
 - **[@lov3kaizen/agentsea-crews](./packages/crews)** - Multi-agent orchestration with role-based coordination
-- **[@lov3kaizen/agentsea-gateway](./packages/gateway)** - OpenAI-compatible LLM gateway with routing
+- **[@lov3kaizen/agentsea-gateway](./packages/gateway)** - High-performance LLM gateway with routing, caching, and cost optimization
 
 ### Memory & Retrieval
 
 - **[@lov3kaizen/agentsea-memory](./packages/memory)** - Advanced memory with semantic retrieval and multi-agent support
 - **[@lov3kaizen/agentsea-embeddings](./packages/embeddings)** - Embedding providers with caching and quality metrics
+- **[@lov3kaizen/agentsea-cache](./packages/cache)** - Intelligent caching strategies for LLM responses
+
+### Data Processing
+
+- **[@lov3kaizen/agentsea-structured](./packages/structured)** - TypeScript-native structured output with Zod schema enforcement
+- **[@lov3kaizen/agentsea-ingest](./packages/ingest)** - Document ingestion pipeline with parsers and chunkers
+- **[@lov3kaizen/agentsea-prompts](./packages/prompts)** - Prompt management and templating
 
 ### Safety & Evaluation
 
-- **[@lov3kaizen/agentsea-guardrails](./packages/guardrails)** - Input/output validation and content filtering
+- **[@lov3kaizen/agentsea-guardrails](./packages/guardrails)** - Content safety, prompt injection detection, and validation
 - **[@lov3kaizen/agentsea-evaluate](./packages/evaluate)** - LLM evaluation, human feedback, and continuous monitoring
+- **[@lov3kaizen/agentsea-redteam](./packages/redteam)** - Red teaming and adversarial testing for AI systems
+
+### Observability & Operations
+
+- **[@lov3kaizen/agentsea-analytics](./packages/analytics)** - Usage analytics and insights
+- **[@lov3kaizen/agentsea-costs](./packages/costs)** - Cost tracking and optimization
+- **[@lov3kaizen/agentsea-debugger](./packages/debugger)** - Debugging and tracing tools
 
 ### Automation
 
-- **[@lov3kaizen/agentsea-surf](./packages/surf)** - Browser automation for web agents
+- **[@lov3kaizen/agentsea-surf](./packages/surf)** - Browser automation for web agents (Puppeteer/Playwright)
+
+### UI
+
+- **[@lov3kaizen/agentsea-react](./packages/react)** - React components for agent interfaces
+- **[@lov3kaizen/agentsea-admin-ui](./packages/admin-ui)** - Admin dashboard for monitoring agents
 
 ### Examples
 
@@ -566,13 +587,16 @@ Full documentation available at [agentsea.dev](https://agentsea.dev)
 
 ### Package Documentation
 
+- [Structured - Zod Schema Enforcement](./packages/structured/README.md)
+- [Guardrails - Safety & Validation](./packages/guardrails/README.md)
+- [Gateway - LLM Gateway](./packages/gateway/README.md)
+- [Ingest - Document Ingestion](./packages/ingest/README.md)
 - [Crews - Multi-Agent Orchestration](./packages/crews/README.md)
 - [Memory - Advanced Memory Systems](./packages/memory/README.md)
 - [Embeddings - Embedding Providers](./packages/embeddings/README.md)
-- [Gateway - LLM Gateway](./packages/gateway/README.md)
-- [Guardrails - Safety & Validation](./packages/guardrails/README.md)
 - [Evaluate - LLM Evaluation](./packages/evaluate/README.md)
 - [Surf - Browser Automation](./packages/surf/README.md)
+- [React - UI Components](./packages/react/README.md)
 
 ### Integrations
 
@@ -627,28 +651,33 @@ pnpm type-check
 - [x] Advanced memory stores (Buffer, Redis, PostgreSQL, SQLite, Pinecone)
 - [x] Memory structures (Episodic, Semantic, Working)
 - [x] Multi-agent memory sharing with access control
-- [x] LLM Gateway with OpenAI-compatible API
+- [x] LLM Gateway with OpenAI-compatible API, caching, and cost optimization
 - [x] Intelligent routing (round-robin, least-latency, cost-based)
-- [x] Guardrails for input/output validation
-- [x] Content filtering and safety checks
+- [x] Structured output with Zod schema enforcement
+- [x] Document ingestion pipeline with parsers and chunkers
+- [x] Guardrails for content safety, prompt injection, and PII detection
+- [x] Content filtering and validation
 - [x] LLM evaluation metrics and LLM-as-Judge
 - [x] Human feedback collection and preference learning
 - [x] Continuous evaluation monitoring
+- [x] Red teaming and adversarial testing
 - [x] Embeddings with multi-provider support
 - [x] Browser automation (Playwright, Puppeteer, native)
 - [x] Built-in tools (8 tools + custom support)
 - [x] Observability (logging, metrics, tracing)
+- [x] Cost tracking and analytics
 - [x] NestJS integration for all packages
+- [x] React components for agent interfaces
 - [x] Rate limiting and caching
 - [x] Comprehensive test suite
 - [x] TypeScript definitions with strict type safety
-- [x] CI/CD workflows
+- [x] CI/CD workflows with automated releases
 
 ### 🚧 In Progress
 
-- [ ] Admin UI for monitoring
+- [ ] Admin UI dashboard improvements
 - [ ] Additional MCP tools/servers
-- [ ] Computer use agent (screenshot, click, type)
+- [ ] Enhanced computer use agent capabilities
 
 ## 🤝 Contributing
 
