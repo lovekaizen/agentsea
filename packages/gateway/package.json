@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-gateway",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "High-performance TypeScript-native LLM gateway with unified API access, intelligent routing, semantic caching, and cost optimization",
   "keywords": [
     "llm",
