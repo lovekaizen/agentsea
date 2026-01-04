@@ -4,6 +4,13 @@ on:
   push:
     tags:
       - 'v*'
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry run (skip publish)'
+        required: false
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -42,10 +49,10 @@ jobs:
         run: pnpm build
 
       - name: Publish to npm
-        run: pnpm publish -r --access public --no-git-checks --provenance
+        if: ${{ !inputs.dry_run }}
+        run: pnpm publish -r --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
