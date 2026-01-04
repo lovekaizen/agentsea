@@ -50,9 +50,42 @@ jobs:
 
       - name: Publish to npm
         if: ${{ !inputs.dry_run }}
-        run: pnpm publish -r --access public --no-git-checks
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          # Publish packages sequentially with delays to avoid npm registry conflicts
+          publish_package() {
+            local pkg=$1
+            local max_retries=3
+            local retry=0
+
+            while [ $retry -lt $max_retries ]; do
+              echo "Publishing $pkg (attempt $((retry + 1))/$max_retries)..."
+              if pnpm --filter "$pkg" publish --access public --no-git-checks; then
+                echo "Successfully published $pkg"
+                sleep 5  # Wait 5 seconds between packages
+                return 0
+              else
+                retry=$((retry + 1))
+                if [ $retry -lt $max_retries ]; then
+                  echo "Publish failed, waiting 30 seconds before retry..."
+                  sleep 30
+                fi
+              fi
+            done
+
+            echo "Failed to publish $pkg after $max_retries attempts"
+            return 1
+          }
+
+          # Publish in dependency order: types first, then core, then others
+          publish_package "@lov3kaizen/agentsea-types"
+          publish_package "@lov3kaizen/agentsea-core"
+
+          # Publish remaining packages
+          for pkg in $(pnpm -r --filter '!@lov3kaizen/agentsea-types' --filter '!@lov3kaizen/agentsea-core' exec -- node -p "require('./package.json').name" 2>/dev/null); do
+            publish_package "$pkg" || true  # Continue on failure
+          done
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
