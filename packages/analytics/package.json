@@ -73,7 +73,7 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/lovekaizen/agentsea-sdk.git",
+    "url": "https://github.com/lovekaizen/agentsea.git",
     "directory": "packages/analytics"
   },
   "dependencies": {
