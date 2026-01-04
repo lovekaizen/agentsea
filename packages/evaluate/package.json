@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-evaluate",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Comprehensive feedback collection and LLM evaluation platform for Node.js - human-in-the-loop annotation, automated evaluation pipelines, preference dataset generation",
   "main": "dist/index.js",
   "module": "dist/index.mjs",

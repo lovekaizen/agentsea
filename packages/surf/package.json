@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-surf",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Surf - Computer-use agent for AgentSea. Control desktop environments through screen capture, mouse, and keyboard actions using Claude's vision capabilities.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
