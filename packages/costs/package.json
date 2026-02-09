@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-costs",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "AI cost management platform with real-time tracking, budget enforcement, and optimization",
   "type": "module",
   "main": "./dist/index.js",

@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-guardrails",
-  "version": "0.5.2",
+  "version": "1.0.0",
   "description": "TypeScript-native guardrails engine for AI applications. Content safety, prompt injection detection, output validation, and intelligent rate limiting.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

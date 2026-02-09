@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-cache",
-  "version": "0.5.2",
+  "version": "1.0.0",
   "description": "Semantic caching layer for LLM responses - exact match, semantic similarity, and hybrid strategies",
   "type": "module",
   "main": "./dist/index.js",
@@ -86,8 +86,8 @@
     "vitest": "^2.1.8"
   },
   "peerDependencies": {
-    "@lov3kaizen/agentsea-core": ">=0.5.0",
-    "@lov3kaizen/agentsea-embeddings": ">=0.5.0"
+    "@lov3kaizen/agentsea-core": ">=0.6.0",
+    "@lov3kaizen/agentsea-embeddings": ">=1.0.0"
   },
   "peerDependenciesMeta": {
     "@lov3kaizen/agentsea-core": {

@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-redteam",
-  "version": "0.5.2",
+  "version": "1.0.0",
   "description": "AI Safety & Red Teaming Toolkit for proactive security testing of AI agents",
   "type": "module",
   "main": "./dist/index.js",
@@ -94,7 +94,7 @@
     "vitest": "^3.2.1"
   },
   "peerDependencies": {
-    "@lov3kaizen/agentsea-core": ">=0.5.0"
+    "@lov3kaizen/agentsea-core": ">=0.6.0"
   },
   "peerDependenciesMeta": {
     "@lov3kaizen/agentsea-core": {
