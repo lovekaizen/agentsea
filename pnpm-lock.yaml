@@ -328,6 +328,9 @@ importers:
       '@lov3kaizen/agentsea-types':
         specifier: workspace:*
         version: link:../types
+      fast-glob:
+        specifier: ^3.3.2
+        version: 3.3.3
       ioredis:
         specifier: ^5.3.2
         version: 5.8.2

@@ -11,6 +11,7 @@ import {
   runAgentCommand,
 } from './commands/agent';
 import { chatCommand } from './commands/chat';
+import { codeCommand } from './commands/code';
 import {
   createBudgetCommand,
   listBudgetsCommand,
@@ -166,6 +167,30 @@ program
       await chatCommand(options);
     } catch (error) {
       logger.error('Chat failed', error as Error);
+      process.exit(1);
+    }
+  });
+
+// Code command
+program
+  .command('code')
+  .description(
+    'Start an interactive agentic coding session with file, shell, and git tools',
+  )
+  .option('-a, --agent <name>', 'Agent to use')
+  .option('-p, --provider <name>', 'Provider to use')
+  .option('-m, --model <name>', 'Model to use')
+  .option('-v, --verbose', 'Show tool calls and metadata')
+  .option(
+    '--max-iterations <number>',
+    'Maximum agent iterations (default: 25)',
+    parseInt,
+  )
+  .action(async (options) => {
+    try {
+      await codeCommand(options);
+    } catch (error) {
+      logger.error('Code session failed', error as Error);
       process.exit(1);
     }
   });
