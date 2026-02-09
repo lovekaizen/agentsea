@@ -230,10 +230,10 @@ importers:
   packages/cache:
     dependencies:
       '@lov3kaizen/agentsea-core':
-        specifier: '>=0.5.0'
+        specifier: '>=0.6.0'
         version: link:../core
       '@lov3kaizen/agentsea-embeddings':
-        specifier: '>=0.5.0'
+        specifier: '>=1.0.0'
         version: link:../embeddings
       eventemitter3:
         specifier: ^5.0.1
@@ -464,7 +464,7 @@ importers:
   packages/debugger:
     dependencies:
       '@lov3kaizen/agentsea-core':
-        specifier: '>=0.5.0'
+        specifier: '>=0.6.0'
         version: link:../core
       deep-diff:
         specifier: ^1.0.2
@@ -502,7 +502,7 @@ importers:
   packages/embeddings:
     dependencies:
       '@lov3kaizen/agentsea-core':
-        specifier: '>=0.5.0'
+        specifier: '>=0.6.0'
         version: link:../core
       eventemitter3:
         specifier: ^5.0.0
@@ -552,7 +552,7 @@ importers:
   packages/evaluate:
     dependencies:
       '@lov3kaizen/agentsea-core':
-        specifier: '>=0.5.0'
+        specifier: '>=0.6.0'
         version: link:../core
       eventemitter3:
         specifier: ^5.0.0
@@ -593,7 +593,7 @@ importers:
         specifier: ^1.13.0
         version: 1.19.6(hono@4.10.4)
       '@lov3kaizen/agentsea-core':
-        specifier: '>=0.5.0'
+        specifier: '>=0.6.0'
         version: link:../core
       hono:
         specifier: ^4.6.0
@@ -758,10 +758,10 @@ importers:
   packages/memory:
     dependencies:
       '@lov3kaizen/agentsea-core':
-        specifier: '>=0.5.0'
+        specifier: '>=0.6.0'
         version: link:../core
       '@lov3kaizen/agentsea-embeddings':
-        specifier: '>=0.5.0'
+        specifier: '>=1.0.0'
         version: link:../embeddings
       eventemitter3:
         specifier: ^5.0.0
@@ -959,7 +959,7 @@ importers:
   packages/redteam:
     dependencies:
       '@lov3kaizen/agentsea-core':
-        specifier: '>=0.5.0'
+        specifier: '>=0.6.0'
         version: link:../core
       eventemitter3:
         specifier: ^5.0.1

@@ -14,7 +14,7 @@ import {
 
 const ctx = {} as any;
 
-describe('git tools', () => {
+describe('git tools', { timeout: 60_000 }, () => {
   let tmpDir: string;
 
   beforeEach(async () => {

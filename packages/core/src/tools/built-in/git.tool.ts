@@ -4,7 +4,7 @@ import { z } from 'zod';
 
 import { Tool } from '../../types';
 
-const GIT_TIMEOUT_MS = 15_000;
+const GIT_TIMEOUT_MS = 30_000;
 
 function gitExec(args: string, cwd?: string): string {
   return execSync(`git ${args}`, {
