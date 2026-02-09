@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-gateway",
-  "version": "0.5.2",
+  "version": "1.0.0",
   "description": "High-performance TypeScript-native LLM gateway with unified API access, intelligent routing, semantic caching, and cost optimization",
   "keywords": [
     "llm",
@@ -61,7 +61,7 @@
     "murmurhash": "^2.0.1"
   },
   "peerDependencies": {
-    "@lov3kaizen/agentsea-core": ">=0.5.0"
+    "@lov3kaizen/agentsea-core": ">=0.6.0"
   },
   "peerDependenciesMeta": {
     "@lov3kaizen/agentsea-core": {

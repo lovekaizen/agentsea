@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-ingest",
-  "version": "0.5.2",
+  "version": "1.0.0",
   "description": "Comprehensive document processing pipeline for Node.js - PDF, DOCX, HTML, Markdown parsing with intelligent chunking, table/image extraction, and OCR",
   "type": "module",
   "main": "./dist/index.js",
