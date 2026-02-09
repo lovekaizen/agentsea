@@ -511,11 +511,11 @@ describe('ModelPricingRegistry', () => {
       expect(gemini?.outputPricePerMillion).toBe(0.3);
     });
 
-    it('should mark Gemini 2.0 as free', () => {
-      const gemini2 = registry.getPricing('google', 'gemini-2.0-flash-exp');
+    it('should have correct Gemini 2.0 Flash pricing', () => {
+      const gemini2 = registry.getPricing('google', 'gemini-2.0-flash');
 
-      expect(gemini2?.inputPricePerMillion).toBe(0);
-      expect(gemini2?.outputPricePerMillion).toBe(0);
+      expect(gemini2?.inputPricePerMillion).toBe(0.1);
+      expect(gemini2?.outputPricePerMillion).toBe(0.4);
     });
   });
 });

@@ -56,17 +56,28 @@ export interface ModelDefinition<
 // ============================================================================
 
 export type AnthropicModel =
+  // Claude 4.x family
+  | 'claude-opus-4-6'
+  | 'claude-sonnet-4-5-20250929'
+  | 'claude-sonnet-4-5-latest'
+  | 'claude-haiku-4-5-20251001'
+  | 'claude-haiku-4-5-latest'
+  | 'claude-opus-4-5-20251101'
+  | 'claude-opus-4-0-20250514'
+  | 'claude-sonnet-4-0-20250514'
+  // Claude 3.7 family
+  | 'claude-3-7-sonnet-20250219'
+  | 'claude-3-7-sonnet-latest'
+  // Claude 3.5 family
   | 'claude-3-5-sonnet-20241022'
   | 'claude-3-5-sonnet-latest'
   | 'claude-3-5-haiku-20241022'
   | 'claude-3-5-haiku-latest'
+  // Claude 3 family (legacy)
   | 'claude-3-opus-20240229'
   | 'claude-3-opus-latest'
   | 'claude-3-sonnet-20240229'
-  | 'claude-3-haiku-20240307'
-  | 'claude-opus-4-0-20250514'
-  | 'claude-sonnet-4-0-20250514'
-  | 'claude-opus-4-5-20251101';
+  | 'claude-3-haiku-20240307';
 
 /**
  * Anthropic-specific provider options
@@ -89,6 +100,116 @@ export interface AnthropicProviderOptions {
  * Model capabilities for Anthropic models
  */
 export type AnthropicModelCapabilities = {
+  'claude-opus-4-6': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 32000;
+    parallelToolCalls: true;
+  };
+  'claude-sonnet-4-5-20250929': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 16000;
+    parallelToolCalls: true;
+  };
+  'claude-sonnet-4-5-latest': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 16000;
+    parallelToolCalls: true;
+  };
+  'claude-haiku-4-5-20251001': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 200000;
+    maxOutputTokens: 8192;
+    parallelToolCalls: true;
+  };
+  'claude-haiku-4-5-latest': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 200000;
+    maxOutputTokens: 8192;
+    parallelToolCalls: true;
+  };
+  'claude-opus-4-5-20251101': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 32000;
+    parallelToolCalls: true;
+  };
+  'claude-opus-4-0-20250514': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 32000;
+    parallelToolCalls: true;
+  };
+  'claude-sonnet-4-0-20250514': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 16000;
+    parallelToolCalls: true;
+  };
+  'claude-3-7-sonnet-20250219': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'claude-3-7-sonnet-latest': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
   'claude-3-5-sonnet-20241022': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -177,39 +298,6 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 4096;
     parallelToolCalls: true;
   };
-  'claude-opus-4-0-20250514': ModelCapabilities & {
-    tools: true;
-    streaming: true;
-    vision: true;
-    structuredOutput: true;
-    systemMessage: true;
-    extendedThinking: true;
-    contextWindow: 200000;
-    maxOutputTokens: 32000;
-    parallelToolCalls: true;
-  };
-  'claude-sonnet-4-0-20250514': ModelCapabilities & {
-    tools: true;
-    streaming: true;
-    vision: true;
-    structuredOutput: true;
-    systemMessage: true;
-    extendedThinking: true;
-    contextWindow: 200000;
-    maxOutputTokens: 16000;
-    parallelToolCalls: true;
-  };
-  'claude-opus-4-5-20251101': ModelCapabilities & {
-    tools: true;
-    streaming: true;
-    vision: true;
-    structuredOutput: true;
-    systemMessage: true;
-    extendedThinking: true;
-    contextWindow: 200000;
-    maxOutputTokens: 32000;
-    parallelToolCalls: true;
-  };
 };
 
 // ============================================================================
@@ -217,25 +305,54 @@ export type AnthropicModelCapabilities = {
 // ============================================================================
 
 export type OpenAIModel =
-  | 'gpt-4o'
-  | 'gpt-4o-2024-11-20'
-  | 'gpt-4o-2024-08-06'
-  | 'gpt-4o-mini'
-  | 'gpt-4o-mini-2024-07-18'
-  | 'gpt-4-turbo'
-  | 'gpt-4-turbo-2024-04-09'
-  | 'gpt-4-turbo-preview'
-  | 'gpt-4'
-  | 'gpt-4-0613'
-  | 'gpt-3.5-turbo'
-  | 'gpt-3.5-turbo-0125'
+  // GPT-5.2 family (latest)
+  | 'gpt-5.2'
+  | 'gpt-5.2-pro'
+  | 'gpt-5.2-codex'
+  // GPT-5.1 family
+  | 'gpt-5.1'
+  | 'gpt-5.1-codex'
+  | 'gpt-5.1-codex-mini'
+  | 'gpt-5.1-codex-max'
+  // GPT-5 family
+  | 'gpt-5'
+  | 'gpt-5-mini'
+  | 'gpt-5-nano'
+  | 'gpt-5-pro'
+  // GPT-4.5 (deprecated)
+  | 'gpt-4.5-preview'
+  // GPT-4.1 family
+  | 'gpt-4.1'
+  | 'gpt-4.1-mini'
+  | 'gpt-4.1-nano'
+  // o-series reasoning models
+  | 'o3'
+  | 'o3-pro'
+  | 'o3-deep-research'
+  | 'o4-mini'
+  | 'o4-mini-deep-research'
+  | 'o3-mini'
+  | 'o3-mini-2025-01-31'
   | 'o1'
   | 'o1-2024-12-17'
   | 'o1-mini'
   | 'o1-mini-2024-09-12'
   | 'o1-preview'
-  | 'o3-mini'
-  | 'o3-mini-2025-01-31';
+  // GPT-4o family
+  | 'gpt-4o'
+  | 'gpt-4o-2024-11-20'
+  | 'gpt-4o-2024-08-06'
+  | 'gpt-4o-mini'
+  | 'gpt-4o-mini-2024-07-18'
+  // GPT-4 family (legacy)
+  | 'gpt-4-turbo'
+  | 'gpt-4-turbo-2024-04-09'
+  | 'gpt-4-turbo-preview'
+  | 'gpt-4'
+  | 'gpt-4-0613'
+  // GPT-3.5 (legacy)
+  | 'gpt-3.5-turbo'
+  | 'gpt-3.5-turbo-0125';
 
 /**
  * OpenAI-specific provider options
@@ -256,7 +373,7 @@ export interface OpenAIProviderOptions {
   user?: string;
   /** Enable parallel tool calls */
   parallelToolCalls?: boolean;
-  /** Reasoning effort for o1/o3 models */
+  /** Reasoning effort for o-series models */
   reasoningEffort?: 'low' | 'medium' | 'high';
   /** Log probabilities */
   logprobs?: boolean;
@@ -268,6 +385,310 @@ export interface OpenAIProviderOptions {
  * Model capabilities for OpenAI models
  */
 export type OpenAIModelCapabilities = {
+  // GPT-5.2 family
+  'gpt-5.2': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5.2-pro': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5.2-codex': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  // GPT-5.1 family
+  'gpt-5.1': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5.1-codex': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5.1-codex-mini': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5.1-codex-max': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  // GPT-5 family
+  'gpt-5': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5-mini': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5-nano': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5-pro': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 272000;
+    parallelToolCalls: true;
+  };
+  // GPT-4.5 (deprecated)
+  'gpt-4.5-preview': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 128000;
+    maxOutputTokens: 16384;
+    parallelToolCalls: true;
+  };
+  // GPT-4.1 family
+  'gpt-4.1': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 1047576;
+    maxOutputTokens: 32768;
+    parallelToolCalls: true;
+  };
+  'gpt-4.1-mini': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 1047576;
+    maxOutputTokens: 16384;
+    parallelToolCalls: true;
+  };
+  'gpt-4.1-nano': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 1047576;
+    maxOutputTokens: 16384;
+    parallelToolCalls: true;
+  };
+  // o-series reasoning models
+  o3: ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 100000;
+    parallelToolCalls: false;
+  };
+  'o3-pro': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 100000;
+    parallelToolCalls: false;
+  };
+  'o4-mini': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 100000;
+    parallelToolCalls: false;
+  };
+  'o3-deep-research': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 100000;
+    parallelToolCalls: false;
+  };
+  'o4-mini-deep-research': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 100000;
+    parallelToolCalls: false;
+  };
+  'o3-mini': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: false;
+    structuredOutput: true;
+    systemMessage: false;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 100000;
+    parallelToolCalls: false;
+  };
+  'o3-mini-2025-01-31': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: false;
+    structuredOutput: true;
+    systemMessage: false;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 100000;
+    parallelToolCalls: false;
+  };
+  o1: ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: false;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 100000;
+    parallelToolCalls: false;
+  };
+  'o1-2024-12-17': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: false;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 100000;
+    parallelToolCalls: false;
+  };
+  'o1-mini': ModelCapabilities & {
+    tools: false;
+    streaming: true;
+    vision: false;
+    structuredOutput: false;
+    systemMessage: false;
+    extendedThinking: true;
+    contextWindow: 128000;
+    maxOutputTokens: 65536;
+    parallelToolCalls: false;
+  };
+  'o1-mini-2024-09-12': ModelCapabilities & {
+    tools: false;
+    streaming: true;
+    vision: false;
+    structuredOutput: false;
+    systemMessage: false;
+    extendedThinking: true;
+    contextWindow: 128000;
+    maxOutputTokens: 65536;
+    parallelToolCalls: false;
+  };
+  'o1-preview': ModelCapabilities & {
+    tools: false;
+    streaming: true;
+    vision: false;
+    structuredOutput: false;
+    systemMessage: false;
+    extendedThinking: true;
+    contextWindow: 128000;
+    maxOutputTokens: 32768;
+    parallelToolCalls: false;
+  };
+  // GPT-4o family
   'gpt-4o': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -323,6 +744,7 @@ export type OpenAIModelCapabilities = {
     maxOutputTokens: 16384;
     parallelToolCalls: true;
   };
+  // GPT-4 legacy
   'gpt-4-turbo': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -400,83 +822,6 @@ export type OpenAIModelCapabilities = {
     maxOutputTokens: 4096;
     parallelToolCalls: true;
   };
-  o1: ModelCapabilities & {
-    tools: true;
-    streaming: true;
-    vision: true;
-    structuredOutput: true;
-    systemMessage: false;
-    extendedThinking: true;
-    contextWindow: 200000;
-    maxOutputTokens: 100000;
-    parallelToolCalls: false;
-  };
-  'o1-2024-12-17': ModelCapabilities & {
-    tools: true;
-    streaming: true;
-    vision: true;
-    structuredOutput: true;
-    systemMessage: false;
-    extendedThinking: true;
-    contextWindow: 200000;
-    maxOutputTokens: 100000;
-    parallelToolCalls: false;
-  };
-  'o1-mini': ModelCapabilities & {
-    tools: false;
-    streaming: true;
-    vision: false;
-    structuredOutput: false;
-    systemMessage: false;
-    extendedThinking: true;
-    contextWindow: 128000;
-    maxOutputTokens: 65536;
-    parallelToolCalls: false;
-  };
-  'o1-mini-2024-09-12': ModelCapabilities & {
-    tools: false;
-    streaming: true;
-    vision: false;
-    structuredOutput: false;
-    systemMessage: false;
-    extendedThinking: true;
-    contextWindow: 128000;
-    maxOutputTokens: 65536;
-    parallelToolCalls: false;
-  };
-  'o1-preview': ModelCapabilities & {
-    tools: false;
-    streaming: true;
-    vision: false;
-    structuredOutput: false;
-    systemMessage: false;
-    extendedThinking: true;
-    contextWindow: 128000;
-    maxOutputTokens: 32768;
-    parallelToolCalls: false;
-  };
-  'o3-mini': ModelCapabilities & {
-    tools: true;
-    streaming: true;
-    vision: false;
-    structuredOutput: true;
-    systemMessage: false;
-    extendedThinking: true;
-    contextWindow: 200000;
-    maxOutputTokens: 100000;
-    parallelToolCalls: false;
-  };
-  'o3-mini-2025-01-31': ModelCapabilities & {
-    tools: true;
-    streaming: true;
-    vision: false;
-    structuredOutput: true;
-    systemMessage: false;
-    extendedThinking: true;
-    contextWindow: 200000;
-    maxOutputTokens: 100000;
-    parallelToolCalls: false;
-  };
 };
 
 // ============================================================================
@@ -484,13 +829,22 @@ export type OpenAIModelCapabilities = {
 // ============================================================================
 
 export type GeminiModel =
+  // Gemini 2.5 family (latest)
+  | 'gemini-2.5-pro'
+  | 'gemini-2.5-pro-latest'
+  | 'gemini-2.5-flash'
+  | 'gemini-2.5-flash-latest'
+  // Gemini 2.0 family
+  | 'gemini-2.0-flash'
   | 'gemini-2.0-flash-exp'
   | 'gemini-2.0-flash-thinking-exp'
+  // Gemini 1.5 family
   | 'gemini-1.5-pro'
   | 'gemini-1.5-pro-latest'
   | 'gemini-1.5-flash'
   | 'gemini-1.5-flash-latest'
   | 'gemini-1.5-flash-8b'
+  // Legacy
   | 'gemini-1.0-pro';
 
 /**
@@ -520,6 +874,61 @@ export interface GeminiProviderOptions {
  * Model capabilities for Gemini models
  */
 export type GeminiModelCapabilities = {
+  'gemini-2.5-pro': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 1048576;
+    maxOutputTokens: 65536;
+    parallelToolCalls: true;
+  };
+  'gemini-2.5-pro-latest': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 1048576;
+    maxOutputTokens: 65536;
+    parallelToolCalls: true;
+  };
+  'gemini-2.5-flash': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 1048576;
+    maxOutputTokens: 65536;
+    parallelToolCalls: true;
+  };
+  'gemini-2.5-flash-latest': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 1048576;
+    maxOutputTokens: 65536;
+    parallelToolCalls: true;
+  };
+  'gemini-2.0-flash': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 1048576;
+    maxOutputTokens: 8192;
+    parallelToolCalls: true;
+  };
   'gemini-2.0-flash-exp': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -611,6 +1020,282 @@ export type GeminiModelCapabilities = {
 };
 
 // ============================================================================
+// Mistral Models
+// ============================================================================
+
+export type MistralModel =
+  | 'mistral-large-latest'
+  | 'mistral-large-2501'
+  | 'mistral-small-latest'
+  | 'mistral-small-2503'
+  | 'mistral-medium-latest'
+  | 'codestral-latest'
+  | 'codestral-2501'
+  | 'devstral-small-2505'
+  | 'mistral-7b'
+  | 'mixtral-8x7b'
+  | 'mixtral-8x22b';
+
+/**
+ * Mistral-specific provider options
+ */
+export interface MistralProviderOptions {
+  /** Safe prompt mode */
+  safePrompt?: boolean;
+  /** Random seed */
+  randomSeed?: number;
+  /** Response format */
+  responseFormat?: {
+    type: 'text' | 'json_object';
+  };
+}
+
+/**
+ * Model capabilities for Mistral models
+ */
+export type MistralModelCapabilities = {
+  'mistral-large-latest': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 128000;
+    maxOutputTokens: 4096;
+    parallelToolCalls: true;
+  };
+  'mistral-large-2501': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 128000;
+    maxOutputTokens: 4096;
+    parallelToolCalls: true;
+  };
+  'mistral-small-latest': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: false;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 128000;
+    maxOutputTokens: 4096;
+    parallelToolCalls: true;
+  };
+  'mistral-small-2503': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 128000;
+    maxOutputTokens: 4096;
+    parallelToolCalls: true;
+  };
+  'mistral-medium-latest': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: false;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 128000;
+    maxOutputTokens: 4096;
+    parallelToolCalls: true;
+  };
+  'codestral-latest': ModelCapabilities & {
+    tools: false;
+    streaming: true;
+    vision: false;
+    structuredOutput: false;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 256000;
+    maxOutputTokens: 4096;
+    parallelToolCalls: false;
+  };
+  'codestral-2501': ModelCapabilities & {
+    tools: false;
+    streaming: true;
+    vision: false;
+    structuredOutput: false;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 256000;
+    maxOutputTokens: 4096;
+    parallelToolCalls: false;
+  };
+  'devstral-small-2505': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: false;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 128000;
+    maxOutputTokens: 4096;
+    parallelToolCalls: true;
+  };
+  'mistral-7b': ModelCapabilities & {
+    tools: false;
+    streaming: true;
+    vision: false;
+    structuredOutput: false;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 32000;
+    maxOutputTokens: 4096;
+    parallelToolCalls: false;
+  };
+  'mixtral-8x7b': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: false;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 32000;
+    maxOutputTokens: 4096;
+    parallelToolCalls: false;
+  };
+  'mixtral-8x22b': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: false;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 64000;
+    maxOutputTokens: 4096;
+    parallelToolCalls: false;
+  };
+};
+
+// ============================================================================
+// DeepSeek Models
+// ============================================================================
+
+export type DeepSeekModel = 'deepseek-chat' | 'deepseek-reasoner';
+
+/**
+ * DeepSeek-specific provider options
+ */
+export interface DeepSeekProviderOptions {
+  /** Response format */
+  responseFormat?: {
+    type: 'text' | 'json_object';
+  };
+  /** Frequency penalty */
+  frequencyPenalty?: number;
+  /** Presence penalty */
+  presencePenalty?: number;
+}
+
+/**
+ * Model capabilities for DeepSeek models
+ */
+export type DeepSeekModelCapabilities = {
+  'deepseek-chat': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: false;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 128000;
+    maxOutputTokens: 8192;
+    parallelToolCalls: true;
+  };
+  'deepseek-reasoner': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: false;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 128000;
+    maxOutputTokens: 65536;
+    parallelToolCalls: false;
+  };
+};
+
+// ============================================================================
+// xAI (Grok) Models
+// ============================================================================
+
+export type XAIModel =
+  | 'grok-3'
+  | 'grok-3-fast'
+  | 'grok-3-mini'
+  | 'grok-3-mini-fast';
+
+/**
+ * xAI-specific provider options
+ */
+export interface XAIProviderOptions {
+  /** Reasoning effort for Grok reasoning models */
+  reasoningEffort?: 'low' | 'high';
+  /** User identifier */
+  user?: string;
+}
+
+/**
+ * Model capabilities for xAI models
+ */
+export type XAIModelCapabilities = {
+  'grok-3': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 131072;
+    maxOutputTokens: 16384;
+    parallelToolCalls: true;
+  };
+  'grok-3-fast': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 131072;
+    maxOutputTokens: 16384;
+    parallelToolCalls: true;
+  };
+  'grok-3-mini': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: false;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 131072;
+    maxOutputTokens: 16384;
+    parallelToolCalls: true;
+  };
+  'grok-3-mini-fast': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: false;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 131072;
+    maxOutputTokens: 16384;
+    parallelToolCalls: true;
+  };
+};
+
+// ============================================================================
 // Ollama Models (dynamic, user-defined)
 // ============================================================================
 
@@ -662,7 +1347,14 @@ export interface OllamaDefaultCapabilities extends ModelCapabilities {
 /**
  * Provider types
  */
-export type Provider = 'anthropic' | 'openai' | 'gemini' | 'ollama';
+export type Provider =
+  | 'anthropic'
+  | 'openai'
+  | 'gemini'
+  | 'mistral'
+  | 'deepseek'
+  | 'xai'
+  | 'ollama';
 
 /**
  * All supported models
@@ -677,6 +1369,9 @@ export type ProviderModelMap = {
   anthropic: AnthropicModel;
   openai: OpenAIModel;
   gemini: GeminiModel;
+  mistral: MistralModel;
+  deepseek: DeepSeekModel;
+  xai: XAIModel;
   ollama: OllamaModel;
 };
 
@@ -687,6 +1382,9 @@ export type ProviderOptionsMap = {
   anthropic: AnthropicProviderOptions;
   openai: OpenAIProviderOptions;
   gemini: GeminiProviderOptions;
+  mistral: MistralProviderOptions;
+  deepseek: DeepSeekProviderOptions;
+  xai: XAIProviderOptions;
   ollama: OllamaProviderOptions;
 };
 
@@ -708,9 +1406,21 @@ export type GetModelCapabilities<
       ? TModel extends keyof GeminiModelCapabilities
         ? GeminiModelCapabilities[TModel]
         : never
-      : TProvider extends 'ollama'
-        ? OllamaDefaultCapabilities
-        : never;
+      : TProvider extends 'mistral'
+        ? TModel extends keyof MistralModelCapabilities
+          ? MistralModelCapabilities[TModel]
+          : never
+        : TProvider extends 'deepseek'
+          ? TModel extends keyof DeepSeekModelCapabilities
+            ? DeepSeekModelCapabilities[TModel]
+            : never
+          : TProvider extends 'xai'
+            ? TModel extends keyof XAIModelCapabilities
+              ? XAIModelCapabilities[TModel]
+              : never
+            : TProvider extends 'ollama'
+              ? OllamaDefaultCapabilities
+              : never;
 
 /**
  * Check if a model supports a capability
@@ -796,7 +1506,119 @@ export interface ModelInfo {
  * Model registry for runtime capability checks
  */
 export const MODEL_REGISTRY: Record<string, ModelInfo> = {
-  // Anthropic Models
+  // ---- Anthropic Models ----
+  'claude-opus-4-6': {
+    provider: 'anthropic',
+    model: 'claude-opus-4-6',
+    displayName: 'Claude Opus 4.6',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 32000,
+      parallelToolCalls: true,
+    },
+  },
+  'claude-sonnet-4-5-20250929': {
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-5-20250929',
+    displayName: 'Claude Sonnet 4.5',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 16000,
+      parallelToolCalls: true,
+    },
+  },
+  'claude-haiku-4-5-20251001': {
+    provider: 'anthropic',
+    model: 'claude-haiku-4-5-20251001',
+    displayName: 'Claude Haiku 4.5',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 200000,
+      maxOutputTokens: 8192,
+      parallelToolCalls: true,
+    },
+  },
+  'claude-opus-4-5-20251101': {
+    provider: 'anthropic',
+    model: 'claude-opus-4-5-20251101',
+    displayName: 'Claude Opus 4.5',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 32000,
+      parallelToolCalls: true,
+    },
+  },
+  'claude-opus-4-0-20250514': {
+    provider: 'anthropic',
+    model: 'claude-opus-4-0-20250514',
+    displayName: 'Claude Opus 4',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 32000,
+      parallelToolCalls: true,
+    },
+  },
+  'claude-sonnet-4-0-20250514': {
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-0-20250514',
+    displayName: 'Claude Sonnet 4',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 16000,
+      parallelToolCalls: true,
+    },
+  },
+  'claude-3-7-sonnet-20250219': {
+    provider: 'anthropic',
+    model: 'claude-3-7-sonnet-20250219',
+    displayName: 'Claude 3.7 Sonnet',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
   'claude-3-5-sonnet-20241022': {
     provider: 'anthropic',
     model: 'claude-3-5-sonnet-20241022',
@@ -845,10 +1667,253 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
       parallelToolCalls: true,
     },
   },
-  'claude-opus-4-5-20251101': {
-    provider: 'anthropic',
-    model: 'claude-opus-4-5-20251101',
-    displayName: 'Claude Opus 4.5',
+
+  // ---- OpenAI Models ----
+  'gpt-5.2': {
+    provider: 'openai',
+    model: 'gpt-5.2',
+    displayName: 'GPT-5.2',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.2-pro': {
+    provider: 'openai',
+    model: 'gpt-5.2-pro',
+    displayName: 'GPT-5.2 Pro',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.2-codex': {
+    provider: 'openai',
+    model: 'gpt-5.2-codex',
+    displayName: 'GPT-5.2 Codex',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.1': {
+    provider: 'openai',
+    model: 'gpt-5.1',
+    displayName: 'GPT-5.1',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.1-codex': {
+    provider: 'openai',
+    model: 'gpt-5.1-codex',
+    displayName: 'GPT-5.1 Codex',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.1-codex-mini': {
+    provider: 'openai',
+    model: 'gpt-5.1-codex-mini',
+    displayName: 'GPT-5.1 Codex Mini',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.1-codex-max': {
+    provider: 'openai',
+    model: 'gpt-5.1-codex-max',
+    displayName: 'GPT-5.1 Codex Max',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5': {
+    provider: 'openai',
+    model: 'gpt-5',
+    displayName: 'GPT-5',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5-mini': {
+    provider: 'openai',
+    model: 'gpt-5-mini',
+    displayName: 'GPT-5 Mini',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5-nano': {
+    provider: 'openai',
+    model: 'gpt-5-nano',
+    displayName: 'GPT-5 Nano',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5-pro': {
+    provider: 'openai',
+    model: 'gpt-5-pro',
+    displayName: 'GPT-5 Pro',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 272000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-4.5-preview': {
+    provider: 'openai',
+    model: 'gpt-4.5-preview',
+    displayName: 'GPT-4.5 Preview',
+    deprecated: true,
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 128000,
+      maxOutputTokens: 16384,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-4.1': {
+    provider: 'openai',
+    model: 'gpt-4.1',
+    displayName: 'GPT-4.1',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 1047576,
+      maxOutputTokens: 32768,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-4.1-mini': {
+    provider: 'openai',
+    model: 'gpt-4.1-mini',
+    displayName: 'GPT-4.1 Mini',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 1047576,
+      maxOutputTokens: 16384,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-4.1-nano': {
+    provider: 'openai',
+    model: 'gpt-4.1-nano',
+    displayName: 'GPT-4.1 Nano',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 1047576,
+      maxOutputTokens: 16384,
+      parallelToolCalls: true,
+    },
+  },
+  o3: {
+    provider: 'openai',
+    model: 'o3',
+    displayName: 'o3',
     capabilities: {
       tools: true,
       streaming: true,
@@ -857,12 +1922,90 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
       systemMessage: true,
       extendedThinking: true,
       contextWindow: 200000,
-      maxOutputTokens: 32000,
-      parallelToolCalls: true,
+      maxOutputTokens: 100000,
+      parallelToolCalls: false,
     },
   },
-
-  // OpenAI Models
+  'o3-pro': {
+    provider: 'openai',
+    model: 'o3-pro',
+    displayName: 'o3 Pro',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 100000,
+      parallelToolCalls: false,
+    },
+  },
+  'o4-mini': {
+    provider: 'openai',
+    model: 'o4-mini',
+    displayName: 'o4 Mini',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 100000,
+      parallelToolCalls: false,
+    },
+  },
+  'o3-deep-research': {
+    provider: 'openai',
+    model: 'o3-deep-research',
+    displayName: 'o3 Deep Research',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 100000,
+      parallelToolCalls: false,
+    },
+  },
+  'o4-mini-deep-research': {
+    provider: 'openai',
+    model: 'o4-mini-deep-research',
+    displayName: 'o4 Mini Deep Research',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 100000,
+      parallelToolCalls: false,
+    },
+  },
+  'o3-mini': {
+    provider: 'openai',
+    model: 'o3-mini',
+    displayName: 'o3 Mini',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: false,
+      structuredOutput: true,
+      systemMessage: false,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 100000,
+      parallelToolCalls: false,
+    },
+  },
   'gpt-4o': {
     provider: 'openai',
     model: 'gpt-4o',
@@ -914,7 +2057,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
   'o1-mini': {
     provider: 'openai',
     model: 'o1-mini',
-    displayName: 'o1-mini',
+    displayName: 'o1 Mini',
+    deprecated: true,
     capabilities: {
       tools: false,
       streaming: true,
@@ -927,28 +2071,60 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
       parallelToolCalls: false,
     },
   },
-  'o3-mini': {
-    provider: 'openai',
-    model: 'o3-mini',
-    displayName: 'o3-mini',
+
+  // ---- Gemini Models ----
+  'gemini-2.5-pro': {
+    provider: 'gemini',
+    model: 'gemini-2.5-pro',
+    displayName: 'Gemini 2.5 Pro',
     capabilities: {
       tools: true,
       streaming: true,
-      vision: false,
+      vision: true,
       structuredOutput: true,
-      systemMessage: false,
+      systemMessage: true,
       extendedThinking: true,
-      contextWindow: 200000,
-      maxOutputTokens: 100000,
-      parallelToolCalls: false,
+      contextWindow: 1048576,
+      maxOutputTokens: 65536,
+      parallelToolCalls: true,
     },
   },
-
-  // Gemini Models
+  'gemini-2.5-flash': {
+    provider: 'gemini',
+    model: 'gemini-2.5-flash',
+    displayName: 'Gemini 2.5 Flash',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 1048576,
+      maxOutputTokens: 65536,
+      parallelToolCalls: true,
+    },
+  },
+  'gemini-2.0-flash': {
+    provider: 'gemini',
+    model: 'gemini-2.0-flash',
+    displayName: 'Gemini 2.0 Flash',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 1048576,
+      maxOutputTokens: 8192,
+      parallelToolCalls: true,
+    },
+  },
   'gemini-2.0-flash-exp': {
     provider: 'gemini',
     model: 'gemini-2.0-flash-exp',
-    displayName: 'Gemini 2.0 Flash',
+    displayName: 'Gemini 2.0 Flash (Exp)',
     capabilities: {
       tools: true,
       streaming: true,
@@ -990,6 +2166,124 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
       extendedThinking: false,
       contextWindow: 1048576,
       maxOutputTokens: 8192,
+      parallelToolCalls: true,
+    },
+  },
+
+  // ---- Mistral Models ----
+  'mistral-large-latest': {
+    provider: 'mistral',
+    model: 'mistral-large-latest',
+    displayName: 'Mistral Large',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 128000,
+      maxOutputTokens: 4096,
+      parallelToolCalls: true,
+    },
+  },
+  'mistral-small-latest': {
+    provider: 'mistral',
+    model: 'mistral-small-latest',
+    displayName: 'Mistral Small',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: false,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 128000,
+      maxOutputTokens: 4096,
+      parallelToolCalls: true,
+    },
+  },
+  'codestral-latest': {
+    provider: 'mistral',
+    model: 'codestral-latest',
+    displayName: 'Codestral',
+    capabilities: {
+      tools: false,
+      streaming: true,
+      vision: false,
+      structuredOutput: false,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 256000,
+      maxOutputTokens: 4096,
+      parallelToolCalls: false,
+    },
+  },
+
+  // ---- DeepSeek Models ----
+  'deepseek-chat': {
+    provider: 'deepseek',
+    model: 'deepseek-chat',
+    displayName: 'DeepSeek V3.2',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: false,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 128000,
+      maxOutputTokens: 8192,
+      parallelToolCalls: true,
+    },
+  },
+  'deepseek-reasoner': {
+    provider: 'deepseek',
+    model: 'deepseek-reasoner',
+    displayName: 'DeepSeek R1',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: false,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 128000,
+      maxOutputTokens: 65536,
+      parallelToolCalls: false,
+    },
+  },
+
+  // ---- xAI (Grok) Models ----
+  'grok-3': {
+    provider: 'xai',
+    model: 'grok-3',
+    displayName: 'Grok 3',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 131072,
+      maxOutputTokens: 16384,
+      parallelToolCalls: true,
+    },
+  },
+  'grok-3-mini': {
+    provider: 'xai',
+    model: 'grok-3-mini',
+    displayName: 'Grok 3 Mini',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: false,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 131072,
+      maxOutputTokens: 16384,
       parallelToolCalls: true,
     },
   },
