@@ -29,6 +29,7 @@
     "@anthropic-ai/sdk": "^0.32.0",
     "@google/generative-ai": "^0.21.0",
     "openai": "^4.73.0",
+    "fast-glob": "^3.3.2",
     "zod": "^3.22.4",
     "zod-to-json-schema": "^3.22.4",
     "winston": "^3.11.0",

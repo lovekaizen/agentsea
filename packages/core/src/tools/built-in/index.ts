@@ -22,6 +22,20 @@ export {
   n8nGetWorkflowTool,
 } from './n8n.tool';
 
+// Coding tools
+export { shellExecuteTool } from './shell.tool';
+export { codeEditTool } from './code-edit.tool';
+export { globTool } from './glob.tool';
+export { grepTool } from './grep.tool';
+export {
+  gitStatusTool,
+  gitDiffTool,
+  gitAddTool,
+  gitCommitTool,
+  gitLogTool,
+  gitBranchTool,
+} from './git.tool';
+
 // Export isomorphic tool examples
 export {
   calculatorDef,
