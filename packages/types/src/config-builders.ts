@@ -30,6 +30,15 @@ import type {
   GeminiModel,
   GeminiProviderOptions,
   GeminiModelCapabilities,
+  MistralModel,
+  MistralProviderOptions,
+  MistralModelCapabilities,
+  DeepSeekModel,
+  DeepSeekProviderOptions,
+  DeepSeekModelCapabilities,
+  XAIModel,
+  XAIProviderOptions,
+  XAIModelCapabilities,
   OllamaModel,
   OllamaProviderOptions,
 } from './models';
@@ -288,6 +297,165 @@ export function gemini<TModel extends GeminiModel>(
 }
 
 // ============================================================================
+// Mistral Type-Safe Config
+// ============================================================================
+
+/**
+ * Base config for all Mistral models
+ */
+interface MistralBaseConfig {
+  temperature?: number;
+  maxTokens?: number;
+  topP?: number;
+  stopSequences?: string[];
+  providerOptions?: MistralProviderOptions;
+}
+
+/**
+ * Get the config type for a specific Mistral model
+ */
+type MistralConfigForModel<TModel extends MistralModel> =
+  TModel extends keyof MistralModelCapabilities
+    ? MistralBaseConfig &
+        (MistralModelCapabilities[TModel]['tools'] extends true
+          ? WithTools
+          : object) &
+        (MistralModelCapabilities[TModel]['systemMessage'] extends true
+          ? WithSystemPrompt
+          : object)
+    : MistralBaseConfig;
+
+/**
+ * Result type for Mistral config
+ */
+export interface MistralConfig<TModel extends MistralModel> {
+  provider: 'mistral';
+  model: TModel;
+  config: MistralConfigForModel<TModel>;
+}
+
+/**
+ * Create a type-safe Mistral configuration
+ */
+export function mistral<TModel extends MistralModel>(
+  model: TModel,
+  config?: MistralConfigForModel<TModel>,
+): MistralConfig<TModel> {
+  return {
+    provider: 'mistral',
+    model,
+    config: config ?? ({} as MistralConfigForModel<TModel>),
+  };
+}
+
+// ============================================================================
+// DeepSeek Type-Safe Config
+// ============================================================================
+
+/**
+ * Base config for all DeepSeek models
+ */
+interface DeepSeekBaseConfig {
+  temperature?: number;
+  maxTokens?: number;
+  topP?: number;
+  stopSequences?: string[];
+  providerOptions?: DeepSeekProviderOptions;
+}
+
+/**
+ * Get the config type for a specific DeepSeek model
+ */
+type DeepSeekConfigForModel<TModel extends DeepSeekModel> =
+  TModel extends keyof DeepSeekModelCapabilities
+    ? DeepSeekBaseConfig &
+        (DeepSeekModelCapabilities[TModel]['tools'] extends true
+          ? WithTools
+          : object) &
+        (DeepSeekModelCapabilities[TModel]['systemMessage'] extends true
+          ? WithSystemPrompt
+          : object)
+    : DeepSeekBaseConfig;
+
+/**
+ * Result type for DeepSeek config
+ */
+export interface DeepSeekConfig<TModel extends DeepSeekModel> {
+  provider: 'deepseek';
+  model: TModel;
+  config: DeepSeekConfigForModel<TModel>;
+}
+
+/**
+ * Create a type-safe DeepSeek configuration
+ */
+export function deepseek<TModel extends DeepSeekModel>(
+  model: TModel,
+  config?: DeepSeekConfigForModel<TModel>,
+): DeepSeekConfig<TModel> {
+  return {
+    provider: 'deepseek',
+    model,
+    config: config ?? ({} as DeepSeekConfigForModel<TModel>),
+  };
+}
+
+// ============================================================================
+// xAI (Grok) Type-Safe Config
+// ============================================================================
+
+/**
+ * Base config for all xAI models
+ */
+interface XAIBaseConfig {
+  temperature?: number;
+  maxTokens?: number;
+  topP?: number;
+  stopSequences?: string[];
+  providerOptions?: XAIProviderOptions;
+}
+
+/**
+ * Get the config type for a specific xAI model
+ */
+type XAIConfigForModel<TModel extends XAIModel> =
+  TModel extends keyof XAIModelCapabilities
+    ? XAIBaseConfig &
+        (XAIModelCapabilities[TModel]['tools'] extends true
+          ? WithTools
+          : object) &
+        (XAIModelCapabilities[TModel]['systemMessage'] extends true
+          ? WithSystemPrompt
+          : object) &
+        (XAIModelCapabilities[TModel]['extendedThinking'] extends true
+          ? WithReasoningEffort
+          : object)
+    : XAIBaseConfig;
+
+/**
+ * Result type for xAI config
+ */
+export interface XAIConfig<TModel extends XAIModel> {
+  provider: 'xai';
+  model: TModel;
+  config: XAIConfigForModel<TModel>;
+}
+
+/**
+ * Create a type-safe xAI (Grok) configuration
+ */
+export function xai<TModel extends XAIModel>(
+  model: TModel,
+  config?: XAIConfigForModel<TModel>,
+): XAIConfig<TModel> {
+  return {
+    provider: 'xai',
+    model,
+    config: config ?? ({} as XAIConfigForModel<TModel>),
+  };
+}
+
+// ============================================================================
 // Ollama Type-Safe Config
 // ============================================================================
 
@@ -349,6 +517,9 @@ export type ProviderModelConfig =
   | AnthropicConfig<AnthropicModel>
   | OpenAIConfig<OpenAIModel>
   | GeminiConfig<GeminiModel>
+  | MistralConfig<MistralModel>
+  | DeepSeekConfig<DeepSeekModel>
+  | XAIConfig<XAIModel>
   | OllamaConfig;
 
 /**
@@ -390,6 +561,33 @@ export function isGeminiConfig(
   config: ProviderModelConfig,
 ): config is GeminiConfig<GeminiModel> {
   return config.provider === 'gemini';
+}
+
+/**
+ * Check if config is for Mistral
+ */
+export function isMistralConfig(
+  config: ProviderModelConfig,
+): config is MistralConfig<MistralModel> {
+  return config.provider === 'mistral';
+}
+
+/**
+ * Check if config is for DeepSeek
+ */
+export function isDeepSeekConfig(
+  config: ProviderModelConfig,
+): config is DeepSeekConfig<DeepSeekModel> {
+  return config.provider === 'deepseek';
+}
+
+/**
+ * Check if config is for xAI (Grok)
+ */
+export function isXAIConfig(
+  config: ProviderModelConfig,
+): config is XAIConfig<XAIModel> {
+  return config.provider === 'xai';
 }
 
 /**

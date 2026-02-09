@@ -32,6 +32,9 @@ import type {
   AnthropicConfig,
   OpenAIConfig,
   GeminiConfig,
+  MistralConfig,
+  DeepSeekConfig,
+  XAIConfig,
   OllamaConfig,
   ProviderModelConfig,
   ModelInfo,
@@ -43,6 +46,7 @@ import { AnthropicProvider } from './anthropic';
 import { OpenAIProvider } from './openai';
 import { GeminiProvider } from './gemini';
 import { OllamaProvider } from './ollama';
+import { OpenAICompatibleProvider } from './openai-compatible';
 
 // ============================================================================
 // Type-Safe Provider Wrapper
@@ -60,6 +64,7 @@ export interface TypeSafeProvider<TConfig extends ProviderModelConfig> {
     | AnthropicProvider
     | OpenAIProvider
     | GeminiProvider
+    | OpenAICompatibleProvider
     | OllamaProvider;
 
   /** Get model information at runtime */
@@ -110,6 +115,7 @@ export function createProvider<TConfig extends ProviderModelConfig>(
     | AnthropicProvider
     | OpenAIProvider
     | GeminiProvider
+    | OpenAICompatibleProvider
     | OllamaProvider;
 
   switch (config.provider) {
@@ -121,6 +127,24 @@ export function createProvider<TConfig extends ProviderModelConfig>(
       break;
     case 'gemini':
       provider = new GeminiProvider();
+      break;
+    case 'mistral':
+      provider = new OpenAICompatibleProvider({
+        baseUrl: 'https://api.mistral.ai/v1',
+        apiKey: process.env.MISTRAL_API_KEY,
+      });
+      break;
+    case 'deepseek':
+      provider = new OpenAICompatibleProvider({
+        baseUrl: 'https://api.deepseek.com/v1',
+        apiKey: process.env.DEEPSEEK_API_KEY,
+      });
+      break;
+    case 'xai':
+      provider = new OpenAICompatibleProvider({
+        baseUrl: 'https://api.x.ai/v1',
+        apiKey: process.env.XAI_API_KEY,
+      });
       break;
     case 'ollama':
       provider = new OllamaProvider();
@@ -274,7 +298,25 @@ export type ConfigSupports<
             ? true
             : false
           : false
-        : false;
+        : T extends MistralConfig<infer M>
+          ? M extends keyof import('../types').MistralModelCapabilities
+            ? import('../types').MistralModelCapabilities[M][TCapability] extends true
+              ? true
+              : false
+            : false
+          : T extends DeepSeekConfig<infer M>
+            ? M extends keyof import('../types').DeepSeekModelCapabilities
+              ? import('../types').DeepSeekModelCapabilities[M][TCapability] extends true
+                ? true
+                : false
+              : false
+            : T extends XAIConfig<infer M>
+              ? M extends keyof import('../types').XAIModelCapabilities
+                ? import('../types').XAIModelCapabilities[M][TCapability] extends true
+                  ? true
+                  : false
+                : false
+              : false;
 
 /**
  * Require a capability for a function parameter

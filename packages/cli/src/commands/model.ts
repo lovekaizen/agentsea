@@ -127,21 +127,32 @@ export function showPopularModelsCommand(): void {
   logger.heading('Popular Ollama Models');
 
   logger.subheading('General Purpose');
-  logger.listItem("llama2 (7B, 13B, 70B) - Meta's Llama 2");
-  logger.listItem("llama3 (8B, 70B) - Meta's Llama 3 (improved)");
+  logger.listItem("llama4 (Scout, Maverick) - Meta's Llama 4 (latest)");
+  logger.listItem("llama3.3 (70B) - Meta's Llama 3.3");
+  logger.listItem("llama3.2 (1B, 3B) - Meta's Llama 3.2 (lightweight)");
+  logger.listItem("llama3.1 (8B, 70B, 405B) - Meta's Llama 3.1");
   logger.listItem('mistral (7B) - Excellent quality-to-size ratio');
-  logger.listItem('mixtral (8x7B) - High quality, mixture of experts');
+  logger.listItem('mixtral (8x7B, 8x22B) - High quality, mixture of experts');
+  logger.listItem("qwen3 (0.6B-235B) - Alibaba's Qwen 3 family");
+  logger.listItem("gemma3 (1B, 4B, 12B, 27B) - Google's efficient models");
+
+  logger.subheading('Reasoning');
+  logger.listItem('deepseek-r1 (1.5B-671B) - DeepSeek R1 reasoning model');
+  logger.listItem("qwq (32B) - Alibaba's reasoning model");
 
   logger.subheading('Coding');
-  logger.listItem('codellama (7B, 13B, 34B) - Specialized for code');
-  logger.listItem('deepseek-coder (6.7B, 33B) - Excellent coding performance');
+  logger.listItem('devstral (24B) - Mistral coding model');
+  logger.listItem("qwen2.5-coder (0.5B-32B) - Alibaba's coding model");
+  logger.listItem('deepseek-coder-v2 (16B, 236B) - DeepSeek coding v2');
+  logger.listItem('codellama (7B, 13B, 34B, 70B) - Meta code Llama');
 
   logger.subheading('Fast & Lightweight');
-  logger.listItem("phi (2.7B) - Microsoft's compact model");
-  logger.listItem("gemma (2B, 7B) - Google's efficient models");
-  logger.listItem('tinyllama (1.1B) - Very fast, limited capability');
+  logger.listItem("phi4 (14B) - Microsoft's Phi-4");
+  logger.listItem("gemma3 (1B) - Google's smallest Gemma");
+  logger.listItem("llama3.2 (1B) - Meta's smallest Llama");
+  logger.listItem("smollm2 (135M-1.7B) - HuggingFace's tiny models");
 
   logger.blank();
   logger.info('To pull a model: agentsea model pull <model-name>');
-  logger.info('Example: agentsea model pull llama2');
+  logger.info('Example: agentsea model pull llama4');
 }

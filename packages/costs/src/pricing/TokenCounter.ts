@@ -52,6 +52,8 @@ const PROVIDER_STRATEGIES: Record<
   bedrock: { encoding: 'approximate', charsPerToken: 3.5 },
   cohere: { encoding: 'approximate', charsPerToken: 4 },
   mistral: { encoding: 'approximate', charsPerToken: 4 },
+  deepseek: { encoding: 'approximate', charsPerToken: 4 },
+  xai: { encoding: 'approximate', charsPerToken: 4 },
   replicate: { encoding: 'approximate', charsPerToken: 4 },
   custom: { encoding: 'approximate', charsPerToken: 4 },
 };

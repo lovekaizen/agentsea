@@ -15,6 +15,8 @@ export type AIProvider =
   | 'bedrock'
   | 'cohere'
   | 'mistral'
+  | 'deepseek'
+  | 'xai'
   | 'replicate'
   | 'custom';
 
