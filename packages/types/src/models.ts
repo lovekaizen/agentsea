@@ -305,14 +305,32 @@ export type AnthropicModelCapabilities = {
 // ============================================================================
 
 export type OpenAIModel =
-  // GPT-4.1 family (latest)
+  // GPT-5.2 family (latest)
+  | 'gpt-5.2'
+  | 'gpt-5.2-pro'
+  | 'gpt-5.2-codex'
+  // GPT-5.1 family
+  | 'gpt-5.1'
+  | 'gpt-5.1-codex'
+  | 'gpt-5.1-codex-mini'
+  | 'gpt-5.1-codex-max'
+  // GPT-5 family
+  | 'gpt-5'
+  | 'gpt-5-mini'
+  | 'gpt-5-nano'
+  | 'gpt-5-pro'
+  // GPT-4.5 (deprecated)
+  | 'gpt-4.5-preview'
+  // GPT-4.1 family
   | 'gpt-4.1'
   | 'gpt-4.1-mini'
   | 'gpt-4.1-nano'
   // o-series reasoning models
   | 'o3'
   | 'o3-pro'
+  | 'o3-deep-research'
   | 'o4-mini'
+  | 'o4-mini-deep-research'
   | 'o3-mini'
   | 'o3-mini-2025-01-31'
   | 'o1'
@@ -367,6 +385,142 @@ export interface OpenAIProviderOptions {
  * Model capabilities for OpenAI models
  */
 export type OpenAIModelCapabilities = {
+  // GPT-5.2 family
+  'gpt-5.2': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5.2-pro': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5.2-codex': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  // GPT-5.1 family
+  'gpt-5.1': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5.1-codex': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5.1-codex-mini': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5.1-codex-max': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  // GPT-5 family
+  'gpt-5': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5-mini': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5-nano': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5-pro': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 272000;
+    parallelToolCalls: true;
+  };
+  // GPT-4.5 (deprecated)
+  'gpt-4.5-preview': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 128000;
+    maxOutputTokens: 16384;
+    parallelToolCalls: true;
+  };
   // GPT-4.1 family
   'gpt-4.1': ModelCapabilities & {
     tools: true;
@@ -425,6 +579,28 @@ export type OpenAIModelCapabilities = {
     parallelToolCalls: false;
   };
   'o4-mini': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 100000;
+    parallelToolCalls: false;
+  };
+  'o3-deep-research': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 200000;
+    maxOutputTokens: 100000;
+    parallelToolCalls: false;
+  };
+  'o4-mini-deep-research': ModelCapabilities & {
     tools: true;
     streaming: true;
     vision: true;
@@ -1032,19 +1208,19 @@ export type DeepSeekModelCapabilities = {
     structuredOutput: true;
     systemMessage: true;
     extendedThinking: false;
-    contextWindow: 64000;
+    contextWindow: 128000;
     maxOutputTokens: 8192;
     parallelToolCalls: true;
   };
   'deepseek-reasoner': ModelCapabilities & {
-    tools: false;
+    tools: true;
     streaming: true;
     vision: false;
-    structuredOutput: false;
+    structuredOutput: true;
     systemMessage: true;
     extendedThinking: true;
-    contextWindow: 64000;
-    maxOutputTokens: 8192;
+    contextWindow: 128000;
+    maxOutputTokens: 65536;
     parallelToolCalls: false;
   };
 };
@@ -1493,6 +1669,199 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
   },
 
   // ---- OpenAI Models ----
+  'gpt-5.2': {
+    provider: 'openai',
+    model: 'gpt-5.2',
+    displayName: 'GPT-5.2',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.2-pro': {
+    provider: 'openai',
+    model: 'gpt-5.2-pro',
+    displayName: 'GPT-5.2 Pro',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.2-codex': {
+    provider: 'openai',
+    model: 'gpt-5.2-codex',
+    displayName: 'GPT-5.2 Codex',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.1': {
+    provider: 'openai',
+    model: 'gpt-5.1',
+    displayName: 'GPT-5.1',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.1-codex': {
+    provider: 'openai',
+    model: 'gpt-5.1-codex',
+    displayName: 'GPT-5.1 Codex',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.1-codex-mini': {
+    provider: 'openai',
+    model: 'gpt-5.1-codex-mini',
+    displayName: 'GPT-5.1 Codex Mini',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.1-codex-max': {
+    provider: 'openai',
+    model: 'gpt-5.1-codex-max',
+    displayName: 'GPT-5.1 Codex Max',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5': {
+    provider: 'openai',
+    model: 'gpt-5',
+    displayName: 'GPT-5',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5-mini': {
+    provider: 'openai',
+    model: 'gpt-5-mini',
+    displayName: 'GPT-5 Mini',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5-nano': {
+    provider: 'openai',
+    model: 'gpt-5-nano',
+    displayName: 'GPT-5 Nano',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5-pro': {
+    provider: 'openai',
+    model: 'gpt-5-pro',
+    displayName: 'GPT-5 Pro',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 272000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-4.5-preview': {
+    provider: 'openai',
+    model: 'gpt-4.5-preview',
+    displayName: 'GPT-4.5 Preview',
+    deprecated: true,
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 128000,
+      maxOutputTokens: 16384,
+      parallelToolCalls: true,
+    },
+  },
   'gpt-4.1': {
     provider: 'openai',
     model: 'gpt-4.1',
@@ -1577,6 +1946,38 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'o4-mini',
     displayName: 'o4 Mini',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 100000,
+      parallelToolCalls: false,
+    },
+  },
+  'o3-deep-research': {
+    provider: 'openai',
+    model: 'o3-deep-research',
+    displayName: 'o3 Deep Research',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 200000,
+      maxOutputTokens: 100000,
+      parallelToolCalls: false,
+    },
+  },
+  'o4-mini-deep-research': {
+    provider: 'openai',
+    model: 'o4-mini-deep-research',
+    displayName: 'o4 Mini Deep Research',
     capabilities: {
       tools: true,
       streaming: true,
@@ -1823,7 +2224,7 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
   'deepseek-chat': {
     provider: 'deepseek',
     model: 'deepseek-chat',
-    displayName: 'DeepSeek V3',
+    displayName: 'DeepSeek V3.2',
     capabilities: {
       tools: true,
       streaming: true,
@@ -1831,7 +2232,7 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
       structuredOutput: true,
       systemMessage: true,
       extendedThinking: false,
-      contextWindow: 64000,
+      contextWindow: 128000,
       maxOutputTokens: 8192,
       parallelToolCalls: true,
     },
@@ -1841,14 +2242,14 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     model: 'deepseek-reasoner',
     displayName: 'DeepSeek R1',
     capabilities: {
-      tools: false,
+      tools: true,
       streaming: true,
       vision: false,
-      structuredOutput: false,
+      structuredOutput: true,
       systemMessage: true,
       extendedThinking: true,
-      contextWindow: 64000,
-      maxOutputTokens: 8192,
+      contextWindow: 128000,
+      maxOutputTokens: 65536,
       parallelToolCalls: false,
     },
   },
