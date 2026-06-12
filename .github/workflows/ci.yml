@@ -80,12 +80,7 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y chromium-browser
           echo "PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser" >> $GITHUB_ENV
-      # Exclude the private admin-ui (Next.js dashboard) from the cross-OS test
-      # matrix: it has no test suite and its only native dep (better-sqlite3)
-      # lacks prebuilt binaries for some Node/OS combos (e.g. Node 20 + Windows),
-      # forcing a source build that needs a toolchain the runner doesn't have.
-      # The dedicated Build job still builds admin-ui on Linux, where prebuilds exist.
-      - run: pnpm install --frozen-lockfile --filter '!@lov3kaizen/agentsea-admin-ui'
+      - run: pnpm install --frozen-lockfile
       - run: pnpm test
 
   coverage:
