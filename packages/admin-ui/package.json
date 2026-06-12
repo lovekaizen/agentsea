@@ -10,7 +10,7 @@
     "lint": "next lint",
     "test": "echo 'No tests configured for admin-ui package'",
     "type-check": "tsc --noEmit",
-    "db:generate": "drizzle-kit generate:sqlite",
+    "db:generate": "drizzle-kit generate",
     "db:migrate": "tsx lib/db/migrate.ts",
     "db:studio": "drizzle-kit studio"
   },
