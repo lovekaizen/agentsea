@@ -363,7 +363,7 @@ describe('Router', () => {
     expect(router.isVirtualModel('best')).toBe(true);
     expect(router.isVirtualModel('cheapest')).toBe(true);
     expect(router.isVirtualModel('fastest')).toBe(true);
-    expect(router.isVirtualModel('gpt-4o')).toBe(false);
+    expect(router.isVirtualModel('gpt-5.5')).toBe(false);
   });
 
   it('should route "cheapest" to lowest cost provider', () => {
@@ -403,7 +403,7 @@ describe('Router', () => {
   });
 
   it('should get equivalent models', () => {
-    const equivalents = router.getEquivalentModels('gpt-4o');
+    const equivalents = router.getEquivalentModels('gpt-5.5');
     expect(Array.isArray(equivalents)).toBe(true);
   });
 });

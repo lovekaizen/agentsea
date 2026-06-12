@@ -41,7 +41,7 @@ export class GeminiProvider implements LLMProvider {
     messages: Message[],
     config: ProviderConfig,
   ): Promise<LLMResponse> {
-    const model = this.getModel(config.model || 'gemini-pro');
+    const model = this.getModel(config.model || 'gemini-3.1-pro-preview');
 
     // Convert messages to Gemini format
     const contents = this.convertMessages(messages);
@@ -85,7 +85,7 @@ export class GeminiProvider implements LLMProvider {
     messages: Message[],
     config: ProviderConfig,
   ): AsyncIterable<LLMStreamChunk> {
-    const model = this.getModel(config.model || 'gemini-pro');
+    const model = this.getModel(config.model || 'gemini-3.1-pro-preview');
 
     const contents = this.convertMessages(messages);
 

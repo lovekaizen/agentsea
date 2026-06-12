@@ -35,7 +35,7 @@ export class ComparativeJudge implements JudgeInterface {
     }
 
     this.provider = config.provider;
-    this.model = config.model ?? 'claude-sonnet-4-20250514';
+    this.model = config.model ?? 'claude-sonnet-4-6';
     this.criteria = config.criteria;
     this.tieBreaker = config.tieBreaker;
     this.temperature = config.temperature ?? 0;

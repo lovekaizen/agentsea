@@ -16,12 +16,12 @@ async function main() {
       {
         name: 'openai',
         apiKey: process.env.OPENAI_API_KEY,
-        models: ['gpt-4o', 'gpt-4o-mini'],
+        models: ['gpt-5.5', 'gpt-5.4-mini'],
       },
       {
         name: 'anthropic',
         apiKey: process.env.ANTHROPIC_API_KEY,
-        models: ['claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307'],
+        models: ['claude-sonnet-4-6', 'claude-haiku-4-5'],
       },
     ],
     routing: {
@@ -63,7 +63,7 @@ async function main() {
   // Example 2: Streaming completion
   console.log('\n=== Example 2: Streaming Completion ===');
   const stream = await gateway.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: 'gpt-5.4-mini',
     messages: [
       { role: 'user', content: 'Count from 1 to 5, one number per line.' },
     ],
@@ -110,7 +110,7 @@ async function main() {
   // Example 4: Cache demonstration
   console.log('\n=== Example 4: Cache Demo ===');
   const cacheRequest = {
-    model: 'gpt-4o-mini',
+    model: 'gpt-5.4-mini',
     messages: [{ role: 'user' as const, content: 'Say "Hello, Cache!"' }],
     max_tokens: 20,
   };

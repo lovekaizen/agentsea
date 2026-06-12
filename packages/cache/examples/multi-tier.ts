@@ -107,7 +107,7 @@ async function main() {
   console.log('1. First request (writes to all tiers)...');
   const response1 = await cache.wrap(
     {
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       messages: [{ role: 'user', content: 'What is cloud computing?' }],
     },
     async (request) =>
@@ -125,7 +125,7 @@ async function main() {
   const startTime = performance.now();
   const response2 = await cache.wrap(
     {
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       messages: [{ role: 'user', content: 'What is cloud computing?' }],
     },
     async (request) =>
@@ -140,7 +140,7 @@ async function main() {
   for (let i = 0; i < 5; i++) {
     await cache.wrap(
       {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: `Question number ${i}` }],
       },
       async (request) =>

@@ -176,7 +176,7 @@ describe('MetricsCollector', () => {
     it('should record comprehensive request metrics', () => {
       metrics.recordRequest({
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         status: 'success',
         latencyMs: 150,
         inputTokens: 100,
@@ -189,7 +189,7 @@ describe('MetricsCollector', () => {
       expect(
         metrics.getCounter('requests_total', {
           provider: 'openai',
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           status: 'success',
           cached: 'false',
         }),
@@ -198,7 +198,7 @@ describe('MetricsCollector', () => {
       // Check latency histogram
       const latencyHist = metrics.getHistogram('request_latency_ms', {
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
       });
       expect(latencyHist?.sum).toBe(150);
 
@@ -206,13 +206,13 @@ describe('MetricsCollector', () => {
       expect(
         metrics.getCounter('tokens_input_total', {
           provider: 'openai',
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
         }),
       ).toBe(100);
       expect(
         metrics.getCounter('tokens_output_total', {
           provider: 'openai',
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
         }),
       ).toBe(50);
 
@@ -220,7 +220,7 @@ describe('MetricsCollector', () => {
       expect(
         metrics.getCounter('cost_microdollars_total', {
           provider: 'openai',
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
         }),
       ).toBe(1000);
     });
@@ -228,7 +228,7 @@ describe('MetricsCollector', () => {
     it('should track cache hits', () => {
       metrics.recordRequest({
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         status: 'success',
         latencyMs: 10,
         inputTokens: 100,
@@ -243,7 +243,7 @@ describe('MetricsCollector', () => {
     it('should not increment cache hits for uncached requests', () => {
       metrics.recordRequest({
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         status: 'success',
         latencyMs: 150,
         inputTokens: 100,
@@ -258,7 +258,7 @@ describe('MetricsCollector', () => {
     it('should track errors', () => {
       metrics.recordRequest({
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         status: 'error',
         latencyMs: 5000,
         inputTokens: 0,
@@ -270,7 +270,7 @@ describe('MetricsCollector', () => {
       expect(
         metrics.getCounter('requests_total', {
           provider: 'openai',
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           status: 'error',
           cached: 'false',
         }),
@@ -292,7 +292,7 @@ describe('MetricsCollector', () => {
     it('should calculate request summary', () => {
       metrics.recordRequest({
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         status: 'success',
         latencyMs: 150,
         inputTokens: 100,
@@ -303,7 +303,7 @@ describe('MetricsCollector', () => {
 
       metrics.recordRequest({
         provider: 'anthropic',
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         status: 'error',
         latencyMs: 5000,
         inputTokens: 50,
@@ -322,7 +322,7 @@ describe('MetricsCollector', () => {
     it('should calculate token summary', () => {
       metrics.recordRequest({
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         status: 'success',
         latencyMs: 150,
         inputTokens: 100,
@@ -341,7 +341,7 @@ describe('MetricsCollector', () => {
     it('should calculate cost summary', () => {
       metrics.recordRequest({
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         status: 'success',
         latencyMs: 150,
         inputTokens: 100,
@@ -358,7 +358,7 @@ describe('MetricsCollector', () => {
     it('should calculate cost by provider', () => {
       metrics.recordRequest({
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         status: 'success',
         latencyMs: 150,
         inputTokens: 100,
@@ -369,7 +369,7 @@ describe('MetricsCollector', () => {
 
       metrics.recordRequest({
         provider: 'anthropic',
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         status: 'success',
         latencyMs: 200,
         inputTokens: 100,
@@ -387,7 +387,7 @@ describe('MetricsCollector', () => {
     it('should calculate cost by model', () => {
       metrics.recordRequest({
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         status: 'success',
         latencyMs: 150,
         inputTokens: 100,
@@ -398,13 +398,13 @@ describe('MetricsCollector', () => {
 
       const summary = metrics.getSummary();
 
-      expect(summary.cost.byModel['gpt-4o']).toBe(0.001);
+      expect(summary.cost.byModel['gpt-5.5']).toBe(0.001);
     });
 
     it('should calculate cache metrics', () => {
       metrics.recordRequest({
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         status: 'success',
         latencyMs: 10,
         inputTokens: 100,
@@ -415,7 +415,7 @@ describe('MetricsCollector', () => {
 
       metrics.recordRequest({
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         status: 'success',
         latencyMs: 150,
         inputTokens: 100,
@@ -435,7 +435,7 @@ describe('MetricsCollector', () => {
       for (let i = 0; i < 100; i++) {
         metrics.recordRequest({
           provider: 'openai',
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           status: 'success',
           latencyMs: i,
           inputTokens: 10,
@@ -538,14 +538,14 @@ describe('MetricsCollector', () => {
       metrics.incrementCounter('requests', 1, { provider: 'openai' });
       metrics.incrementCounter('requests', 2, {
         provider: 'openai',
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
       });
 
       expect(metrics.getCounter('requests', { provider: 'openai' })).toBe(1);
       expect(
         metrics.getCounter('requests', {
           provider: 'openai',
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
         }),
       ).toBe(2);
     });

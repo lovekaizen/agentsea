@@ -144,7 +144,7 @@ export class StructuredProvider {
       : [{ role: 'user', content: prompt }];
 
     return client.extract({
-      model: options?.model ?? this.options.defaultModel ?? 'gpt-4o',
+      model: options?.model ?? this.options.defaultModel ?? 'gpt-5.5',
       messages,
       response_format: schema,
       mode: options?.mode ?? this.options.defaultMode,
@@ -172,7 +172,7 @@ export class StructuredProvider {
 
     return client.extractStream(
       {
-        model: options?.model ?? this.options.defaultModel ?? 'gpt-4o',
+        model: options?.model ?? this.options.defaultModel ?? 'gpt-5.5',
         messages,
         response_format: schema,
         mode: options?.mode ?? this.options.defaultMode,

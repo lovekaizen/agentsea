@@ -35,7 +35,7 @@ describe('LLMJudge', () => {
     it('should create judge with provider and criteria', () => {
       const judge = new LLMJudge({
         provider: mockProvider,
-        model: 'claude-sonnet-4',
+        model: 'claude-sonnet-4-6',
         criteria,
       });
 

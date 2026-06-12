@@ -10,7 +10,7 @@
  *
  * // ✅ Valid: Claude 3.5 Sonnet supports tools and extended thinking
  * const anthropicProvider = createProvider(
- *   anthropic('claude-3-5-sonnet-20241022', {
+ *   anthropic('claude-sonnet-4-6', {
  *     tools: [myTool],
  *     thinking: { type: 'enabled', budgetTokens: 10000 },
  *   })
@@ -83,7 +83,7 @@ export interface TypeSafeProvider<TConfig extends ProviderModelConfig> {
  *
  * // Type-safe Anthropic provider
  * const claude = createProvider(
- *   anthropic('claude-3-5-sonnet-20241022', {
+ *   anthropic('claude-sonnet-4-6', {
  *     tools: [calculatorTool],
  *     systemPrompt: 'You are helpful',
  *     temperature: 0.7,
@@ -92,7 +92,7 @@ export interface TypeSafeProvider<TConfig extends ProviderModelConfig> {
  *
  * // Type-safe OpenAI provider
  * const gpt4o = createProvider(
- *   openai('gpt-4o', {
+ *   openai('gpt-5.5', {
  *     tools: [calculatorTool],
  *     systemPrompt: 'You are helpful',
  *   })

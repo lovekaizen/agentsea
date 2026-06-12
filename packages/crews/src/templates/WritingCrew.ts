@@ -211,7 +211,7 @@ export function createWritingCrewConfig(
         systemPrompt:
           editorRole.systemPrompt + contentTypePrompt + audiencePrompt,
       },
-      model: options.model ?? 'claude-sonnet-4-20250514',
+      model: options.model ?? 'claude-opus-4-8',
       provider: options.provider ?? 'anthropic',
       tools: ['text-editor', ...(options.tools ?? [])],
       temperature: 0.3,
@@ -223,7 +223,7 @@ export function createWritingCrewConfig(
         systemPrompt:
           writerRole.systemPrompt + contentTypePrompt + audiencePrompt,
       },
-      model: options.model ?? 'claude-sonnet-4-20250514',
+      model: options.model ?? 'claude-opus-4-8',
       provider: options.provider ?? 'anthropic',
       tools: ['web-search', 'text-editor', ...(options.tools ?? [])],
       temperature: 0.7,
@@ -231,7 +231,7 @@ export function createWritingCrewConfig(
     {
       name: 'proofreader',
       role: proofreaderRole,
-      model: options.model ?? 'claude-sonnet-4-20250514',
+      model: options.model ?? 'claude-opus-4-8',
       provider: options.provider ?? 'anthropic',
       tools: ['grammar-checker', 'spell-checker', ...(options.tools ?? [])],
       temperature: 0.1,

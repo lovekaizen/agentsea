@@ -41,7 +41,7 @@ const costManager = createCostManager({
 // Track an Anthropic API call
 await costManager.trackAnthropicResponse(
   {
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-sonnet-4-6',
     usage: {
       input_tokens: 1500,
       output_tokens: 500,
@@ -80,7 +80,7 @@ const costManager = new CostManager({ storage });
 // Track any LLM call
 await costManager.track({
   provider: 'anthropic',
-  model: 'claude-3-5-sonnet-20241022',
+  model: 'claude-sonnet-4-6',
   tokens: {
     inputTokens: 1000,
     outputTokens: 500,
@@ -96,7 +96,7 @@ await costManager.track({
 
 // Track OpenAI responses directly
 await costManager.trackOpenAIResponse({
-  model: 'gpt-4o',
+  model: 'gpt-5.2',
   usage: {
     prompt_tokens: 1000,
     completion_tokens: 500,
@@ -107,7 +107,7 @@ await costManager.trackOpenAIResponse({
 // Track errors
 await costManager.trackError({
   provider: 'openai',
-  model: 'gpt-4o',
+  model: 'gpt-5.2',
   error: 'Rate limit exceeded',
   estimatedInputTokens: 1000,
 });
@@ -125,7 +125,7 @@ const userTracker = costManager.scoped({
 // All calls through this tracker include the scope
 await userTracker.track({
   provider: 'anthropic',
-  model: 'claude-3-5-sonnet-20241022',
+  model: 'claude-sonnet-4-6',
   tokens: {
     inputTokens: 500,
     outputTokens: 200,
@@ -145,7 +145,7 @@ const counter = new TokenCounter(registry);
 // Count tokens
 const result = await counter.countTokens({
   text: 'Hello, how can I help you today?',
-  model: 'claude-3-5-sonnet-20241022',
+  model: 'claude-sonnet-4-6',
 });
 
 console.log(`Tokens: ${result.tokens}`);
@@ -154,7 +154,7 @@ console.log(`Estimated cost: $${result.estimatedInputCost}`);
 // Estimate cost before making a call
 const estimate = await counter.estimateCost({
   input: 'Your prompt here...',
-  model: 'claude-3-5-sonnet-20241022',
+  model: 'claude-sonnet-4-6',
   estimatedOutputTokens: 1000,
 });
 
@@ -169,14 +169,14 @@ import { ModelPricingRegistry } from '@lov3kaizen/agentsea-costs';
 const registry = new ModelPricingRegistry();
 
 // Get pricing for a model
-const pricing = registry.getPricing('anthropic', 'claude-3-5-sonnet-20241022');
+const pricing = registry.getPricing('anthropic', 'claude-sonnet-4-6');
 console.log(`Input: $${pricing.inputPricePerMillion}/1M tokens`);
 console.log(`Output: $${pricing.outputPricePerMillion}/1M tokens`);
 
 // Calculate cost
 const cost = registry.calculateCost(
   'anthropic',
-  'claude-3-5-sonnet-20241022',
+  'claude-sonnet-4-6',
   1000, // input tokens
   500, // output tokens
 );
@@ -191,8 +191,8 @@ const cheapest = registry.findCheapestModel({
 
 // Compare models
 const comparison = registry.comparePricing(
-  'claude-3-5-sonnet-20241022',
-  'gpt-4o',
+  'claude-sonnet-4-6',
+  'gpt-5.2',
   { input: 1000000, output: 500000 }, // sample workload
 );
 

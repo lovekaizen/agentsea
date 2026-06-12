@@ -8,6 +8,9 @@ import type { ModelInfo, UsageInfo } from '../core/types.js';
 export const MODEL_PRICING: Record<string, { input: number; output: number }> =
   {
     // OpenAI Models
+    'gpt-5.5': { input: 5.0, output: 30.0 },
+    'gpt-5.4-mini': { input: 0.75, output: 4.5 },
+    // OpenAI Models (legacy)
     'gpt-4o': { input: 2.5, output: 10.0 },
     'gpt-4o-2024-11-20': { input: 2.5, output: 10.0 },
     'gpt-4o-mini': { input: 0.15, output: 0.6 },
@@ -23,6 +26,10 @@ export const MODEL_PRICING: Record<string, { input: number; output: number }> =
     'o1-mini': { input: 3.0, output: 12.0 },
 
     // Anthropic Models
+    'claude-opus-4-8': { input: 5.0, output: 25.0 },
+    'claude-sonnet-4-6': { input: 3.0, output: 15.0 },
+    'claude-haiku-4-5': { input: 1.0, output: 5.0 },
+    // Anthropic Models (retired — kept for historical cost lookups)
     'claude-3-5-sonnet-20241022': { input: 3.0, output: 15.0 },
     'claude-3-5-sonnet-latest': { input: 3.0, output: 15.0 },
     'claude-sonnet-4-20250514': { input: 3.0, output: 15.0 },
@@ -32,6 +39,9 @@ export const MODEL_PRICING: Record<string, { input: number; output: number }> =
     'claude-3-sonnet-20240229': { input: 3.0, output: 15.0 },
 
     // Google Gemini Models
+    'gemini-3.1-pro-preview': { input: 2.0, output: 12.0 },
+    'gemini-3.5-flash': { input: 1.5, output: 9.0 },
+    // Google Gemini Models (legacy)
     'gemini-1.5-pro': { input: 1.25, output: 5.0 },
     'gemini-1.5-pro-latest': { input: 1.25, output: 5.0 },
     'gemini-1.5-flash': { input: 0.075, output: 0.3 },
@@ -77,6 +87,8 @@ export const MODEL_PRICING: Record<string, { input: number; output: number }> =
 // Model context windows
 export const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
   // OpenAI
+  'gpt-5.5': 1050000,
+  'gpt-5.4-mini': 400000,
   'gpt-4o': 128000,
   'gpt-4o-mini': 128000,
   'gpt-4-turbo': 128000,
@@ -88,6 +100,9 @@ export const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
   'o1-mini': 128000,
 
   // Anthropic
+  'claude-opus-4-8': 1000000,
+  'claude-sonnet-4-6': 1000000,
+  'claude-haiku-4-5': 200000,
   'claude-3-5-sonnet-20241022': 200000,
   'claude-sonnet-4-20250514': 200000,
   'claude-3-5-haiku-20241022': 200000,
@@ -96,6 +111,8 @@ export const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
   'claude-3-haiku-20240307': 200000,
 
   // Google
+  'gemini-3.1-pro-preview': 1048576,
+  'gemini-3.5-flash': 1048576,
   'gemini-1.5-pro': 2000000,
   'gemini-1.5-flash': 1000000,
   'gemini-2.0-flash-exp': 1000000,
@@ -116,6 +133,8 @@ export const MODEL_CONTEXT_WINDOWS: Record<string, number> = {
 // Model max output tokens
 export const MODEL_MAX_OUTPUT: Record<string, number> = {
   // OpenAI
+  'gpt-5.5': 128000,
+  'gpt-5.4-mini': 128000,
   'gpt-4o': 16384,
   'gpt-4o-mini': 16384,
   'gpt-4-turbo': 4096,
@@ -126,11 +145,16 @@ export const MODEL_MAX_OUTPUT: Record<string, number> = {
   'o1-mini': 65536,
 
   // Anthropic
+  'claude-opus-4-8': 128000,
+  'claude-sonnet-4-6': 64000,
+  'claude-haiku-4-5': 64000,
   'claude-3-5-sonnet-20241022': 8192,
   'claude-sonnet-4-20250514': 16384,
   'claude-3-opus-20240229': 4096,
 
   // Google
+  'gemini-3.1-pro-preview': 65536,
+  'gemini-3.5-flash': 65536,
   'gemini-1.5-pro': 8192,
   'gemini-1.5-flash': 8192,
 };
@@ -215,7 +239,11 @@ export function getModelCapabilities(
   };
 
   // Model-specific overrides
-  if (model.includes('gpt-4o') || model.includes('gpt-4-turbo')) {
+  if (
+    model.includes('gpt-4o') ||
+    model.includes('gpt-4-turbo') ||
+    model.includes('gpt-5')
+  ) {
     return { ...defaults, vision: true };
   }
 
@@ -229,7 +257,9 @@ export function getModelCapabilities(
     };
   }
 
-  if (model.includes('claude-3')) {
+  if (model.includes('claude')) {
+    // All Claude 3+ models (including claude-opus-4-8, claude-sonnet-4-6,
+    // claude-haiku-4-5) support vision
     return { ...defaults, vision: true };
   }
 

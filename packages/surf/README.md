@@ -44,7 +44,7 @@ async function main() {
   const agent = new SurfAgent('session-1', backend, {
     maxSteps: 20,
     vision: {
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       maxTokens: 4096,
       includeScreenshotInResponse: true,
     },

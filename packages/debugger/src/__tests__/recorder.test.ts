@@ -12,7 +12,7 @@ import type { AgentState, ExecutionStep } from '../types/index.js';
 const createMockState = (): AgentState => ({
   agentId: 'test-agent',
   agentName: 'Test Agent',
-  model: 'gpt-4',
+  model: 'gpt-5.5',
   memory: { size: 0 },
   context: {},
   tools: ['search', 'calculate'],

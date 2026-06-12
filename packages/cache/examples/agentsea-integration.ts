@@ -60,7 +60,7 @@ async function demonstrateCachedProvider() {
   // First call - cache miss
   console.log('1. First call (cache miss)...');
   const response1 = await cachedProvider.complete({
-    model: 'gpt-4o',
+    model: 'gpt-5.5',
     messages: [{ role: 'user', content: 'Hello, world!' }],
   });
   console.log(`   Content: "${response1.content}"`);
@@ -68,7 +68,7 @@ async function demonstrateCachedProvider() {
   // Second call - cache hit
   console.log('2. Same call (cache hit)...');
   const response2 = await cachedProvider.complete({
-    model: 'gpt-4o',
+    model: 'gpt-5.5',
     messages: [{ role: 'user', content: 'Hello, world!' }],
   });
   console.log(`   Content: "${response2.content}"`);
@@ -113,7 +113,7 @@ async function demonstrateCacheMiddleware() {
   console.log('1. First request through middleware (cache miss)...');
   const response1 = await middleware.handle(
     {
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       messages: [{ role: 'user', content: 'Explain caching' }],
     },
     next,
@@ -124,7 +124,7 @@ async function demonstrateCacheMiddleware() {
   console.log('2. Same request (cache hit)...');
   const response2 = await middleware.handle(
     {
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       messages: [{ role: 'user', content: 'Explain caching' }],
     },
     next,
@@ -135,7 +135,7 @@ async function demonstrateCacheMiddleware() {
   console.log('3. Request with tools (cache skipped)...');
   const response3 = await middleware.handle(
     {
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       messages: [{ role: 'user', content: 'Search the web' }],
       tools: [{ name: 'web_search' }],
     },

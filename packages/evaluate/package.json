@@ -75,14 +75,14 @@
   "dependencies": {
     "eventemitter3": "^5.0.0",
     "nanoid": "^5.0.0",
-    "zod": "^3.22.0"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.0",
     "@types/node": "^20.0.0",
     "tsup": "^8.0.0",
     "typescript": "^5.3.0",
-    "vitest": "^1.0.0"
+    "vitest": "^3.2.6"
   },
   "peerDependencies": {
     "@lov3kaizen/agentsea-core": ">=0.6.0"

@@ -116,7 +116,7 @@ vi.mock('../providers/registry/OpenAIProvider.js', () => ({
     .mockImplementation((config: any) =>
       createMockProviderInstance(
         'openai',
-        config.models || ['gpt-4o', 'gpt-4o-mini'],
+        config.models || ['gpt-5.5', 'gpt-5.4-mini'],
       ),
     ),
 }));
@@ -127,7 +127,7 @@ vi.mock('../providers/registry/AnthropicProvider.js', () => ({
     .mockImplementation((config: any) =>
       createMockProviderInstance(
         'anthropic',
-        config.models || ['claude-3-5-sonnet-20241022'],
+        config.models || ['claude-sonnet-4-6'],
       ),
     ),
 }));
@@ -136,7 +136,10 @@ vi.mock('../providers/registry/GoogleProvider.js', () => ({
   GoogleProvider: vi
     .fn()
     .mockImplementation((config: any) =>
-      createMockProviderInstance('google', config.models || ['gemini-1.5-pro']),
+      createMockProviderInstance(
+        'google',
+        config.models || ['gemini-3.1-pro-preview'],
+      ),
     ),
 }));
 
@@ -147,12 +150,12 @@ describe('Gateway', () => {
       {
         name: 'openai',
         apiKey: 'test-openai-key',
-        models: ['gpt-4o', 'gpt-4o-mini'],
+        models: ['gpt-5.5', 'gpt-5.4-mini'],
       },
       {
         name: 'anthropic',
         apiKey: 'test-anthropic-key',
-        models: ['claude-3-5-sonnet-20241022'],
+        models: ['claude-sonnet-4-6'],
       },
     ],
     routing: {
@@ -239,7 +242,7 @@ describe('Gateway', () => {
 
     it('should process a basic request', async () => {
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
       };
 
@@ -253,7 +256,7 @@ describe('Gateway', () => {
 
     it('should include gateway metadata in response', async () => {
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
       };
 
@@ -279,7 +282,7 @@ describe('Gateway', () => {
 
     it('should reject request without messages', async () => {
       const request = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
       } as ChatCompletionRequest;
 
       await expect(gateway.chat.completions.create(request)).rejects.toThrow(
@@ -289,7 +292,7 @@ describe('Gateway', () => {
 
     it('should reject request with empty messages', async () => {
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [],
       };
 
@@ -300,7 +303,7 @@ describe('Gateway', () => {
 
     it('should reject message without role', async () => {
       const request = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ content: 'Hello' }],
       } as ChatCompletionRequest;
 
@@ -311,7 +314,7 @@ describe('Gateway', () => {
 
     it('should reject invalid message role', async () => {
       const request = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'invalid', content: 'Hello' }],
       } as ChatCompletionRequest;
 
@@ -327,7 +330,7 @@ describe('Gateway', () => {
 
       for (const role of roles) {
         const request = {
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           messages: [{ role: role as any, content: 'Hello' }],
         } as ChatCompletionRequest;
 
@@ -345,7 +348,7 @@ describe('Gateway', () => {
   describe('caching', () => {
     it('should cache responses when enabled', async () => {
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Cache test' }],
       };
 
@@ -357,7 +360,7 @@ describe('Gateway', () => {
 
     it('should bypass cache with no-cache policy', async () => {
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'No cache test' }],
         _gateway: { cachePolicy: 'no-cache' },
       };
@@ -375,7 +378,7 @@ describe('Gateway', () => {
       });
 
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Test' }],
       };
 
@@ -403,7 +406,7 @@ describe('Gateway', () => {
 
     it('should track request metrics', async () => {
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Metrics test' }],
       };
 
@@ -416,7 +419,7 @@ describe('Gateway', () => {
 
     it('should track token usage', async () => {
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Token test' }],
       };
 
@@ -430,7 +433,7 @@ describe('Gateway', () => {
 
     it('should track cost', async () => {
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Cost test' }],
       };
 
@@ -442,7 +445,7 @@ describe('Gateway', () => {
 
     it('should track cache hit rate', async () => {
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hit rate test' }],
       };
 
@@ -468,7 +471,7 @@ describe('Gateway', () => {
       gateway.on('request:start', startHandler);
 
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Event test' }],
       };
 
@@ -477,7 +480,7 @@ describe('Gateway', () => {
       expect(startHandler).toHaveBeenCalledWith(
         expect.objectContaining({
           requestId: expect.any(String),
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
         }),
       );
     });
@@ -487,7 +490,7 @@ describe('Gateway', () => {
       gateway.on('request:complete', completeHandler);
 
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Complete test' }],
       };
 
@@ -508,7 +511,7 @@ describe('Gateway', () => {
   describe('streaming', () => {
     it('should return async generator for streaming requests', async () => {
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Stream test' }],
         stream: true,
       };
@@ -521,7 +524,7 @@ describe('Gateway', () => {
 
     it('should yield chunks in streaming mode', async () => {
       const request: ChatCompletionRequest = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Stream test' }],
         stream: true,
       };
@@ -559,7 +562,7 @@ describe('Gateway', () => {
     it('should skip unknown provider types', () => {
       const gatewayWithUnknown = new Gateway({
         providers: [
-          { name: 'openai', apiKey: 'test', models: ['gpt-4o'] },
+          { name: 'openai', apiKey: 'test', models: ['gpt-5.5'] },
           {
             name: 'unknown-provider' as any,
             apiKey: 'test',

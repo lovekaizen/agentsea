@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-surf",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Surf - Computer-use agent for AgentSea. Control desktop environments through screen capture, mouse, and keyboard actions using Claude's vision capabilities.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -32,17 +32,17 @@
   "dependencies": {
     "@lov3kaizen/agentsea-core": "workspace:*",
     "@lov3kaizen/agentsea-types": "workspace:*",
-    "zod": "^3.22.4",
+    "zod": "^3.25.76",
     "sharp": "^0.33.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
-    "@vitest/coverage-v8": "^1.2.0",
+    "@vitest/coverage-v8": "^3.2.6",
     "rxjs": "^7.8.1",
     "socket.io": "^4.7.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
-    "vitest": "^1.2.0"
+    "vitest": "^3.2.6"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.0.0",

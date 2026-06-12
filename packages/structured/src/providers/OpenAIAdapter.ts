@@ -86,24 +86,25 @@ interface OpenAIStreamChunk {
  * Model capabilities for OpenAI models
  */
 const MODEL_CAPABILITIES: Record<string, Partial<ProviderCapabilities>> = {
-  'gpt-4o': {
+  'gpt-5.5': {
     jsonMode: true,
     strictJsonMode: true,
     toolCalling: true,
     streaming: true,
     systemMessages: true,
-    maxContextWindow: 128000,
-    maxOutputTokens: 16384,
+    maxContextWindow: 1050000,
+    maxOutputTokens: 128000,
   },
-  'gpt-4o-mini': {
+  'gpt-5.4-mini': {
     jsonMode: true,
     strictJsonMode: true,
     toolCalling: true,
     streaming: true,
     systemMessages: true,
-    maxContextWindow: 128000,
-    maxOutputTokens: 16384,
+    maxContextWindow: 400000,
+    maxOutputTokens: 128000,
   },
+  // Legacy entry — kept for callers still routing older non-strict models
   'gpt-4-turbo': {
     jsonMode: true,
     strictJsonMode: false,
@@ -111,24 +112,6 @@ const MODEL_CAPABILITIES: Record<string, Partial<ProviderCapabilities>> = {
     streaming: true,
     systemMessages: true,
     maxContextWindow: 128000,
-    maxOutputTokens: 4096,
-  },
-  'gpt-4': {
-    jsonMode: true,
-    strictJsonMode: false,
-    toolCalling: true,
-    streaming: true,
-    systemMessages: true,
-    maxContextWindow: 8192,
-    maxOutputTokens: 4096,
-  },
-  'gpt-3.5-turbo': {
-    jsonMode: true,
-    strictJsonMode: false,
-    toolCalling: true,
-    streaming: true,
-    systemMessages: true,
-    maxContextWindow: 16385,
     maxOutputTokens: 4096,
   },
   'o1-preview': {
@@ -166,7 +149,7 @@ export class OpenAIAdapter implements ProviderAdapter {
    * Get capabilities for a model
    */
   getCapabilities(model: string): ProviderCapabilities {
-    const base = MODEL_CAPABILITIES[model] ?? MODEL_CAPABILITIES['gpt-4o'];
+    const base = MODEL_CAPABILITIES[model] ?? MODEL_CAPABILITIES['gpt-5.5'];
 
     return {
       jsonMode: base.jsonMode ?? true,

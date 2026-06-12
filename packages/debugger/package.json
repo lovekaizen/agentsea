@@ -80,7 +80,7 @@
     "@types/node": "^20.17.10",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^3.2.6"
   },
   "peerDependencies": {
     "@lov3kaizen/agentsea-core": ">=0.6.0"

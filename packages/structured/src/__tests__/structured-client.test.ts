@@ -103,7 +103,7 @@ describe('StructuredClient', () => {
   describe('extract', () => {
     it('should extract valid data successfully', async () => {
       const result = await client.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -114,20 +114,20 @@ describe('StructuredClient', () => {
 
     it('should include metadata in result', async () => {
       const result = await client.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
 
       expect(result.metadata).toBeDefined();
       expect(result.metadata?.totalAttempts).toBe(1);
-      expect(result.metadata?.model).toBe('gpt-4o');
+      expect(result.metadata?.model).toBe('gpt-5.5');
       expect(result.metadata?.tokenUsage).toBeDefined();
     });
 
     it('should include raw response', async () => {
       const result = await client.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -137,14 +137,14 @@ describe('StructuredClient', () => {
 
     it('should call provider with correct parameters', async () => {
       await client.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
 
       expect(mockProvider.createCompletion).toHaveBeenCalledWith(
         expect.objectContaining({
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           mode: 'json',
         }),
       );
@@ -152,7 +152,7 @@ describe('StructuredClient', () => {
 
     it('should use specified extraction mode', async () => {
       await client.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
         mode: 'tool',
@@ -182,7 +182,7 @@ describe('StructuredClient', () => {
 
       const toolClient = new StructuredClient(toolProvider);
       const result = await toolClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
         mode: 'tool',
@@ -194,7 +194,7 @@ describe('StructuredClient', () => {
 
     it('should handle prompt mode', async () => {
       await client.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
         mode: 'prompt',
@@ -209,7 +209,7 @@ describe('StructuredClient', () => {
 
     it('should handle hybrid mode', async () => {
       await client.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
         mode: 'hybrid',
@@ -229,7 +229,7 @@ describe('StructuredClient', () => {
 
       const codeBlockClient = new StructuredClient(codeBlockProvider);
       const result = await codeBlockClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -248,7 +248,7 @@ describe('StructuredClient', () => {
 
       const mixedClient = new StructuredClient(mixedProvider);
       const result = await mixedClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -274,7 +274,7 @@ describe('StructuredClient', () => {
 
       const complexClient = new StructuredClient(complexProvider);
       const result = await complexClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get complex data' }],
         response_format: complexSchema,
       });
@@ -299,7 +299,7 @@ describe('StructuredClient', () => {
       });
 
       const result = await invalidClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -327,7 +327,7 @@ describe('StructuredClient', () => {
       });
 
       const result = await retryClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -355,7 +355,7 @@ describe('StructuredClient', () => {
       });
 
       const result = await parseClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -377,7 +377,7 @@ describe('StructuredClient', () => {
       });
 
       const result = await failClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -407,7 +407,7 @@ describe('StructuredClient', () => {
       });
 
       await hintClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -429,7 +429,7 @@ describe('StructuredClient', () => {
       });
 
       const result = await errorClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -458,7 +458,7 @@ describe('StructuredClient', () => {
       });
 
       const result = await rateLimitClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -474,7 +474,7 @@ describe('StructuredClient', () => {
       client.on('extraction:start', startHandler);
 
       await client.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -492,7 +492,7 @@ describe('StructuredClient', () => {
       client.on('extraction:attempt', attemptHandler);
 
       await client.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -511,7 +511,7 @@ describe('StructuredClient', () => {
       client.on('extraction:success', successHandler);
 
       await client.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -540,7 +540,7 @@ describe('StructuredClient', () => {
       invalidClient.on('validation:failed', validationHandler);
 
       await invalidClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -567,7 +567,7 @@ describe('StructuredClient', () => {
       errorClient.on('extraction:error', errorHandler);
 
       await errorClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -602,7 +602,7 @@ describe('StructuredClient', () => {
       retryClient.on('extraction:retry', retryHandler);
 
       await retryClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -618,29 +618,29 @@ describe('StructuredClient', () => {
 
   describe('getProviderCapabilities', () => {
     it('should return provider capabilities', () => {
-      const caps = client.getProviderCapabilities('gpt-4o');
+      const caps = client.getProviderCapabilities('gpt-5.5');
 
       expect(caps.jsonMode).toBe(true);
       expect(caps.toolCalling).toBe(true);
-      expect(mockProvider.getCapabilities).toHaveBeenCalledWith('gpt-4o');
+      expect(mockProvider.getCapabilities).toHaveBeenCalledWith('gpt-5.5');
     });
   });
 
   describe('supportsMode', () => {
     it('should check json mode support', () => {
-      expect(client.supportsMode('json', 'gpt-4o')).toBe(true);
+      expect(client.supportsMode('json', 'gpt-5.5')).toBe(true);
     });
 
     it('should check tool mode support', () => {
-      expect(client.supportsMode('tool', 'gpt-4o')).toBe(true);
+      expect(client.supportsMode('tool', 'gpt-5.5')).toBe(true);
     });
 
     it('should always support prompt mode', () => {
-      expect(client.supportsMode('prompt', 'gpt-4o')).toBe(true);
+      expect(client.supportsMode('prompt', 'gpt-5.5')).toBe(true);
     });
 
     it('should check hybrid mode support', () => {
-      expect(client.supportsMode('hybrid', 'gpt-4o')).toBe(true);
+      expect(client.supportsMode('hybrid', 'gpt-5.5')).toBe(true);
     });
 
     it('should return false for unsupported modes on limited models', () => {
@@ -687,7 +687,7 @@ describe('StructuredClient', () => {
       });
 
       const result = await emptyClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -708,7 +708,7 @@ describe('StructuredClient', () => {
       });
 
       const result = await nullClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });
@@ -718,7 +718,7 @@ describe('StructuredClient', () => {
 
     it('should handle messages with system prompt', async () => {
       await client.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [
           { role: 'system', content: 'You are a helpful assistant' },
           { role: 'user', content: 'Get user data' },
@@ -749,7 +749,7 @@ describe('StructuredClient', () => {
       });
 
       const result = await badToolClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
         mode: 'tool',
@@ -777,7 +777,7 @@ describe('StructuredClient', () => {
       });
 
       const result = await multiClient.extract({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get user data' }],
         response_format: userSchema,
       });

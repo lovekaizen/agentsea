@@ -44,7 +44,7 @@ function main() {
   const context: ExecutionContext = {
     agentId: 'demo-agent',
     agentName: 'Demo Agent',
-    model: 'gpt-4',
+    model: 'gpt-5.5',
     messages: [],
     tools: ['search', 'calculate', 'web-browse'],
   };
@@ -100,7 +100,7 @@ function main() {
   customMiddleware.startSession({
     agentId: 'custom-agent',
     agentName: 'Custom Agent',
-    model: 'claude-3',
+    model: 'claude-sonnet-4-6',
     messages: [],
     tools: ['analyze'],
   });
@@ -138,7 +138,7 @@ function main() {
   // Example usage with a hypothetical agent framework:
   /*
   const agent = new Agent({
-    model: 'gpt-4',
+    model: 'gpt-5.5',
     tools: [...],
     middleware: [handler],
   });

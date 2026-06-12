@@ -11,6 +11,26 @@ import {
 } from '../types';
 
 /**
+ * Models on which the API rejects sampling parameters
+ * (temperature/top_p/top_k) entirely. Opus 4.7+ and the Fable/Mythos 5
+ * family removed them; sending any returns a 400.
+ */
+const SAMPLING_REMOVED = /^claude-(opus-4-[789]|fable-5|mythos-5)/;
+
+/**
+ * Models supporting adaptive thinking and the effort parameter.
+ */
+const ADAPTIVE_THINKING = /^claude-(opus-4-[6789]|sonnet-4-6|fable-5|mythos-5)/;
+
+interface AnthropicTuningParams {
+  max_tokens: number;
+  temperature?: number;
+  top_p?: number;
+  thinking?: { type: 'adaptive'; display?: 'summarized' | 'omitted' };
+  output_config?: { effort: NonNullable<ProviderConfig['effort']> };
+}
+
+/**
  * Anthropic Claude provider implementation
  */
 export class AnthropicProvider implements LLMProvider {
@@ -20,6 +40,39 @@ export class AnthropicProvider implements LLMProvider {
     this.client = new Anthropic({
       apiKey: apiKey || process.env.ANTHROPIC_API_KEY,
     });
+  }
+
+  /**
+   * Build model-aware request parameters. Modern Claude models reject
+   * removed sampling params, and Claude 4+ rejects temperature and
+   * top_p together — temperature wins when both are configured.
+   */
+  private buildRequestParams(
+    config: ProviderConfig,
+    defaultMaxTokens: number,
+  ): AnthropicTuningParams {
+    const params: AnthropicTuningParams = {
+      max_tokens: config.maxTokens || defaultMaxTokens,
+    };
+
+    if (!SAMPLING_REMOVED.test(config.model)) {
+      if (config.temperature !== undefined) {
+        params.temperature = config.temperature;
+      } else if (config.topP !== undefined) {
+        params.top_p = config.topP;
+      }
+    }
+
+    if (config.thinking && ADAPTIVE_THINKING.test(config.model)) {
+      params.thinking =
+        config.thinking === true ? { type: 'adaptive' } : config.thinking;
+    }
+
+    if (config.effort && ADAPTIVE_THINKING.test(config.model)) {
+      params.output_config = { effort: config.effort };
+    }
+
+    return params;
   }
 
   /**
@@ -44,14 +97,12 @@ export class AnthropicProvider implements LLMProvider {
     // Make API call
     const response = await this.client.messages.create({
       model: config.model,
-      max_tokens: config.maxTokens || 1024,
-      temperature: config.temperature,
       system: config.systemPrompt,
       messages: anthropicMessages,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tools: tools as any,
-      top_p: config.topP,
       stop_sequences: config.stopSequences,
+      ...this.buildRequestParams(config, 16000),
     });
 
     // Extract text content
@@ -96,14 +147,12 @@ export class AnthropicProvider implements LLMProvider {
     // eslint-disable-next-line @typescript-eslint/await-thenable
     const stream = await this.client.messages.stream({
       model: config.model,
-      max_tokens: config.maxTokens || 1024,
-      temperature: config.temperature,
       system: config.systemPrompt,
       messages: anthropicMessages,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       tools: tools as any,
-      top_p: config.topP,
       stop_sequences: config.stopSequences,
+      ...this.buildRequestParams(config, 64000),
     });
 
     for await (const event of stream) {

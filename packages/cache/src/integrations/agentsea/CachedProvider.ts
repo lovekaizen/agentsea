@@ -89,7 +89,7 @@ export interface CachedProviderConfig {
  *
  * // Uses cache transparently
  * const response = await cachedProvider.complete({
- *   model: 'claude-3-sonnet',
+ *   model: 'claude-sonnet-4-6',
  *   messages: [{ role: 'user', content: 'Hello' }]
  * });
  * ```

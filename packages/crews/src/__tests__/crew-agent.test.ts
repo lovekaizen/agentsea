@@ -21,7 +21,7 @@ function createAgentConfig(
       ],
       systemPrompt: 'You are a helpful developer.',
     },
-    model: 'claude-sonnet-4',
+    model: 'claude-sonnet-4-6',
     provider: 'anthropic',
     ...overrides,
   };
@@ -43,7 +43,7 @@ describe('CrewAgent', () => {
 
       expect(agent.id).toBeDefined();
       expect(agent.name).toBe('TestAgent');
-      expect(agent.model).toBe('claude-sonnet-4');
+      expect(agent.model).toBe('claude-sonnet-4-6');
       expect(agent.provider).toBe('anthropic');
     });
 

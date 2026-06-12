@@ -115,14 +115,14 @@ describe('Collector', () => {
         conversation.id,
         'Hi there!',
         {
-          model: 'gpt-4',
+          model: 'gpt-5.5',
           tokenUsage: { input: 10, output: 5, total: 15 },
         },
       );
 
       expect(message.role).toBe('assistant');
       expect(message.content).toBe('Hi there!');
-      expect(message.model).toBe('gpt-4');
+      expect(message.model).toBe('gpt-5.5');
       expect(message.tokenUsage?.total).toBe(15);
     });
 
@@ -204,7 +204,7 @@ describe('Collector', () => {
       const conversation = await collector.trackConversationStart();
 
       await collector.trackTokenUsage(conversation.id, {
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         input: 100,
         output: 50,
         total: 150,
@@ -218,7 +218,7 @@ describe('Collector', () => {
       const conversation = await collector.trackConversationStart();
 
       await collector.trackTokenUsage(conversation.id, {
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         input: 100,
         output: 50,
       });
@@ -357,7 +357,7 @@ describe('Collector', () => {
 
       // Should not track tokens (just verify no error)
       await customCollector.trackTokenUsage(conversation.id, {
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         input: 10,
         output: 5,
       });

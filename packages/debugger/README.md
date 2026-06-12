@@ -70,7 +70,7 @@ const debugger = new Debugger({
 debugger.attach({
   id: 'my-agent',
   name: 'My Agent',
-  model: 'gpt-4',
+  model: 'gpt-5.5',
 });
 
 // Start debugging
@@ -285,7 +285,7 @@ debugger.breakOnError();
 await debugger.startSession({
   agentId: 'my-agent',
   agentName: 'My Agent',
-  model: 'gpt-4',
+  model: 'gpt-5.5',
   messages: [],
   tools: ['search'],
 });

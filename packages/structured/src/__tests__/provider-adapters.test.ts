@@ -74,58 +74,30 @@ describe('OpenAIAdapter', () => {
   });
 
   describe('getCapabilities', () => {
-    it('should return capabilities for gpt-4o', () => {
+    it('should return capabilities for gpt-5.5', () => {
       const client = createMockOpenAIClient();
       const adapter = new OpenAIAdapter(client);
 
-      const caps = adapter.getCapabilities('gpt-4o');
+      const caps = adapter.getCapabilities('gpt-5.5');
 
       expect(caps.jsonMode).toBe(true);
       expect(caps.strictJsonMode).toBe(true);
       expect(caps.toolCalling).toBe(true);
       expect(caps.streaming).toBe(true);
       expect(caps.systemMessages).toBe(true);
-      expect(caps.maxContextWindow).toBe(128000);
-      expect(caps.maxOutputTokens).toBe(16384);
+      expect(caps.maxContextWindow).toBe(1050000);
+      expect(caps.maxOutputTokens).toBe(128000);
     });
 
-    it('should return capabilities for gpt-4o-mini', () => {
+    it('should return capabilities for gpt-5.4-mini', () => {
       const client = createMockOpenAIClient();
       const adapter = new OpenAIAdapter(client);
 
-      const caps = adapter.getCapabilities('gpt-4o-mini');
+      const caps = adapter.getCapabilities('gpt-5.4-mini');
 
       expect(caps.jsonMode).toBe(true);
       expect(caps.strictJsonMode).toBe(true);
-    });
-
-    it('should return capabilities for gpt-4-turbo', () => {
-      const client = createMockOpenAIClient();
-      const adapter = new OpenAIAdapter(client);
-
-      const caps = adapter.getCapabilities('gpt-4-turbo');
-
-      expect(caps.jsonMode).toBe(true);
-      expect(caps.strictJsonMode).toBe(false);
-    });
-
-    it('should return capabilities for gpt-4', () => {
-      const client = createMockOpenAIClient();
-      const adapter = new OpenAIAdapter(client);
-
-      const caps = adapter.getCapabilities('gpt-4');
-
-      expect(caps.maxContextWindow).toBe(8192);
-    });
-
-    it('should return capabilities for gpt-3.5-turbo', () => {
-      const client = createMockOpenAIClient();
-      const adapter = new OpenAIAdapter(client);
-
-      const caps = adapter.getCapabilities('gpt-3.5-turbo');
-
-      expect(caps.jsonMode).toBe(true);
-      expect(caps.maxContextWindow).toBe(16385);
+      expect(caps.maxContextWindow).toBe(400000);
     });
 
     it('should return capabilities for o1-preview', () => {
@@ -161,11 +133,11 @@ describe('OpenAIAdapter', () => {
   });
 
   describe('supportsJsonMode', () => {
-    it('should return true for gpt-4o', () => {
+    it('should return true for gpt-5.5', () => {
       const client = createMockOpenAIClient();
       const adapter = new OpenAIAdapter(client);
 
-      expect(adapter.supportsJsonMode('gpt-4o')).toBe(true);
+      expect(adapter.supportsJsonMode('gpt-5.5')).toBe(true);
     });
 
     it('should return false for o1-preview', () => {
@@ -177,11 +149,11 @@ describe('OpenAIAdapter', () => {
   });
 
   describe('supportsToolCalling', () => {
-    it('should return true for gpt-4o', () => {
+    it('should return true for gpt-5.5', () => {
       const client = createMockOpenAIClient();
       const adapter = new OpenAIAdapter(client);
 
-      expect(adapter.supportsToolCalling('gpt-4o')).toBe(true);
+      expect(adapter.supportsToolCalling('gpt-5.5')).toBe(true);
     });
 
     it('should return false for o1-mini', () => {
@@ -198,7 +170,7 @@ describe('OpenAIAdapter', () => {
       const adapter = new OpenAIAdapter(client);
 
       const result = await adapter.createCompletion({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'json',
       });
@@ -238,7 +210,7 @@ describe('OpenAIAdapter', () => {
       const adapter = new OpenAIAdapter(client);
 
       const result = await adapter.createCompletion({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Get weather' }],
         mode: 'tool',
         toolDefinition: {
@@ -262,7 +234,7 @@ describe('OpenAIAdapter', () => {
       const adapter = new OpenAIAdapter(client);
 
       await adapter.createCompletion({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'json',
         jsonSchema: {
@@ -285,7 +257,7 @@ describe('OpenAIAdapter', () => {
       const adapter = new OpenAIAdapter(client);
 
       await adapter.createCompletion({
-        model: 'gpt-4',
+        model: 'gpt-4-turbo',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'json',
         jsonSchema: {
@@ -315,7 +287,7 @@ describe('OpenAIAdapter', () => {
       };
 
       await adapter.createCompletion({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'tool',
         toolDefinition: tool,
@@ -337,7 +309,7 @@ describe('OpenAIAdapter', () => {
       const adapter = new OpenAIAdapter(client);
 
       await adapter.createCompletion({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'json',
         temperature: 0.5,
@@ -368,7 +340,7 @@ describe('OpenAIAdapter', () => {
       const adapter = new OpenAIAdapter(client);
 
       const result = await adapter.createCompletion({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'json',
       });
@@ -414,7 +386,7 @@ describe('OpenAIAdapter', () => {
 
       const chunks: Array<{ content: string; isFinal: boolean }> = [];
       for await (const chunk of adapter.createStreamingCompletion({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hi' }],
         mode: 'json',
       })) {
@@ -481,7 +453,7 @@ describe('OpenAIAdapter', () => {
 
       const toolDeltas: unknown[] = [];
       for await (const chunk of adapter.createStreamingCompletion({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hi' }],
         mode: 'tool',
       })) {
@@ -520,7 +492,7 @@ describe('OpenAIAdapter', () => {
 
       const chunks: string[] = [];
       for await (const chunk of adapter.createStreamingCompletion({
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hi' }],
         mode: 'json',
       })) {
@@ -615,7 +587,7 @@ describe('AnthropicAdapter', () => {
             type: 'message',
             role: 'assistant',
             content: [{ type: 'text', text: '{"result": "test"}' }],
-            model: 'claude-3-5-sonnet-20241022',
+            model: 'claude-sonnet-4-6',
             stop_reason: 'end_turn',
             stop_sequence: null,
             usage: { input_tokens: 10, output_tokens: 20 },
@@ -653,73 +625,48 @@ describe('AnthropicAdapter', () => {
   });
 
   describe('getCapabilities', () => {
-    it('should return capabilities for claude-opus-4', () => {
+    it('should return capabilities for claude-opus-4-8', () => {
       const client = createMockAnthropicClient();
       const adapter = new AnthropicAdapter(client);
 
-      const caps = adapter.getCapabilities('claude-opus-4-20250514');
+      const caps = adapter.getCapabilities('claude-opus-4-8');
 
       expect(caps.jsonMode).toBe(false);
       expect(caps.toolCalling).toBe(true);
       expect(caps.streaming).toBe(true);
       expect(caps.systemMessages).toBe(true);
-      expect(caps.maxContextWindow).toBe(200000);
-      expect(caps.maxOutputTokens).toBe(32768);
+      expect(caps.maxContextWindow).toBe(1000000);
+      expect(caps.maxOutputTokens).toBe(128000);
     });
 
-    it('should return capabilities for claude-sonnet-4', () => {
+    it('should return capabilities for claude-sonnet-4-6', () => {
       const client = createMockAnthropicClient();
       const adapter = new AnthropicAdapter(client);
 
-      const caps = adapter.getCapabilities('claude-sonnet-4-20250514');
+      const caps = adapter.getCapabilities('claude-sonnet-4-6');
 
+      expect(caps.maxContextWindow).toBe(1000000);
       expect(caps.maxOutputTokens).toBe(64000);
     });
 
-    it('should return capabilities for claude-3-5-sonnet', () => {
+    it('should return capabilities for claude-sonnet-4-5', () => {
       const client = createMockAnthropicClient();
       const adapter = new AnthropicAdapter(client);
 
-      const caps = adapter.getCapabilities('claude-3-5-sonnet-20241022');
+      const caps = adapter.getCapabilities('claude-sonnet-4-5');
 
       expect(caps.maxContextWindow).toBe(200000);
-      expect(caps.maxOutputTokens).toBe(8192);
+      expect(caps.maxOutputTokens).toBe(64000);
     });
 
-    it('should return capabilities for claude-3-5-haiku', () => {
+    it('should return capabilities for claude-haiku-4-5', () => {
       const client = createMockAnthropicClient();
       const adapter = new AnthropicAdapter(client);
 
-      const caps = adapter.getCapabilities('claude-3-5-haiku-20241022');
+      const caps = adapter.getCapabilities('claude-haiku-4-5');
 
       expect(caps.toolCalling).toBe(true);
-    });
-
-    it('should return capabilities for claude-3-opus', () => {
-      const client = createMockAnthropicClient();
-      const adapter = new AnthropicAdapter(client);
-
-      const caps = adapter.getCapabilities('claude-3-opus-20240229');
-
-      expect(caps.maxOutputTokens).toBe(4096);
-    });
-
-    it('should return capabilities for claude-3-sonnet', () => {
-      const client = createMockAnthropicClient();
-      const adapter = new AnthropicAdapter(client);
-
-      const caps = adapter.getCapabilities('claude-3-sonnet-20240229');
-
-      expect(caps.toolCalling).toBe(true);
-    });
-
-    it('should return capabilities for claude-3-haiku', () => {
-      const client = createMockAnthropicClient();
-      const adapter = new AnthropicAdapter(client);
-
-      const caps = adapter.getCapabilities('claude-3-haiku-20240307');
-
-      expect(caps.streaming).toBe(true);
+      expect(caps.maxOutputTokens).toBe(64000);
     });
 
     it('should return default capabilities for unknown model', () => {
@@ -728,7 +675,7 @@ describe('AnthropicAdapter', () => {
 
       const caps = adapter.getCapabilities('unknown');
 
-      // Should default to claude-3-5-sonnet
+      // Should default to claude-sonnet-4-6
       expect(caps.toolCalling).toBe(true);
     });
 
@@ -736,10 +683,10 @@ describe('AnthropicAdapter', () => {
       const client = createMockAnthropicClient();
       const adapter = new AnthropicAdapter(client);
 
-      // Should match 'claude-3-opus' even with prefix
-      const caps = adapter.getCapabilities('custom-claude-3-opus-20240229');
+      // Should match 'claude-opus-4-8' even with prefix
+      const caps = adapter.getCapabilities('custom-claude-opus-4-8');
 
-      expect(caps.maxOutputTokens).toBe(4096);
+      expect(caps.maxOutputTokens).toBe(128000);
     });
   });
 
@@ -748,9 +695,7 @@ describe('AnthropicAdapter', () => {
       const client = createMockAnthropicClient();
       const adapter = new AnthropicAdapter(client);
 
-      expect(adapter.supportsJsonMode('claude-3-5-sonnet-20241022')).toBe(
-        false,
-      );
+      expect(adapter.supportsJsonMode('claude-sonnet-4-6')).toBe(false);
     });
   });
 
@@ -759,9 +704,7 @@ describe('AnthropicAdapter', () => {
       const client = createMockAnthropicClient();
       const adapter = new AnthropicAdapter(client);
 
-      expect(adapter.supportsToolCalling('claude-3-5-sonnet-20241022')).toBe(
-        true,
-      );
+      expect(adapter.supportsToolCalling('claude-sonnet-4-6')).toBe(true);
     });
   });
 
@@ -771,7 +714,7 @@ describe('AnthropicAdapter', () => {
       const adapter = new AnthropicAdapter(client);
 
       const result = await adapter.createCompletion({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'json',
       });
@@ -795,7 +738,7 @@ describe('AnthropicAdapter', () => {
             input: { key: 'value' },
           },
         ],
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         stop_reason: 'tool_use',
         stop_sequence: null,
         usage: { input_tokens: 10, output_tokens: 20 },
@@ -804,7 +747,7 @@ describe('AnthropicAdapter', () => {
       const adapter = new AnthropicAdapter(client);
 
       const result = await adapter.createCompletion({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         messages: [{ role: 'user', content: 'Get data' }],
         mode: 'tool',
       });
@@ -820,7 +763,7 @@ describe('AnthropicAdapter', () => {
       const adapter = new AnthropicAdapter(client);
 
       await adapter.createCompletion({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         messages: [
           { role: 'system', content: 'You are helpful' },
           { role: 'user', content: 'Extract' },
@@ -849,7 +792,7 @@ describe('AnthropicAdapter', () => {
       const adapter = new AnthropicAdapter(client);
 
       await adapter.createCompletion({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         messages: [{ role: 'user', content: 'Call tool' }],
         mode: 'tool',
         toolDefinition: {
@@ -878,7 +821,7 @@ describe('AnthropicAdapter', () => {
       const adapter = new AnthropicAdapter(client);
 
       await adapter.createCompletion({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         messages: [
           { role: 'system', content: 'You are helpful' },
           { role: 'user', content: 'Extract' },
@@ -898,7 +841,7 @@ describe('AnthropicAdapter', () => {
       const adapter = new AnthropicAdapter(client);
 
       await adapter.createCompletion({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         messages: [{ role: 'user', content: 'Extract' }],
         mode: 'prompt',
       });
@@ -917,7 +860,7 @@ describe('AnthropicAdapter', () => {
       });
 
       await adapter.createCompletion({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'json',
       });
@@ -934,7 +877,7 @@ describe('AnthropicAdapter', () => {
       const adapter = new AnthropicAdapter(client);
 
       await adapter.createCompletion({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'json',
         options: { top_k: 10 },
@@ -980,7 +923,7 @@ describe('AnthropicAdapter', () => {
 
       const chunks: Array<{ content: string; isFinal: boolean }> = [];
       for await (const chunk of adapter.createStreamingCompletion({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         messages: [{ role: 'user', content: 'Hi' }],
         mode: 'json',
       })) {
@@ -1027,7 +970,7 @@ describe('AnthropicAdapter', () => {
 
       const toolDeltas: unknown[] = [];
       for await (const chunk of adapter.createStreamingCompletion({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         messages: [{ role: 'user', content: 'Call tool' }],
         mode: 'tool',
       })) {
@@ -1177,54 +1120,36 @@ describe('GoogleAdapter', () => {
   });
 
   describe('getCapabilities', () => {
-    it('should return capabilities for gemini-2.0-flash', () => {
+    it('should return capabilities for gemini-3.5-flash', () => {
       const client = createMockGoogleClient();
       const adapter = new GoogleAdapter(client);
 
-      const caps = adapter.getCapabilities('gemini-2.0-flash');
+      const caps = adapter.getCapabilities('gemini-3.5-flash');
 
       expect(caps.jsonMode).toBe(true);
       expect(caps.strictJsonMode).toBe(true);
       expect(caps.toolCalling).toBe(true);
       expect(caps.streaming).toBe(true);
-      expect(caps.maxContextWindow).toBe(1000000);
+      expect(caps.maxContextWindow).toBe(1048576);
     });
 
-    it('should return capabilities for gemini-2.0-flash-lite', () => {
+    it('should return capabilities for gemini-3.1-flash-lite', () => {
       const client = createMockGoogleClient();
       const adapter = new GoogleAdapter(client);
 
-      const caps = adapter.getCapabilities('gemini-2.0-flash-lite');
+      const caps = adapter.getCapabilities('gemini-3.1-flash-lite');
 
       expect(caps.jsonMode).toBe(true);
     });
 
-    it('should return capabilities for gemini-1.5-pro', () => {
+    it('should return capabilities for gemini-3.1-pro-preview', () => {
       const client = createMockGoogleClient();
       const adapter = new GoogleAdapter(client);
 
-      const caps = adapter.getCapabilities('gemini-1.5-pro');
+      const caps = adapter.getCapabilities('gemini-3.1-pro-preview');
 
-      expect(caps.maxContextWindow).toBe(2000000);
-    });
-
-    it('should return capabilities for gemini-1.5-flash', () => {
-      const client = createMockGoogleClient();
-      const adapter = new GoogleAdapter(client);
-
-      const caps = adapter.getCapabilities('gemini-1.5-flash');
-
-      expect(caps.strictJsonMode).toBe(true);
-    });
-
-    it('should return capabilities for gemini-1.0-pro', () => {
-      const client = createMockGoogleClient();
-      const adapter = new GoogleAdapter(client);
-
-      const caps = adapter.getCapabilities('gemini-1.0-pro');
-
-      expect(caps.strictJsonMode).toBe(false);
-      expect(caps.maxContextWindow).toBe(32000);
+      expect(caps.maxContextWindow).toBe(1048576);
+      expect(caps.maxOutputTokens).toBe(65536);
     });
 
     it('should return default capabilities for unknown model', () => {
@@ -1233,7 +1158,7 @@ describe('GoogleAdapter', () => {
 
       const caps = adapter.getCapabilities('unknown');
 
-      // Should default to gemini-2.0-flash
+      // Should default to gemini-3.5-flash
       expect(caps.jsonMode).toBe(true);
     });
   });
@@ -1243,7 +1168,7 @@ describe('GoogleAdapter', () => {
       const client = createMockGoogleClient();
       const adapter = new GoogleAdapter(client);
 
-      expect(adapter.supportsJsonMode('gemini-2.0-flash')).toBe(true);
+      expect(adapter.supportsJsonMode('gemini-3.5-flash')).toBe(true);
     });
   });
 
@@ -1252,7 +1177,7 @@ describe('GoogleAdapter', () => {
       const client = createMockGoogleClient();
       const adapter = new GoogleAdapter(client);
 
-      expect(adapter.supportsToolCalling('gemini-2.0-flash')).toBe(true);
+      expect(adapter.supportsToolCalling('gemini-3.5-flash')).toBe(true);
     });
   });
 
@@ -1262,7 +1187,7 @@ describe('GoogleAdapter', () => {
       const adapter = new GoogleAdapter(client);
 
       const result = await adapter.createCompletion({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'json',
       });
@@ -1300,7 +1225,7 @@ describe('GoogleAdapter', () => {
       const adapter = new GoogleAdapter(client);
 
       const result = await adapter.createCompletion({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         messages: [{ role: 'user', content: 'Call function' }],
         mode: 'tool',
       });
@@ -1335,7 +1260,7 @@ describe('GoogleAdapter', () => {
       const adapter = new GoogleAdapter(client);
 
       const result = await adapter.createCompletion({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         messages: [{ role: 'user', content: 'Call function' }],
         mode: 'tool',
       });
@@ -1349,7 +1274,7 @@ describe('GoogleAdapter', () => {
       const adapter = new GoogleAdapter(client);
 
       await adapter.createCompletion({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         messages: [{ role: 'user', content: 'Extract' }],
         mode: 'json',
         jsonSchema: {
@@ -1372,7 +1297,7 @@ describe('GoogleAdapter', () => {
       const adapter = new GoogleAdapter(client);
 
       await adapter.createCompletion({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         messages: [{ role: 'user', content: 'Call tool' }],
         mode: 'tool',
         toolDefinition: {
@@ -1404,7 +1329,7 @@ describe('GoogleAdapter', () => {
       });
 
       await adapter.createCompletion({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'json',
         temperature: 0.7,
@@ -1430,7 +1355,7 @@ describe('GoogleAdapter', () => {
       const adapter = new GoogleAdapter(client);
 
       const result = await adapter.createCompletion({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'json',
       });
@@ -1447,7 +1372,7 @@ describe('GoogleAdapter', () => {
 
       const chunks: Array<{ content: string; isFinal: boolean }> = [];
       for await (const chunk of adapter.createStreamingCompletion({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         messages: [{ role: 'user', content: 'Hi' }],
         mode: 'json',
       })) {
@@ -1565,7 +1490,7 @@ describe('GoogleAdapter', () => {
       const adapter = new GoogleAdapter(client);
 
       await adapter.createCompletion({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         messages: [{ role: 'user', content: 'Test' }],
         mode: 'json',
         jsonSchema: {
@@ -1589,7 +1514,7 @@ describe('GoogleAdapter', () => {
       const adapter = new GoogleAdapter(client);
 
       await adapter.createCompletion({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         messages: [{ role: 'user', content: 'Test' }],
         mode: 'json',
         jsonSchema: {
@@ -1606,7 +1531,7 @@ describe('GoogleAdapter', () => {
       const adapter = new GoogleAdapter(client);
 
       await adapter.createCompletion({
-        model: 'gemini-2.0-flash',
+        model: 'gemini-3.5-flash',
         messages: [{ role: 'user', content: 'Test' }],
         mode: 'json',
         jsonSchema: {

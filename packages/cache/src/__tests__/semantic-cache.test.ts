@@ -20,7 +20,7 @@ function createTestMessages(content: string): CacheMessage[] {
 function createMockResponse(content: string): CacheResponseInput {
   return {
     content,
-    model: 'gpt-4',
+    model: 'gpt-5.5',
     usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
     finishReason: 'stop',
   };
@@ -46,14 +46,14 @@ describe('SemanticCache - Advanced', () => {
   describe('TTL and Expiration', () => {
     it('should respect custom TTL per entry', async () => {
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Short TTL') },
+        { model: 'gpt-5.5', messages: createTestMessages('Short TTL') },
         createMockResponse('Response'),
         { ttl: 1 }, // 1 second
       );
 
       // Should hit immediately
       const result1 = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Short TTL'),
       });
       expect(result1.hit).toBe(true);
@@ -63,7 +63,7 @@ describe('SemanticCache - Advanced', () => {
 
       // Should miss after expiration
       const result2 = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Short TTL'),
       });
       expect(result2.hit).toBe(false);
@@ -71,13 +71,13 @@ describe('SemanticCache - Advanced', () => {
 
     it('should handle entries with zero TTL (no expiration)', async () => {
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('No expiry') },
+        { model: 'gpt-5.5', messages: createTestMessages('No expiry') },
         createMockResponse('Response'),
         { ttl: 0 },
       );
 
       const result = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('No expiry'),
       });
       expect(result.hit).toBe(true);
@@ -87,27 +87,27 @@ describe('SemanticCache - Advanced', () => {
   describe('Namespace Support', () => {
     it('should isolate entries by namespace', async () => {
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Test') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test') },
         createMockResponse('Namespace 1'),
         { namespace: 'ns1' },
       );
 
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Test') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test') },
         createMockResponse('Namespace 2'),
         { namespace: 'ns2' },
       );
 
       // Query with namespace filter
       const result1 = await cache.get(
-        { model: 'gpt-4', messages: createTestMessages('Test') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test') },
         { namespace: 'ns1' },
       );
       expect(result1.hit).toBe(true);
       expect(result1.entry?.response.content).toBe('Namespace 1');
 
       const result2 = await cache.get(
-        { model: 'gpt-4', messages: createTestMessages('Test') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test') },
         { namespace: 'ns2' },
       );
       expect(result2.hit).toBe(true);
@@ -118,19 +118,19 @@ describe('SemanticCache - Advanced', () => {
   describe('Tag-based Invalidation', () => {
     it('should invalidate entries by single tag', async () => {
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Tagged 1') },
+        { model: 'gpt-5.5', messages: createTestMessages('Tagged 1') },
         createMockResponse('Response 1'),
         { tags: ['tag1', 'tag2'] },
       );
 
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Tagged 2') },
+        { model: 'gpt-5.5', messages: createTestMessages('Tagged 2') },
         createMockResponse('Response 2'),
         { tags: ['tag2', 'tag3'] },
       );
 
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Untagged') },
+        { model: 'gpt-5.5', messages: createTestMessages('Untagged') },
         createMockResponse('Response 3'),
       );
 
@@ -139,14 +139,14 @@ describe('SemanticCache - Advanced', () => {
 
       // Tagged 1 should be gone
       const result1 = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Tagged 1'),
       });
       expect(result1.hit).toBe(false);
 
       // Tagged 2 should still exist
       const result2 = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Tagged 2'),
       });
       expect(result2.hit).toBe(true);
@@ -154,13 +154,13 @@ describe('SemanticCache - Advanced', () => {
 
     it('should invalidate multiple entries with overlapping tags', async () => {
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Entry 1') },
+        { model: 'gpt-5.5', messages: createTestMessages('Entry 1') },
         createMockResponse('Response 1'),
         { tags: ['common'] },
       );
 
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Entry 2') },
+        { model: 'gpt-5.5', messages: createTestMessages('Entry 2') },
         createMockResponse('Response 2'),
         { tags: ['common'] },
       );
@@ -173,27 +173,27 @@ describe('SemanticCache - Advanced', () => {
   describe('Pattern-based Invalidation', () => {
     it('should invalidate entries matching regex pattern', async () => {
       await cache.wrap(
-        { model: 'gpt-4-turbo', messages: createTestMessages('Test 1') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test 1') },
         async () => createMockResponse('Response 1'),
       );
 
       await cache.wrap(
-        { model: 'gpt-4-turbo', messages: createTestMessages('Test 2') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test 2') },
         async () => createMockResponse('Response 2'),
       );
 
       await cache.wrap(
-        { model: 'gpt-3.5-turbo', messages: createTestMessages('Test 3') },
+        { model: 'gpt-5.4-mini', messages: createTestMessages('Test 3') },
         async () => createMockResponse('Response 3'),
       );
 
-      // Invalidate all gpt-4 entries
-      const invalidated = await cache.invalidateByPattern(/gpt-4/);
+      // Invalidate all gpt-5.5 entries
+      const invalidated = await cache.invalidateByPattern(/gpt-5.5/);
       expect(invalidated).toBe(2);
 
       // GPT-3.5 should still exist
       const result = await cache.get({
-        model: 'gpt-3.5-turbo',
+        model: 'gpt-5.4-mini',
         messages: createTestMessages('Test 3'),
       });
       expect(result.hit).toBe(true);
@@ -209,13 +209,13 @@ describe('SemanticCache - Advanced', () => {
       );
 
       await analyticsCache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Hi there!'),
       );
 
       // Hit the cache
       await analyticsCache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Different'),
       );
 
@@ -233,7 +233,7 @@ describe('SemanticCache - Advanced', () => {
       );
 
       await noAnalyticsCache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Hi there!'),
       );
 
@@ -248,18 +248,18 @@ describe('SemanticCache - Advanced', () => {
     it('should track tokens saved from cache hits', async () => {
       // createMockResponse returns usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 }
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Response'),
       );
 
       // Hit cache twice
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Different'),
       );
 
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Different'),
       );
 
@@ -281,7 +281,7 @@ describe('SemanticCache - Advanced', () => {
 
       // Miss
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Response'),
       );
 
@@ -290,7 +290,7 @@ describe('SemanticCache - Advanced', () => {
 
       // Hit
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Different'),
       );
 
@@ -320,7 +320,7 @@ describe('SemanticCache - Advanced', () => {
 
       try {
         await errorCache.wrap(
-          { model: 'gpt-4', messages: createTestMessages('Test') },
+          { model: 'gpt-5.5', messages: createTestMessages('Test') },
           async () => createMockResponse('Response'),
         );
       } catch {
@@ -352,7 +352,7 @@ describe('SemanticCache - Advanced', () => {
       );
 
       await semanticCache.set(
-        { model: 'gpt-4', messages: createTestMessages('Hello world') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello world') },
         createMockResponse('Response'),
       );
 
@@ -396,19 +396,19 @@ describe('SemanticCache - Advanced', () => {
     it('should calculate hit rate correctly', async () => {
       // 1 miss
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Test 1') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test 1') },
         async () => createMockResponse('Response 1'),
       );
 
       // 1 hit
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Test 1') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test 1') },
         async () => createMockResponse('Response 1'),
       );
 
       // 1 miss
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Test 2') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test 2') },
         async () => createMockResponse('Response 2'),
       );
 
@@ -420,12 +420,12 @@ describe('SemanticCache - Advanced', () => {
 
     it('should track exact vs semantic hits', async () => {
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Test') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test') },
         async () => createMockResponse('Response'),
       );
 
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Test') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test') },
         async () => createMockResponse('Response'),
       );
 
@@ -438,13 +438,13 @@ describe('SemanticCache - Advanced', () => {
   describe('User and Agent Tracking', () => {
     it('should store userId and agentId metadata', async () => {
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Test') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test') },
         createMockResponse('Response'),
         { userId: 'user123', agentId: 'agent456' },
       );
 
       const result = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Test'),
       });
 
@@ -467,7 +467,7 @@ describe('SemanticCache - Advanced', () => {
 
       // Should not throw, but return miss
       const result = await failingCache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Test'),
       });
 
@@ -492,12 +492,12 @@ describe('SemanticCache - Advanced', () => {
 
       // Should still set the entry, just without embedding
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Test') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test') },
         createMockResponse('Response'),
       );
 
       const result = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Test'),
       });
 
@@ -512,7 +512,7 @@ describe('SemanticCache - Advanced', () => {
     it('should cache responses with tool calls', async () => {
       const responseWithTools: CacheResponseInput = {
         content: 'I will use the calculator',
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         toolCalls: [
           {
             id: 'call_123',
@@ -523,12 +523,12 @@ describe('SemanticCache - Advanced', () => {
       };
 
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Calculate 5+3') },
+        { model: 'gpt-5.5', messages: createTestMessages('Calculate 5+3') },
         responseWithTools,
       );
 
       const result = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Calculate 5+3'),
       });
 
@@ -542,7 +542,7 @@ describe('SemanticCache - Advanced', () => {
     it('should treat different temperatures as different cache keys', async () => {
       await cache.wrap(
         {
-          model: 'gpt-4',
+          model: 'gpt-5.5',
           messages: createTestMessages('Test'),
           temperature: 0.5,
         },
@@ -551,7 +551,7 @@ describe('SemanticCache - Advanced', () => {
 
       await cache.wrap(
         {
-          model: 'gpt-4',
+          model: 'gpt-5.5',
           messages: createTestMessages('Test'),
           temperature: 0.9,
         },
@@ -559,13 +559,13 @@ describe('SemanticCache - Advanced', () => {
       );
 
       const result1 = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Test'),
         temperature: 0.5,
       });
 
       const result2 = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Test'),
         temperature: 0.9,
       });

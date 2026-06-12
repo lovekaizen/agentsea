@@ -36,7 +36,7 @@ import { AnthropicProvider } from '@lov3kaizen/agentsea-core';
     AgenticModule.forRoot({
       provider: new AnthropicProvider(),
       defaultConfig: {
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-sonnet-4-6',
         provider: 'anthropic',
       },
       enableRestApi: true,
@@ -75,7 +75,7 @@ import { Agent, Tool } from '@lov3kaizen/agentsea-nestjs';
 @Agent({
   name: 'assistant',
   description: 'A helpful assistant',
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-4-6',
   provider: 'anthropic',
 })
 export class AssistantAgent {

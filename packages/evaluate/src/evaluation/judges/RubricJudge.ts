@@ -36,7 +36,7 @@ export class RubricJudge implements JudgeInterface {
     }
 
     this.provider = config.provider;
-    this.model = config.model ?? 'claude-sonnet-4-20250514';
+    this.model = config.model ?? 'claude-sonnet-4-6';
     this.rubric = config.rubric;
     this.temperature = config.temperature ?? 0;
   }

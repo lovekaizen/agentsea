@@ -14,7 +14,7 @@ async function main() {
   // Create a research crew using the template
   const crew = createResearchCrew({
     name: 'market-research-crew',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-6',
     provider: 'anthropic',
     depth: 'deep',
     includeWriter: true,

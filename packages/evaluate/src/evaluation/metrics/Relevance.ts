@@ -23,7 +23,7 @@ export class Relevance extends BaseMetric {
 
   constructor(config: RelevanceMetricConfig = {}) {
     super(config);
-    this.model = config.model ?? 'claude-sonnet-4-20250514';
+    this.model = config.model ?? 'claude-sonnet-4-6';
     this.prompt = config.prompt;
     this.initName(config);
   }

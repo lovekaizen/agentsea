@@ -22,12 +22,12 @@ function createTestEntry(
     id: generateId('entry'),
     key,
     request: {
-      model: options?.model ?? 'gpt-4',
+      model: options?.model ?? 'gpt-5.5',
       messages: [{ role: 'user', content }],
     },
     response: {
       content: `Response to: ${content}`,
-      model: options?.model ?? 'gpt-4',
+      model: options?.model ?? 'gpt-5.5',
       usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
       finishReason: 'stop',
     },
@@ -93,8 +93,8 @@ describe('InvalidationManager', () => {
         ttl: {
           defaultTtl: 3600,
           modelTtls: {
-            'gpt-4': 1800, // 30 minutes
-            'gpt-3.5': 7200, // 2 hours
+            'gpt-5.5': 1800, // 30 minutes
+            'gpt-5.4-mini': 7200, // 2 hours
           },
         },
       };
@@ -106,13 +106,13 @@ describe('InvalidationManager', () => {
       const gpt4Entry = createTestEntry('gpt4', 'Test', {
         ttl: 1800,
         createdAt: oldTime,
-        model: 'gpt-4',
+        model: 'gpt-5.5',
       });
 
       const gpt35Entry = createTestEntry('gpt35', 'Test', {
         ttl: 7200,
         createdAt: oldTime,
-        model: 'gpt-3.5',
+        model: 'gpt-5.4-mini',
       });
 
       await store.set('gpt4', gpt4Entry);
@@ -392,13 +392,15 @@ describe('InvalidationManager', () => {
     });
 
     it('should invalidate by model', async () => {
-      const gpt4Entry = createTestEntry('key1', 'Test', { model: 'gpt-4' });
-      const gpt35Entry = createTestEntry('key2', 'Test', { model: 'gpt-3.5' });
+      const gpt4Entry = createTestEntry('key1', 'Test', { model: 'gpt-5.5' });
+      const gpt35Entry = createTestEntry('key2', 'Test', {
+        model: 'gpt-5.4-mini',
+      });
 
       await store.set('key1', gpt4Entry);
       await store.set('key2', gpt35Entry);
 
-      const result = await manager.invalidateByPattern({ model: 'gpt-4' });
+      const result = await manager.invalidateByPattern({ model: 'gpt-5.5' });
 
       expect(result.entriesRemoved).toBe(1);
       expect(await store.has('key1')).toBe(false);
@@ -427,19 +429,19 @@ describe('InvalidationManager', () => {
       const oldTime = now() - 7200 * 1000;
 
       const match = createTestEntry('match', 'Test', {
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         namespace: 'ns1',
         createdAt: oldTime,
       });
 
       const noMatch1 = createTestEntry('nomatch1', 'Test', {
-        model: 'gpt-3.5',
+        model: 'gpt-5.4-mini',
         namespace: 'ns1',
         createdAt: oldTime,
       });
 
       const noMatch2 = createTestEntry('nomatch2', 'Test', {
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         namespace: 'ns2',
       });
 
@@ -448,7 +450,7 @@ describe('InvalidationManager', () => {
       await store.set('nomatch2', noMatch2);
 
       const result = await manager.invalidateByPattern({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         namespace: 'ns1',
         olderThan: 3600,
       });

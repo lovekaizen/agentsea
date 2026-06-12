@@ -54,7 +54,7 @@ export function AgentForm({ agent, onSubmit, onCancel }: AgentFormProps) {
       description: agent?.description || '',
       systemPrompt: agent?.systemPrompt || '',
       provider: agent?.provider || 'anthropic',
-      model: agent?.model || 'claude-3-5-sonnet-20241022',
+      model: agent?.model || 'claude-opus-4-8',
       temperature: agent?.temperature || 0.7,
       maxTokens: agent?.maxTokens || 4096,
       memoryType: agent?.memoryType || 'buffer',
@@ -70,13 +70,9 @@ export function AgentForm({ agent, onSubmit, onCancel }: AgentFormProps) {
   ];
 
   const models = {
-    anthropic: [
-      'claude-3-5-sonnet-20241022',
-      'claude-3-5-haiku-20241022',
-      'claude-3-opus-20240229',
-    ],
-    openai: ['gpt-4-turbo-preview', 'gpt-4', 'gpt-3.5-turbo'],
-    google: ['gemini-pro', 'gemini-pro-vision'],
+    anthropic: ['claude-opus-4-8', 'claude-sonnet-4-6', 'claude-haiku-4-5'],
+    openai: ['gpt-5.5', 'gpt-5.4-mini'],
+    google: ['gemini-3.1-pro-preview', 'gemini-3.5-flash'],
     ollama: ['llama2', 'mistral', 'codellama'],
   };
 

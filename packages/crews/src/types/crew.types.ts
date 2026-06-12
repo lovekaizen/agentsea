@@ -65,7 +65,7 @@ export interface CrewAgentConfig {
   name: string;
   /** Role configuration */
   role: RoleConfig;
-  /** Model to use (e.g., 'claude-sonnet-4-20250514') */
+  /** Model to use (e.g., 'claude-sonnet-4-6') */
   model: string;
   /** Provider name (e.g., 'anthropic', 'openai') */
   provider: string;

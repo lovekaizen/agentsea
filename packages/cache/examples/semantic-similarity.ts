@@ -95,7 +95,7 @@ async function main() {
   console.log('1. First request (cache miss)...');
   const response1 = await cache.wrap(
     {
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       messages: [{ role: 'user', content: 'What is the capital of France?' }],
     },
     async (request) =>
@@ -108,7 +108,7 @@ async function main() {
   console.log('2. Similar query (semantic cache hit expected)...');
   const response2 = await cache.wrap(
     {
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       messages: [{ role: 'user', content: "What's France's capital city?" }],
     },
     async (request) =>
@@ -124,7 +124,7 @@ async function main() {
   console.log('3. Another rephrasing (semantic cache hit expected)...');
   const response3 = await cache.wrap(
     {
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       messages: [{ role: 'user', content: 'Tell me the capital of France' }],
     },
     async (request) =>
@@ -140,7 +140,7 @@ async function main() {
   console.log('4. Completely different query (cache miss expected)...');
   const response4 = await cache.wrap(
     {
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       messages: [{ role: 'user', content: 'How do I make pancakes?' }],
     },
     async (request) =>

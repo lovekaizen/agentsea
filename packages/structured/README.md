@@ -47,7 +47,7 @@ const client = createStructuredClient(adapter, {
 
 // Extract structured data
 const result = await client.extract({
-  model: 'gpt-4o',
+  model: 'gpt-5.5',
   messages: [
     {
       role: 'user',
@@ -72,7 +72,7 @@ Uses native JSON mode when available (OpenAI, Google):
 
 ```typescript
 const result = await client.extract({
-  model: 'gpt-4o',
+  model: 'gpt-5.5',
   messages: [...],
   response_format: schema,
   mode: 'json',
@@ -85,7 +85,7 @@ Uses function/tool calling for extraction:
 
 ```typescript
 const result = await client.extract({
-  model: 'gpt-4o',
+  model: 'gpt-5.5',
   messages: [...],
   response_format: schema,
   mode: 'tool',
@@ -98,7 +98,7 @@ Uses prompt engineering for providers without native JSON support:
 
 ```typescript
 const result = await client.extract({
-  model: 'claude-3-5-sonnet-20241022',
+  model: 'claude-sonnet-4-6',
   messages: [...],
   response_format: schema,
   mode: 'prompt',
@@ -111,7 +111,7 @@ Automatically falls back between modes:
 
 ```typescript
 const result = await client.extract({
-  model: 'gpt-4o',
+  model: 'gpt-5.5',
   messages: [...],
   response_format: schema,
   mode: {
@@ -128,7 +128,7 @@ Get partial results as they stream in:
 ```typescript
 const stream = await client.extractStream(
   {
-    model: 'gpt-4o',
+    model: 'gpt-5.5',
     messages: [...],
     response_format: schema,
   },
@@ -241,7 +241,7 @@ import {
 } from '@lov3kaizen/agentsea-structured';
 
 const provider = createStructuredProvider({
-  defaultModel: 'gpt-4o',
+  defaultModel: 'gpt-5.5',
   enableFixHints: true,
 });
 
@@ -259,7 +259,7 @@ const result = await provider.extract(
 
 // Create reusable typed extractors
 const userExtractor = provider.createExtractor(UserSchema, {
-  model: 'gpt-4o',
+  model: 'gpt-5.5',
 });
 
 const user = await userExtractor.extract('John Doe, john@example.com, 30');
@@ -307,10 +307,10 @@ const result = await client.extract(options);
 const stream = await client.extractStream(options, streamingOptions);
 
 // Check mode support
-const supports = client.supportsMode('json', 'gpt-4o');
+const supports = client.supportsMode('json', 'gpt-5.5');
 
 // Get provider capabilities
-const caps = client.getProviderCapabilities('gpt-4o');
+const caps = client.getProviderCapabilities('gpt-5.5');
 ```
 
 ### Events

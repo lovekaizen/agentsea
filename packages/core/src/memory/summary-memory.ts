@@ -9,7 +9,7 @@ export class SummaryMemory implements MemoryStore {
   constructor(
     private provider: LLMProvider,
     private maxRecentMessages: number = 10,
-    private summaryModel: string = 'claude-3-haiku-20240307',
+    private summaryModel: string = 'claude-haiku-4-5',
   ) {}
 
   /**

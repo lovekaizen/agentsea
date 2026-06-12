@@ -218,7 +218,7 @@ export function createCodeReviewCrewConfig(
         systemPrompt:
           seniorDeveloperRole.systemPrompt + languagePrompt + strictnessPrompt,
       },
-      model: options.model ?? 'claude-sonnet-4-20250514',
+      model: options.model ?? 'claude-opus-4-8',
       provider: options.provider ?? 'anthropic',
       tools: ['code-analyzer', 'linter', ...(options.tools ?? [])],
       temperature: 0.2,
@@ -232,7 +232,7 @@ export function createCodeReviewCrewConfig(
         ...securityAnalystRole,
         systemPrompt: securityAnalystRole.systemPrompt + languagePrompt,
       },
-      model: options.model ?? 'claude-sonnet-4-20250514',
+      model: options.model ?? 'claude-opus-4-8',
       provider: options.provider ?? 'anthropic',
       tools: [
         'security-scanner',
@@ -250,7 +250,7 @@ export function createCodeReviewCrewConfig(
         ...performanceEngineerRole,
         systemPrompt: performanceEngineerRole.systemPrompt + languagePrompt,
       },
-      model: options.model ?? 'claude-sonnet-4-20250514',
+      model: options.model ?? 'claude-opus-4-8',
       provider: options.provider ?? 'anthropic',
       tools: ['profiler', 'complexity-analyzer', ...(options.tools ?? [])],
       temperature: 0.2,

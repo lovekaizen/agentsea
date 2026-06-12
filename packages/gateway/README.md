@@ -35,12 +35,12 @@ const gateway = new Gateway({
     {
       name: 'openai',
       apiKey: process.env.OPENAI_API_KEY,
-      models: ['gpt-4o', 'gpt-4o-mini'],
+      models: ['gpt-5.5', 'gpt-5.4-mini'],
     },
     {
       name: 'anthropic',
       apiKey: process.env.ANTHROPIC_API_KEY,
-      models: ['claude-3-5-sonnet-20241022'],
+      models: ['claude-sonnet-4-6'],
     },
   ],
   routing: {
@@ -70,13 +70,13 @@ import { Gateway } from '@lov3kaizen/agentsea-gateway';
 
 const gateway = new Gateway({
   providers: [
-    { name: 'openai', apiKey: process.env.OPENAI_API_KEY, models: ['gpt-4o'] },
+    { name: 'openai', apiKey: process.env.OPENAI_API_KEY, models: ['gpt-5.5'] },
   ],
 });
 
 // OpenAI-compatible interface
 const response = await gateway.chat.completions.create({
-  model: 'gpt-4o',
+  model: 'gpt-5.5',
   messages: [{ role: 'user', content: 'Hello!' }],
 });
 
@@ -184,7 +184,7 @@ Add gateway-specific options to requests:
 
 ```typescript
 const response = await gateway.chat.completions.create({
-  model: 'gpt-4o',
+  model: 'gpt-5.5',
   messages: [...],
   _gateway: {
     preferredProvider: 'anthropic',
@@ -222,7 +222,7 @@ Full streaming support:
 
 ```typescript
 const stream = await gateway.chat.completions.create({
-  model: 'gpt-4o',
+  model: 'gpt-5.5',
   messages: [{ role: 'user', content: 'Tell me a story' }],
   stream: true,
 });

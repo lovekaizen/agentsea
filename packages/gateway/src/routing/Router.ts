@@ -50,31 +50,31 @@ export interface ModelMapping {
 
 // Default model mappings (equivalents across providers)
 export const DEFAULT_MODEL_MAPPINGS: ModelMapping = {
-  // GPT-4 class
-  'gpt-4o': [
-    { provider: 'anthropic', model: 'claude-3-5-sonnet-20241022' },
-    { provider: 'google', model: 'gemini-1.5-pro' },
+  // Flagship class
+  'gpt-5.5': [
+    { provider: 'anthropic', model: 'claude-sonnet-4-6' },
+    { provider: 'google', model: 'gemini-3.1-pro-preview' },
   ],
-  'claude-3-5-sonnet-20241022': [
-    { provider: 'openai', model: 'gpt-4o' },
-    { provider: 'google', model: 'gemini-1.5-pro' },
+  'claude-sonnet-4-6': [
+    { provider: 'openai', model: 'gpt-5.5' },
+    { provider: 'google', model: 'gemini-3.1-pro-preview' },
   ],
-  'gemini-1.5-pro': [
-    { provider: 'openai', model: 'gpt-4o' },
-    { provider: 'anthropic', model: 'claude-3-5-sonnet-20241022' },
+  'gemini-3.1-pro-preview': [
+    { provider: 'openai', model: 'gpt-5.5' },
+    { provider: 'anthropic', model: 'claude-sonnet-4-6' },
   ],
-  // GPT-4 mini class
-  'gpt-4o-mini': [
-    { provider: 'anthropic', model: 'claude-3-5-haiku-20241022' },
-    { provider: 'google', model: 'gemini-1.5-flash' },
+  // Mini / fast class
+  'gpt-5.4-mini': [
+    { provider: 'anthropic', model: 'claude-haiku-4-5' },
+    { provider: 'google', model: 'gemini-3.5-flash' },
   ],
-  'claude-3-5-haiku-20241022': [
-    { provider: 'openai', model: 'gpt-4o-mini' },
-    { provider: 'google', model: 'gemini-1.5-flash' },
+  'claude-haiku-4-5': [
+    { provider: 'openai', model: 'gpt-5.4-mini' },
+    { provider: 'google', model: 'gemini-3.5-flash' },
   ],
-  'gemini-1.5-flash': [
-    { provider: 'openai', model: 'gpt-4o-mini' },
-    { provider: 'anthropic', model: 'claude-3-5-haiku-20241022' },
+  'gemini-3.5-flash': [
+    { provider: 'openai', model: 'gpt-5.4-mini' },
+    { provider: 'anthropic', model: 'claude-haiku-4-5' },
   ],
 };
 
@@ -173,14 +173,15 @@ export class Router {
   ): RoutingDecision {
     // Quality ranking (subjective based on typical usage)
     const qualityRanking: Record<string, number> = {
-      'claude-3-5-sonnet-20241022': 95,
-      'claude-sonnet-4-20250514': 96,
-      'gpt-4o': 94,
-      'gemini-1.5-pro': 92,
-      'claude-3-opus-20240229': 93,
-      'gpt-4-turbo': 91,
-      o1: 97,
-      'o1-preview': 96,
+      'claude-opus-4-8': 97,
+      'claude-sonnet-4-6': 95,
+      'claude-haiku-4-5': 88,
+      'gpt-5.5': 94,
+      'gpt-5.4-mini': 87,
+      'gemini-3.1-pro-preview': 92,
+      'gemini-3.5-flash': 86,
+      o1: 96,
+      'o1-preview': 95,
     };
 
     const candidates: Array<{

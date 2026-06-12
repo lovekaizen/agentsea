@@ -9,11 +9,12 @@
 
 - 🚀 **Quick Setup** - Initialize with interactive prompts
 - 💬 **Interactive Chat** - Chat with agents in your terminal
+- 💻 **Agentic Coding** - AI coding assistant with 13 built-in tools (file ops, git, shell, search)
 - 🤖 **Agent Management** - Create, list, and manage agents
 - 🔌 **Provider Support** - Cloud and local providers
 - 📦 **Model Management** - Pull and manage Ollama models
 - ⚙️ **Configuration** - Persistent configuration management
-- 🎨 **Beautiful Output** - Colored, formatted terminal output
+- 🎨 **Beautiful Output** - Colored, formatted terminal output with streaming
 
 ## Installation
 
@@ -47,13 +48,54 @@ agentsea chat
 
 Interactive chat session with your default agent.
 
-### 3. Run One-Off Commands
+### 3. Start Coding
+
+```bash
+agentsea code
+```
+
+Interactive agentic coding session with file operations, git, search, and shell tools.
+
+### 4. Run One-Off Commands
 
 ```bash
 agentsea agent run default "What is the capital of France?"
 ```
 
 ## Commands
+
+### `agentsea code`
+
+Start an interactive agentic coding session with 13 built-in tools.
+
+```bash
+agentsea code                             # Use default agent
+agentsea code --agent my-agent            # Use specific agent
+agentsea code --provider anthropic        # Override provider
+agentsea code --model claude-sonnet-4-6  # Override model
+agentsea code --verbose                   # Show tool calls, tokens, latency
+agentsea code --maxIterations 50          # Limit tool iterations (default: 25)
+```
+
+**Built-in Coding Tools (13 tools):**
+
+| Tool            | Description                             |
+| --------------- | --------------------------------------- |
+| `file_read`     | Read file contents                      |
+| `file_write`    | Write content to files                  |
+| `file_list`     | List directory contents                 |
+| `code_edit`     | Precise search-and-replace editing      |
+| `glob`          | Find files matching glob patterns       |
+| `grep`          | Search file contents with regex         |
+| `shell_execute` | Run shell commands (with safety checks) |
+| `git_status`    | Show working tree status                |
+| `git_diff`      | Show changes between commits            |
+| `git_add`       | Stage files for commit                  |
+| `git_commit`    | Create a commit                         |
+| `git_log`       | Show commit history                     |
+| `git_branch`    | List or create branches                 |
+
+The coding agent follows best practices: reads files before editing, uses precise edits over rewrites, and verifies changes with git diff.
 
 ### `agentsea init`
 
@@ -223,7 +265,7 @@ Configuration is stored in:
     "default": {
       "name": "default",
       "description": "Default agent",
-      "model": "claude-sonnet-4-20250514",
+      "model": "claude-sonnet-4-6",
       "provider": "anthropic",
       "systemPrompt": "You are a helpful assistant.",
       "temperature": 0.7,

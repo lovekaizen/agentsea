@@ -22,7 +22,7 @@ export class Faithfulness extends BaseMetric {
 
   constructor(config: FaithfulnessMetricConfig = {}) {
     super(config);
-    this.model = config.model ?? 'claude-sonnet-4-20250514';
+    this.model = config.model ?? 'claude-sonnet-4-6';
     this.initName(config);
   }
 

@@ -56,7 +56,12 @@ export interface ModelDefinition<
 // ============================================================================
 
 export type AnthropicModel =
-  // Claude 4.x family
+  // Claude 5 family (most capable; alias-only ID — no date-suffixed variant exists)
+  | 'claude-fable-5'
+  // Claude 4.x family (4.6+ aliases are the complete IDs — no date-suffixed variants exist)
+  | 'claude-opus-4-8'
+  | 'claude-opus-4-7'
+  | 'claude-sonnet-4-6'
   | 'claude-opus-4-6'
   | 'claude-sonnet-4-5-20250929'
   | 'claude-sonnet-4-5-latest'
@@ -80,6 +85,40 @@ export type AnthropicModel =
   | 'claude-3-haiku-20240307';
 
 /**
+ * Lifecycle notes for Anthropic model IDs (kept in the union for compile
+ * compatibility of downstream consumers — do not remove):
+ *
+ * Deprecated (retiring 2026-06-15):
+ * - `claude-opus-4-0-20250514` → use `claude-opus-4-8`
+ * - `claude-sonnet-4-0-20250514` → use `claude-sonnet-4-6`
+ *
+ * Retired (API returns 404):
+ * - `claude-3-7-sonnet-20250219` / `claude-3-7-sonnet-latest` (retired 2026-02-19) → use `claude-sonnet-4-6`
+ * - `claude-3-5-sonnet-20241022` / `claude-3-5-sonnet-latest` (retired 2025-10-28) → use `claude-sonnet-4-6`
+ * - `claude-3-5-haiku-20241022` / `claude-3-5-haiku-latest` (retired 2026-02-19) → use `claude-haiku-4-5`
+ * - `claude-3-opus-20240229` / `claude-3-opus-latest` (retired 2026-01-05) → use `claude-opus-4-8`
+ * - `claude-3-sonnet-20240229` (retired 2025-07-21) → use `claude-sonnet-4-6`
+ * - `claude-3-haiku-20240307` (retired 2026-04-19) → use `claude-haiku-4-5`
+ */
+
+/**
+ * Recommended default Anthropic model.
+ */
+export const DEFAULT_ANTHROPIC_MODEL: AnthropicModel = 'claude-opus-4-8';
+
+/**
+ * Recommended balanced (speed/intelligence) Anthropic model.
+ */
+export const DEFAULT_ANTHROPIC_BALANCED_MODEL: AnthropicModel =
+  'claude-sonnet-4-6';
+
+/**
+ * Recommended fast/cheap Anthropic model.
+ */
+export const DEFAULT_ANTHROPIC_FAST_MODEL: AnthropicModel =
+  'claude-haiku-4-5-20251001';
+
+/**
  * Anthropic-specific provider options
  */
 export interface AnthropicProviderOptions {
@@ -100,6 +139,74 @@ export interface AnthropicProviderOptions {
  * Model capabilities for Anthropic models
  */
 export type AnthropicModelCapabilities = {
+  /**
+   * Claude Fable 5 — most capable model. 1M context, 128K output.
+   * Adaptive thinking (always on) + effort parameter; no `budget_tokens`
+   * extended thinking, no assistant prefill. `temperature`/`top_p` are
+   * removed at the API level (sending them returns 400).
+   */
+  'claude-fable-5': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 1000000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  /**
+   * Claude Opus 4.8 — recommended default. 1M context, 128K output.
+   * Adaptive thinking + effort parameter; no `budget_tokens` extended
+   * thinking, no assistant prefill. `temperature`/`top_p` are removed at
+   * the API level (sending them returns 400).
+   */
+  'claude-opus-4-8': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 1000000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  /**
+   * Claude Opus 4.7 — previous-generation Opus. 1M context, 128K output.
+   * Adaptive thinking + effort parameter; no `budget_tokens` extended
+   * thinking, no assistant prefill. `temperature`/`top_p` are removed at
+   * the API level (sending them returns 400).
+   */
+  'claude-opus-4-7': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 1000000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  /**
+   * Claude Sonnet 4.6 — best speed/intelligence balance. 1M context,
+   * 64K output. Adaptive thinking + effort parameter; no `budget_tokens`
+   * extended thinking, no assistant prefill. `temperature`/`top_p` remain
+   * supported on this model.
+   */
+  'claude-sonnet-4-6': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 1000000;
+    maxOutputTokens: 64000;
+    parallelToolCalls: true;
+  };
   'claude-opus-4-6': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -107,8 +214,8 @@ export type AnthropicModelCapabilities = {
     structuredOutput: true;
     systemMessage: true;
     extendedThinking: true;
-    contextWindow: 200000;
-    maxOutputTokens: 32000;
+    contextWindow: 1000000;
+    maxOutputTokens: 128000;
     parallelToolCalls: true;
   };
   'claude-sonnet-4-5-20250929': ModelCapabilities & {
@@ -166,6 +273,7 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 32000;
     parallelToolCalls: true;
   };
+  /** @deprecated Retiring 2026-06-15. Use 'claude-opus-4-8' instead. */
   'claude-opus-4-0-20250514': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -177,6 +285,7 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 32000;
     parallelToolCalls: true;
   };
+  /** @deprecated Retiring 2026-06-15. Use 'claude-sonnet-4-6' instead. */
   'claude-sonnet-4-0-20250514': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -188,6 +297,7 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 16000;
     parallelToolCalls: true;
   };
+  /** @deprecated Retired 2026-02-19 (API returns 404). Use 'claude-sonnet-4-6' instead. */
   'claude-3-7-sonnet-20250219': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -199,6 +309,7 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 128000;
     parallelToolCalls: true;
   };
+  /** @deprecated Retired 2026-02-19 (API returns 404). Use 'claude-sonnet-4-6' instead. */
   'claude-3-7-sonnet-latest': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -210,6 +321,7 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 128000;
     parallelToolCalls: true;
   };
+  /** @deprecated Retired 2025-10-28 (API returns 404). Use 'claude-sonnet-4-6' instead. */
   'claude-3-5-sonnet-20241022': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -221,6 +333,7 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 8192;
     parallelToolCalls: true;
   };
+  /** @deprecated Retired 2025-10-28 (API returns 404). Use 'claude-sonnet-4-6' instead. */
   'claude-3-5-sonnet-latest': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -232,6 +345,7 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 8192;
     parallelToolCalls: true;
   };
+  /** @deprecated Retired 2026-02-19 (API returns 404). Use 'claude-haiku-4-5' instead. */
   'claude-3-5-haiku-20241022': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -243,6 +357,7 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 8192;
     parallelToolCalls: true;
   };
+  /** @deprecated Retired 2026-02-19 (API returns 404). Use 'claude-haiku-4-5' instead. */
   'claude-3-5-haiku-latest': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -254,6 +369,7 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 8192;
     parallelToolCalls: true;
   };
+  /** @deprecated Retired 2026-01-05 (API returns 404). Use 'claude-opus-4-8' instead. */
   'claude-3-opus-20240229': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -265,6 +381,7 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 4096;
     parallelToolCalls: true;
   };
+  /** @deprecated Retired 2026-01-05 (API returns 404). Use 'claude-opus-4-8' instead. */
   'claude-3-opus-latest': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -276,6 +393,7 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 4096;
     parallelToolCalls: true;
   };
+  /** @deprecated Retired 2025-07-21 (API returns 404). Use 'claude-sonnet-4-6' instead. */
   'claude-3-sonnet-20240229': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -287,6 +405,7 @@ export type AnthropicModelCapabilities = {
     maxOutputTokens: 4096;
     parallelToolCalls: true;
   };
+  /** @deprecated Retired 2026-04-19 (API returns 404). Use 'claude-haiku-4-5' instead. */
   'claude-3-haiku-20240307': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -1507,6 +1626,81 @@ export interface ModelInfo {
  */
 export const MODEL_REGISTRY: Record<string, ModelInfo> = {
   // ---- Anthropic Models ----
+  // Claude Fable 5 — most capable model. Adaptive thinking + effort param;
+  // no budget_tokens extended thinking, no assistant prefill;
+  // temperature/top_p removed at the API level.
+  'claude-fable-5': {
+    provider: 'anthropic',
+    model: 'claude-fable-5',
+    displayName: 'Claude Fable 5',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 1000000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  // Claude Opus 4.8 — recommended default. Adaptive thinking + effort param;
+  // no budget_tokens extended thinking, no assistant prefill;
+  // temperature/top_p removed at the API level.
+  'claude-opus-4-8': {
+    provider: 'anthropic',
+    model: 'claude-opus-4-8',
+    displayName: 'Claude Opus 4.8',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 1000000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  // Claude Opus 4.7 — previous-generation Opus. Adaptive thinking + effort
+  // param; no budget_tokens extended thinking, no assistant prefill;
+  // temperature/top_p removed at the API level.
+  'claude-opus-4-7': {
+    provider: 'anthropic',
+    model: 'claude-opus-4-7',
+    displayName: 'Claude Opus 4.7',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 1000000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  // Claude Sonnet 4.6 — best speed/intelligence balance. Adaptive thinking +
+  // effort param; no budget_tokens extended thinking, no assistant prefill.
+  'claude-sonnet-4-6': {
+    provider: 'anthropic',
+    model: 'claude-sonnet-4-6',
+    displayName: 'Claude Sonnet 4.6',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 1000000,
+      maxOutputTokens: 64000,
+      parallelToolCalls: true,
+    },
+  },
   'claude-opus-4-6': {
     provider: 'anthropic',
     model: 'claude-opus-4-6',
@@ -1518,8 +1712,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
       structuredOutput: true,
       systemMessage: true,
       extendedThinking: true,
-      contextWindow: 200000,
-      maxOutputTokens: 32000,
+      contextWindow: 1000000,
+      maxOutputTokens: 128000,
       parallelToolCalls: true,
     },
   },
@@ -1571,10 +1765,12 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
       parallelToolCalls: true,
     },
   },
+  /** @deprecated Retiring 2026-06-15. Use 'claude-opus-4-8' instead. */
   'claude-opus-4-0-20250514': {
     provider: 'anthropic',
     model: 'claude-opus-4-0-20250514',
     displayName: 'Claude Opus 4',
+    deprecated: true,
     capabilities: {
       tools: true,
       streaming: true,
@@ -1587,10 +1783,12 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
       parallelToolCalls: true,
     },
   },
+  /** @deprecated Retiring 2026-06-15. Use 'claude-sonnet-4-6' instead. */
   'claude-sonnet-4-0-20250514': {
     provider: 'anthropic',
     model: 'claude-sonnet-4-0-20250514',
     displayName: 'Claude Sonnet 4',
+    deprecated: true,
     capabilities: {
       tools: true,
       streaming: true,
@@ -1603,10 +1801,12 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
       parallelToolCalls: true,
     },
   },
+  /** @deprecated Retired 2026-02-19 (API returns 404). Use 'claude-sonnet-4-6' instead. */
   'claude-3-7-sonnet-20250219': {
     provider: 'anthropic',
     model: 'claude-3-7-sonnet-20250219',
     displayName: 'Claude 3.7 Sonnet',
+    deprecated: true,
     capabilities: {
       tools: true,
       streaming: true,
@@ -1619,10 +1819,12 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
       parallelToolCalls: true,
     },
   },
+  /** @deprecated Retired 2025-10-28 (API returns 404). Use 'claude-sonnet-4-6' instead. */
   'claude-3-5-sonnet-20241022': {
     provider: 'anthropic',
     model: 'claude-3-5-sonnet-20241022',
     displayName: 'Claude 3.5 Sonnet',
+    deprecated: true,
     capabilities: {
       tools: true,
       streaming: true,
@@ -1635,10 +1837,12 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
       parallelToolCalls: true,
     },
   },
+  /** @deprecated Retired 2026-02-19 (API returns 404). Use 'claude-haiku-4-5' instead. */
   'claude-3-5-haiku-20241022': {
     provider: 'anthropic',
     model: 'claude-3-5-haiku-20241022',
     displayName: 'Claude 3.5 Haiku',
+    deprecated: true,
     capabilities: {
       tools: true,
       streaming: true,
@@ -1651,10 +1855,12 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
       parallelToolCalls: true,
     },
   },
+  /** @deprecated Retired 2026-01-05 (API returns 404). Use 'claude-opus-4-8' instead. */
   'claude-3-opus-20240229': {
     provider: 'anthropic',
     model: 'claude-3-opus-20240229',
     displayName: 'Claude 3 Opus',
+    deprecated: true,
     capabilities: {
       tools: true,
       streaming: true,

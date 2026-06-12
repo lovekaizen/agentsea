@@ -76,7 +76,7 @@ export interface SandboxConfig {
  * Vision analyzer configuration
  */
 export interface VisionConfig {
-  /** Model to use for vision analysis (e.g., 'claude-3-5-sonnet-20241022') */
+  /** Model to use for vision analysis (e.g., 'claude-sonnet-4-6') */
   model: string;
   /** Maximum tokens for vision response */
   maxTokens: number;
@@ -334,7 +334,7 @@ export const DEFAULT_SURF_CONFIG: SurfConfig = {
     maxActionsPerMinute: 60,
   },
   vision: {
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-sonnet-4-6',
     maxTokens: 4096,
     includeScreenshotInResponse: true,
   },

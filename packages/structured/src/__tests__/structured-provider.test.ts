@@ -50,7 +50,7 @@ function createMockAnthropicClient(response?: unknown) {
           type: 'message',
           role: 'assistant',
           content: [{ type: 'text', text: '{"name":"Bob","age":25}' }],
-          model: 'claude-3-5-sonnet-20241022',
+          model: 'claude-sonnet-4-6',
           stop_reason: 'end_turn',
           stop_sequence: null,
           usage: { input_tokens: 10, output_tokens: 20 },
@@ -151,7 +151,7 @@ describe('StructuredProvider', () => {
 
     it('should create provider with custom options', () => {
       const provider = new StructuredProvider({
-        defaultModel: 'gpt-4o-mini',
+        defaultModel: 'gpt-5.4-mini',
         enableFixHints: false,
         maxRetries: 5,
       });
@@ -344,16 +344,16 @@ describe('StructuredProvider', () => {
         client: mockClient,
       });
 
-      await provider.extract(PersonSchema, 'Test', { model: 'gpt-4o-mini' });
+      await provider.extract(PersonSchema, 'Test', { model: 'gpt-5.4-mini' });
 
       expect(mockClient.chat.completions.create).toHaveBeenCalledWith(
-        expect.objectContaining({ model: 'gpt-4o-mini' }),
+        expect.objectContaining({ model: 'gpt-5.4-mini' }),
       );
     });
 
     it('should use default model from options', async () => {
       const mockClient = createMockOpenAIClient();
-      const provider = new StructuredProvider({ defaultModel: 'gpt-4' });
+      const provider = new StructuredProvider({ defaultModel: 'gpt-5.5' });
 
       provider.registerProvider('main', {
         provider: 'openai',
@@ -363,7 +363,7 @@ describe('StructuredProvider', () => {
       await provider.extract(PersonSchema, 'Test');
 
       expect(mockClient.chat.completions.create).toHaveBeenCalledWith(
-        expect.objectContaining({ model: 'gpt-4' }),
+        expect.objectContaining({ model: 'gpt-5.5' }),
       );
     });
 
@@ -402,10 +402,10 @@ describe('StructuredProvider', () => {
 
       await provider.extract(PersonSchema, 'Test');
 
-      // Should fallback to gpt-4o
+      // Should fallback to gpt-5.5
       expect(mockClient.chat.completions.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
         }),
       );
     });
@@ -494,7 +494,7 @@ describe('StructuredProvider', () => {
       });
 
       const extractor = provider.createExtractor(PersonSchema, {
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         provider: 'main',
       });
 
@@ -553,14 +553,14 @@ describe('TypedExtractor', () => {
     it('should allow override options', async () => {
       const { provider, mockClient } = createProviderWithOpenAI();
       const extractor = provider.createExtractor(TestSchema, {
-        model: 'gpt-4',
+        model: 'gpt-5.5',
       });
 
-      await extractor.extract('Test', { model: 'gpt-4o-mini' });
+      await extractor.extract('Test', { model: 'gpt-5.4-mini' });
 
       // Override should take precedence
       expect(mockClient.chat.completions.create).toHaveBeenCalledWith(
-        expect.objectContaining({ model: 'gpt-4o-mini' }),
+        expect.objectContaining({ model: 'gpt-5.4-mini' }),
       );
     });
   });

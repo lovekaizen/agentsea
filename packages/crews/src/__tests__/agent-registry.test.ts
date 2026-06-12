@@ -21,7 +21,7 @@ function createAgentConfig(
       ],
       systemPrompt: 'You are a developer.',
     },
-    model: 'claude-sonnet-4',
+    model: 'claude-sonnet-4-6',
     provider: 'anthropic',
     ...overrides,
   };

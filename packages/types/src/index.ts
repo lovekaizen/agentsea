@@ -223,6 +223,17 @@ export interface ProviderConfig {
   systemPrompt?: string;
   topP?: number;
   stopSequences?: string[];
+  /**
+   * Adaptive thinking (Claude Opus 4.6+, Sonnet 4.6, Fable 5).
+   * `true` maps to `{ type: 'adaptive' }`. Ignored by providers that
+   * don't support it.
+   */
+  thinking?: boolean | { type: 'adaptive'; display?: 'summarized' | 'omitted' };
+  /**
+   * Output effort (Claude Opus 4.5+/Sonnet 4.6): trades thoroughness
+   * for latency/cost. Ignored by providers that don't support it.
+   */
+  effort?: 'low' | 'medium' | 'high' | 'xhigh' | 'max';
 }
 
 /**

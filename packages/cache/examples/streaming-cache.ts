@@ -44,7 +44,7 @@ async function main() {
     { role: 'user', content: 'Explain machine learning' },
   ];
 
-  const stream1 = streamCache.wrapStream('gpt-4o', messages1, () =>
+  const stream1 = streamCache.wrapStream('gpt-5.5', messages1, () =>
     simulateStreamingLLM(messages1[0].content),
   );
 
@@ -58,7 +58,7 @@ async function main() {
   console.log('2. Same request (replaying from cache)...');
   console.log('   Streaming: ');
 
-  const stream2 = streamCache.wrapStream('gpt-4o', messages1, () =>
+  const stream2 = streamCache.wrapStream('gpt-5.5', messages1, () =>
     simulateStreamingLLM(messages1[0].content),
   );
 
@@ -78,7 +78,7 @@ async function main() {
     { role: 'user', content: 'What is quantum computing?' },
   ];
 
-  const stream3 = streamCache.wrapStream('gpt-4o', messages2, () =>
+  const stream3 = streamCache.wrapStream('gpt-5.5', messages2, () =>
     simulateStreamingLLM(messages2[0].content),
   );
 

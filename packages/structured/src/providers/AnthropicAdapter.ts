@@ -76,16 +76,25 @@ interface AnthropicStreamEvent {
  * Model capabilities for Anthropic models
  */
 const MODEL_CAPABILITIES: Record<string, Partial<ProviderCapabilities>> = {
-  'claude-opus-4-20250514': {
+  'claude-opus-4-8': {
     jsonMode: false,
     strictJsonMode: false,
     toolCalling: true,
     streaming: true,
     systemMessages: true,
-    maxContextWindow: 200000,
-    maxOutputTokens: 32768,
+    maxContextWindow: 1000000,
+    maxOutputTokens: 128000,
   },
-  'claude-sonnet-4-20250514': {
+  'claude-sonnet-4-6': {
+    jsonMode: false,
+    strictJsonMode: false,
+    toolCalling: true,
+    streaming: true,
+    systemMessages: true,
+    maxContextWindow: 1000000,
+    maxOutputTokens: 64000,
+  },
+  'claude-sonnet-4-5': {
     jsonMode: false,
     strictJsonMode: false,
     toolCalling: true,
@@ -94,50 +103,14 @@ const MODEL_CAPABILITIES: Record<string, Partial<ProviderCapabilities>> = {
     maxContextWindow: 200000,
     maxOutputTokens: 64000,
   },
-  'claude-3-5-sonnet-20241022': {
+  'claude-haiku-4-5': {
     jsonMode: false,
     strictJsonMode: false,
     toolCalling: true,
     streaming: true,
     systemMessages: true,
     maxContextWindow: 200000,
-    maxOutputTokens: 8192,
-  },
-  'claude-3-5-haiku-20241022': {
-    jsonMode: false,
-    strictJsonMode: false,
-    toolCalling: true,
-    streaming: true,
-    systemMessages: true,
-    maxContextWindow: 200000,
-    maxOutputTokens: 8192,
-  },
-  'claude-3-opus-20240229': {
-    jsonMode: false,
-    strictJsonMode: false,
-    toolCalling: true,
-    streaming: true,
-    systemMessages: true,
-    maxContextWindow: 200000,
-    maxOutputTokens: 4096,
-  },
-  'claude-3-sonnet-20240229': {
-    jsonMode: false,
-    strictJsonMode: false,
-    toolCalling: true,
-    streaming: true,
-    systemMessages: true,
-    maxContextWindow: 200000,
-    maxOutputTokens: 4096,
-  },
-  'claude-3-haiku-20240307': {
-    jsonMode: false,
-    strictJsonMode: false,
-    toolCalling: true,
-    streaming: true,
-    systemMessages: true,
-    maxContextWindow: 200000,
-    maxOutputTokens: 4096,
+    maxOutputTokens: 64000,
   },
 };
 
@@ -164,7 +137,7 @@ export class AnthropicAdapter implements ProviderAdapter {
     );
     const base = modelKey
       ? MODEL_CAPABILITIES[modelKey]
-      : MODEL_CAPABILITIES['claude-3-5-sonnet-20241022'];
+      : MODEL_CAPABILITIES['claude-sonnet-4-6'];
 
     return {
       jsonMode: base.jsonMode ?? false,

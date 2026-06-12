@@ -55,7 +55,7 @@ const DEFAULT_CONFIG: Required<StreamCacheConfig> = {
  *
  * // Wrap a streaming call
  * const stream = streamCache.wrapStream({
- *   model: 'gpt-4',
+ *   model: 'gpt-5.5',
  *   messages: [{ role: 'user', content: 'Hello' }],
  *   stream: true
  * }, async function* () {

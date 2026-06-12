@@ -19,7 +19,7 @@ function createState(): AgentState {
   return {
     agentId: 'demo-agent',
     agentName: 'Demo Agent',
-    model: 'gpt-4',
+    model: 'gpt-5.5',
     memory: { size: 0 },
     context: {},
     tools: ['search', 'calculate'],

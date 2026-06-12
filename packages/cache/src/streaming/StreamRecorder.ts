@@ -39,7 +39,7 @@ const DEFAULT_CONFIG: Required<StreamRecorderConfig> = {
  *   captureToolCalls: true
  * });
  *
- * recorder.start('gpt-4', messages);
+ * recorder.start('gpt-5.5', messages);
  *
  * for await (const chunk of stream) {
  *   recorder.recordChunk({ type: 'text', content: chunk.content });
