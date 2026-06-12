@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-structured",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "TypeScript-native structured output framework - Zod schema enforcement for LLM responses",
   "type": "module",
   "main": "./dist/index.js",
