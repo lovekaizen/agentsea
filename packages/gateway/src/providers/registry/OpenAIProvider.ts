@@ -15,11 +15,8 @@ import { getModelInfo } from '../../utils/pricing.js';
 import { generateRequestId } from '../../utils/hashing.js';
 
 const DEFAULT_OPENAI_MODELS = [
-  'gpt-4o',
-  'gpt-4o-mini',
-  'gpt-4-turbo',
-  'gpt-4',
-  'gpt-3.5-turbo',
+  'gpt-5.5',
+  'gpt-5.4-mini',
   'o1',
   'o1-mini',
   'o1-preview',

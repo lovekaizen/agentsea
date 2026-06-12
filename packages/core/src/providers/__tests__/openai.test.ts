@@ -43,7 +43,7 @@ describe('OpenAIProvider', () => {
     const messages: Message[] = [{ role: 'user', content: 'Hello' }];
 
     const config: ProviderConfig = {
-      model: 'gpt-4',
+      model: 'gpt-5.5',
       maxTokens: 1024,
       temperature: 0.7,
     };
@@ -195,7 +195,7 @@ describe('OpenAIProvider', () => {
     const messages: Message[] = [{ role: 'user', content: 'Hello' }];
 
     const config: ProviderConfig = {
-      model: 'gpt-4',
+      model: 'gpt-5.5',
       maxTokens: 1024,
     };
 
@@ -281,6 +281,7 @@ describe('OpenAIProvider', () => {
                 delta: {
                   tool_calls: [
                     {
+                      type: 'function',
                       id: 'call_123',
                       function: { name: 'calculator', arguments: '{"x": 5}' },
                     },
@@ -347,6 +348,7 @@ describe('OpenAIProvider', () => {
               message: {
                 tool_calls: [
                   {
+                    type: 'function',
                     id: 'call_123',
                     function: {
                       name: 'calculator',
@@ -401,6 +403,7 @@ describe('OpenAIProvider', () => {
               message: {
                 tool_calls: [
                   {
+                    type: 'function',
                     id: 'call_1',
                     function: {
                       name: 'tool1',
@@ -408,6 +411,7 @@ describe('OpenAIProvider', () => {
                     },
                   },
                   {
+                    type: 'function',
                     id: 'call_2',
                     function: {
                       name: 'tool2',
@@ -446,7 +450,7 @@ describe('OpenAIProvider', () => {
       mockClient.chat.completions.create.mockResolvedValue(mockResponse);
 
       await provider.generateResponse(messages, {
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         systemPrompt: 'Be helpful',
       });
 
@@ -474,7 +478,7 @@ describe('OpenAIProvider', () => {
       mockClient.chat.completions.create.mockResolvedValue(mockResponse);
 
       await provider.generateResponse(messages, {
-        model: 'gpt-4',
+        model: 'gpt-5.5',
       });
 
       const callArgs = mockClient.chat.completions.create.mock.calls[0][0];
@@ -507,7 +511,7 @@ describe('OpenAIProvider', () => {
       mockClient.chat.completions.create.mockResolvedValue(mockResponse);
 
       await provider.generateResponse(messages, {
-        model: 'gpt-4',
+        model: 'gpt-5.5',
       });
 
       const callArgs = mockClient.chat.completions.create.mock.calls[0][0];

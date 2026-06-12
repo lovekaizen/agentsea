@@ -139,7 +139,7 @@ export async function createEvalConfigCommand(): Promise<void> {
       type: 'input',
       name: 'judgeModel',
       message: 'Judge model (for LLM judge):',
-      default: 'claude-sonnet-4-20250514',
+      default: 'claude-sonnet-4-6',
       when: (answers) => answers.judgeType === 'llm-judge',
     },
     {

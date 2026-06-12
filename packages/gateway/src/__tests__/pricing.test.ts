@@ -14,17 +14,27 @@ import {
 describe('pricing utilities', () => {
   describe('MODEL_PRICING', () => {
     it('should have pricing for major OpenAI models', () => {
+      expect(MODEL_PRICING['gpt-5.5']).toBeDefined();
+      expect(MODEL_PRICING['gpt-5.4-mini']).toBeDefined();
+      // Legacy entries kept for historical cost lookups
       expect(MODEL_PRICING['gpt-4o']).toBeDefined();
       expect(MODEL_PRICING['gpt-4o-mini']).toBeDefined();
       expect(MODEL_PRICING['gpt-3.5-turbo']).toBeDefined();
     });
 
     it('should have pricing for major Anthropic models', () => {
+      expect(MODEL_PRICING['claude-opus-4-8']).toBeDefined();
+      expect(MODEL_PRICING['claude-sonnet-4-6']).toBeDefined();
+      expect(MODEL_PRICING['claude-haiku-4-5']).toBeDefined();
+      // Retired entries kept for historical cost lookups
       expect(MODEL_PRICING['claude-3-5-sonnet-20241022']).toBeDefined();
       expect(MODEL_PRICING['claude-3-haiku-20240307']).toBeDefined();
     });
 
     it('should have pricing for major Google models', () => {
+      expect(MODEL_PRICING['gemini-3.1-pro-preview']).toBeDefined();
+      expect(MODEL_PRICING['gemini-3.5-flash']).toBeDefined();
+      // Legacy entries kept for historical cost lookups
       expect(MODEL_PRICING['gemini-1.5-pro']).toBeDefined();
       expect(MODEL_PRICING['gemini-1.5-flash']).toBeDefined();
     });
@@ -37,6 +47,10 @@ describe('pricing utilities', () => {
 
   describe('MODEL_CONTEXT_WINDOWS', () => {
     it('should have context windows for major models', () => {
+      expect(MODEL_CONTEXT_WINDOWS['gpt-5.5']).toBe(1050000);
+      expect(MODEL_CONTEXT_WINDOWS['claude-sonnet-4-6']).toBe(1000000);
+      expect(MODEL_CONTEXT_WINDOWS['gemini-3.1-pro-preview']).toBe(1048576);
+      // Legacy entries kept for historical lookups
       expect(MODEL_CONTEXT_WINDOWS['gpt-4o']).toBe(128000);
       expect(MODEL_CONTEXT_WINDOWS['claude-3-5-sonnet-20241022']).toBe(200000);
       expect(MODEL_CONTEXT_WINDOWS['gemini-1.5-pro']).toBe(2000000);
@@ -136,12 +150,31 @@ describe('pricing utilities', () => {
       expect(caps.tools).toBe(true);
     });
 
+    it('should return vision capability for GPT-5.5', () => {
+      const caps = getModelCapabilities('gpt-5.5', 'openai');
+      expect(caps.vision).toBe(true);
+      expect(caps.streaming).toBe(true);
+      expect(caps.tools).toBe(true);
+    });
+
     it('should return vision capability for Claude 3', () => {
       const caps = getModelCapabilities(
         'claude-3-5-sonnet-20241022',
         'anthropic',
       );
       expect(caps.vision).toBe(true);
+    });
+
+    it('should return vision capability for current Claude models', () => {
+      expect(
+        getModelCapabilities('claude-sonnet-4-6', 'anthropic').vision,
+      ).toBe(true);
+      expect(getModelCapabilities('claude-opus-4-8', 'anthropic').vision).toBe(
+        true,
+      );
+      expect(getModelCapabilities('claude-haiku-4-5', 'anthropic').vision).toBe(
+        true,
+      );
     });
 
     it('should return limited capabilities for o1 models', () => {

@@ -62,11 +62,11 @@ export async function createAgentCommand(): Promise<void> {
         const provider = providers[answers.provider];
         switch (provider.type) {
           case 'anthropic':
-            return 'claude-sonnet-4-20250514';
+            return 'claude-opus-4-8';
           case 'openai':
-            return 'gpt-4-turbo-preview';
+            return 'gpt-5.5';
           case 'gemini':
-            return 'gemini-pro';
+            return 'gemini-3.1-pro-preview';
           case 'ollama':
             return 'llama2';
           default:

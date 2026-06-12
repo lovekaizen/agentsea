@@ -22,17 +22,17 @@ async function main() {
       {
         name: 'openai',
         apiKey: process.env.OPENAI_API_KEY,
-        models: ['gpt-4o', 'gpt-4o-mini'],
+        models: ['gpt-5.5', 'gpt-5.4-mini'],
       },
       {
         name: 'anthropic',
         apiKey: process.env.ANTHROPIC_API_KEY,
-        models: ['claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307'],
+        models: ['claude-sonnet-4-6', 'claude-haiku-4-5'],
       },
       {
         name: 'google',
         apiKey: process.env.GOOGLE_API_KEY,
-        models: ['gemini-1.5-pro', 'gemini-1.5-flash'],
+        models: ['gemini-3.1-pro-preview', 'gemini-3.5-flash'],
       },
     ],
     routing: {
@@ -57,7 +57,7 @@ async function main() {
 
   for (let i = 0; i < 3; i++) {
     const response = await gateway.chat.completions.create({
-      model: 'gpt-4o-mini', // Will be mapped to equivalent on each provider
+      model: 'gpt-5.4-mini', // Will be mapped to equivalent on each provider
       ...testMessage,
     });
 
@@ -76,16 +76,16 @@ async function main() {
     new FailoverStrategy({
       chain: ['openai', 'anthropic', 'google'],
       modelMappings: {
-        'gpt-4o-mini': {
-          anthropic: 'claude-3-haiku-20240307',
-          google: 'gemini-1.5-flash',
+        'gpt-5.4-mini': {
+          anthropic: 'claude-haiku-4-5',
+          google: 'gemini-3.5-flash',
         },
       },
     }),
   );
 
   const failoverResponse = await gateway.chat.completions.create({
-    model: 'gpt-4o-mini',
+    model: 'gpt-5.4-mini',
     ...testMessage,
   });
 

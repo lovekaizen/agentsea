@@ -12,7 +12,7 @@ describe('hashing utilities', () => {
   describe('hashRequest', () => {
     it('should generate consistent hashes for same requests', () => {
       const request = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
         temperature: 0.7,
       };
@@ -25,12 +25,12 @@ describe('hashing utilities', () => {
 
     it('should generate different hashes for different messages', () => {
       const request1 = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
       };
 
       const request2 = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Goodbye' }],
       };
 
@@ -42,12 +42,12 @@ describe('hashing utilities', () => {
 
     it('should generate different hashes for different models', () => {
       const request1 = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
       };
 
       const request2 = {
-        model: 'gpt-4o-mini',
+        model: 'gpt-5.4-mini',
         messages: [{ role: 'user', content: 'Hello' }],
       };
 
@@ -59,13 +59,13 @@ describe('hashing utilities', () => {
 
     it('should generate different hashes for different temperatures', () => {
       const request1 = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
         temperature: 0.5,
       };
 
       const request2 = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
         temperature: 0.7,
       };
@@ -78,13 +78,13 @@ describe('hashing utilities', () => {
 
     it('should handle tools in the hash', () => {
       const request1 = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
         tools: [{ type: 'function', function: { name: 'test' } }],
       };
 
       const request2 = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
       };
 
@@ -96,7 +96,7 @@ describe('hashing utilities', () => {
 
     it('should return a hex string', () => {
       const request = {
-        model: 'gpt-4o',
+        model: 'gpt-5.5',
         messages: [{ role: 'user', content: 'Hello' }],
       };
 
@@ -144,9 +144,9 @@ describe('hashing utilities', () => {
 
   describe('generateCacheKey', () => {
     it('should generate cache key with correct format', () => {
-      const key = generateCacheKey('openai', 'gpt-4o', 'abc123');
+      const key = generateCacheKey('openai', 'gpt-5.5', 'abc123');
 
-      expect(key).toBe('gw:cache:openai:gpt-4o:abc123');
+      expect(key).toBe('gw:cache:openai:gpt-5.5:abc123');
     });
   });
 

@@ -92,7 +92,7 @@ describe('TokenCounter', () => {
     it('should detect provider from model name', async () => {
       const result = await counter.countTokens({
         text: 'Hello',
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
       });
 
       expect(result.tokens).toBeGreaterThan(0);
@@ -103,7 +103,7 @@ describe('TokenCounter', () => {
     it('should detect Anthropic models', async () => {
       const result = await counter.countTokens({
         text: 'Hello',
-        model: 'claude-3-5-sonnet',
+        model: 'claude-sonnet-4-6',
       });
 
       expect(result.tokens).toBeGreaterThan(0);
@@ -121,7 +121,7 @@ describe('TokenCounter', () => {
     it('should detect Google models', async () => {
       const result = await counter.countTokens({
         text: 'Hello',
-        model: 'gemini-1.5-pro',
+        model: 'gemini-3.1-pro-preview',
       });
 
       expect(result.tokens).toBeGreaterThan(0);
@@ -184,7 +184,7 @@ describe('TokenCounter', () => {
     it('should include cache costs', async () => {
       const result = await counter.estimateCost({
         input: 'Hello',
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         includeCache: true,
       });
 

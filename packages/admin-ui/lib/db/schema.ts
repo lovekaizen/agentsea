@@ -8,7 +8,7 @@ export const agents = sqliteTable('agents', {
   description: text('description'),
   systemPrompt: text('system_prompt'),
   provider: text('provider').notNull().default('anthropic'),
-  model: text('model').notNull().default('claude-3-5-sonnet-20241022'),
+  model: text('model').notNull().default('claude-opus-4-8'),
   temperature: real('temperature').default(0.7),
   maxTokens: integer('max_tokens').default(4096),
   memoryType: text('memory_type').default('buffer'),

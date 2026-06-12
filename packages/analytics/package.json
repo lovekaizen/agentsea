@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-analytics",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "Conversation analytics for AI agents - intent classification, flow analysis, sentiment tracking, and insights",
   "type": "module",
   "main": "./dist/index.js",
@@ -86,7 +86,7 @@
     "@types/pg": "^8.16.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^3.2.6"
   },
   "peerDependencies": {
     "better-sqlite3": ">=9.0.0",

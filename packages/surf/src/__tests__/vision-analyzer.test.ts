@@ -21,7 +21,7 @@ vi.mock('@lov3kaizen/agentsea-core', () => ({
 describe('VisionAnalyzer', () => {
   let analyzer: VisionAnalyzer;
   const config: VisionConfig = {
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-sonnet-4-6',
     maxTokens: 4096,
   };
 
@@ -49,7 +49,7 @@ describe('VisionAnalyzer', () => {
 
     it('should store config', () => {
       const customConfig: VisionConfig = {
-        model: 'claude-3-opus-20240229',
+        model: 'claude-opus-4-8',
         maxTokens: 2048,
       };
       const customAnalyzer = new VisionAnalyzer(customConfig);

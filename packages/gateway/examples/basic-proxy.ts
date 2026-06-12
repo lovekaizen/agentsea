@@ -16,12 +16,12 @@ function main() {
       {
         name: 'openai',
         apiKey: process.env.OPENAI_API_KEY,
-        models: ['gpt-4o', 'gpt-4o-mini', 'gpt-3.5-turbo'],
+        models: ['gpt-5.5', 'gpt-5.4-mini'],
       },
       {
         name: 'anthropic',
         apiKey: process.env.ANTHROPIC_API_KEY,
-        models: ['claude-3-5-sonnet-20241022', 'claude-3-haiku-20240307'],
+        models: ['claude-sonnet-4-6', 'claude-haiku-4-5'],
       },
     ],
     routing: {
@@ -72,7 +72,7 @@ Example curl:
   curl http://localhost:${port}/v1/chat/completions \\
     -H "Content-Type: application/json" \\
     -d '{
-      "model": "gpt-4o-mini",
+      "model": "gpt-5.4-mini",
       "messages": [{"role": "user", "content": "Hello!"}]
     }'
 

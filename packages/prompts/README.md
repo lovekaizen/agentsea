@@ -352,7 +352,7 @@ const provider = new PromptProvider({
 // Create agent with managed prompt
 const agent = new Agent({
   name: 'support-agent',
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-4-6',
   provider: 'anthropic',
   // Dynamic prompt from registry
   systemPrompt: provider.dynamic('customer-support', {

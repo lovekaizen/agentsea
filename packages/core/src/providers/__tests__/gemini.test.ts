@@ -7,7 +7,7 @@ vi.mock('@google/generative-ai', () => {
   return {
     GoogleGenerativeAI: vi.fn().mockImplementation(() => ({
       getGenerativeModel: vi.fn().mockReturnValue({
-        model: 'gemini-pro',
+        model: 'gemini-3.1-pro-preview',
         generateContent: vi.fn(),
         generateContentStream: vi.fn(),
       }),
@@ -58,7 +58,7 @@ describe('GeminiProvider', () => {
     const messages: Message[] = [{ role: 'user', content: 'Hello' }];
 
     const config: ProviderConfig = {
-      model: 'gemini-pro',
+      model: 'gemini-3.1-pro-preview',
       maxTokens: 2048,
       temperature: 0.7,
     };
@@ -98,7 +98,7 @@ describe('GeminiProvider', () => {
       await provider.generateResponse(messages, configWithoutModel);
 
       expect(mockClient.getGenerativeModel).toHaveBeenCalledWith({
-        model: 'gemini-pro',
+        model: 'gemini-3.1-pro-preview',
       });
     });
 
@@ -194,7 +194,7 @@ describe('GeminiProvider', () => {
     const messages: Message[] = [{ role: 'user', content: 'Hello' }];
 
     const config: ProviderConfig = {
-      model: 'gemini-pro',
+      model: 'gemini-3.1-pro-preview',
       maxTokens: 2048,
     };
 
@@ -363,7 +363,9 @@ describe('GeminiProvider', () => {
 
       mockModel.generateContent.mockResolvedValue(mockResponse);
 
-      await provider.generateResponse(messages, { model: 'gemini-pro' });
+      await provider.generateResponse(messages, {
+        model: 'gemini-3.1-pro-preview',
+      });
 
       const callArgs = mockModel.generateContent.mock.calls[0][0];
       expect(callArgs.contents).toHaveLength(1);
@@ -385,7 +387,9 @@ describe('GeminiProvider', () => {
 
       mockModel.generateContent.mockResolvedValue(mockResponse);
 
-      await provider.generateResponse(messages, { model: 'gemini-pro' });
+      await provider.generateResponse(messages, {
+        model: 'gemini-3.1-pro-preview',
+      });
 
       const callArgs = mockModel.generateContent.mock.calls[0][0];
       expect(callArgs.contents[1].role).toBe('model');
@@ -403,7 +407,9 @@ describe('GeminiProvider', () => {
 
       mockModel.generateContent.mockResolvedValue(mockResponse);
 
-      await provider.generateResponse(messages, { model: 'gemini-pro' });
+      await provider.generateResponse(messages, {
+        model: 'gemini-3.1-pro-preview',
+      });
 
       const callArgs = mockModel.generateContent.mock.calls[0][0];
       expect(callArgs.contents[0].parts).toEqual([{ text: 'Test message' }]);
@@ -422,7 +428,7 @@ describe('GeminiProvider', () => {
       mockModel.generateContent.mockResolvedValue(mockResponse);
 
       const messages: Message[] = [{ role: 'user', content: 'Hello' }];
-      const config: ProviderConfig = { model: 'gemini-pro' };
+      const config: ProviderConfig = { model: 'gemini-3.1-pro-preview' };
 
       await provider.generateResponse(messages, config);
       await provider.generateResponse(messages, config);

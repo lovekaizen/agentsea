@@ -21,33 +21,33 @@ describe('StreamRecorder', () => {
     it('should start recording', () => {
       expect(recorder.isRecording()).toBe(false);
 
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       expect(recorder.isRecording()).toBe(true);
     });
 
     it('should throw if starting while already recording', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       expect(() => {
-        recorder.start('gpt-4', [{ role: 'user', content: 'World' }]);
+        recorder.start('gpt-5.5', [{ role: 'user', content: 'World' }]);
       }).toThrow('Recording already in progress');
     });
 
     it('should complete recording', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
       recorder.recordText('Response');
 
       const stream = recorder.complete();
 
       expect(stream.complete).toBe(true);
       expect(stream.chunks.length).toBe(1);
-      expect(stream.model).toBe('gpt-4');
+      expect(stream.model).toBe('gpt-5.5');
       expect(recorder.isRecording()).toBe(false);
     });
 
     it('should abort recording', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
       recorder.recordText('Partial');
 
       const stream = recorder.abort('User cancelled');
@@ -68,7 +68,7 @@ describe('StreamRecorder', () => {
 
   describe('Recording Chunks', () => {
     beforeEach(() => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
     });
 
     it('should record text chunks', () => {
@@ -151,7 +151,7 @@ describe('StreamRecorder', () => {
 
     it('should throw if max chunks exceeded', () => {
       const smallRecorder = new StreamRecorder({ maxChunks: 2 });
-      smallRecorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      smallRecorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       smallRecorder.recordText('Chunk 1');
       smallRecorder.recordText('Chunk 2');
@@ -165,7 +165,7 @@ describe('StreamRecorder', () => {
   describe('Configuration', () => {
     it('should not capture tool calls when disabled', () => {
       const noToolsRecorder = new StreamRecorder({ captureToolCalls: false });
-      noToolsRecorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      noToolsRecorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       noToolsRecorder.recordToolCall('call_1', 'tool', '{}');
 
@@ -176,7 +176,7 @@ describe('StreamRecorder', () => {
 
     it('should not capture metadata when disabled', () => {
       const noMetadataRecorder = new StreamRecorder({ captureMetadata: false });
-      noMetadataRecorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      noMetadataRecorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       noMetadataRecorder.recordText('Text', { meta: 'data' });
 
@@ -187,7 +187,7 @@ describe('StreamRecorder', () => {
 
     it('should use custom key if provided', () => {
       recorder.start(
-        'gpt-4',
+        'gpt-5.5',
         [{ role: 'user', content: 'Hello' }],
         'custom-key',
       );
@@ -198,7 +198,7 @@ describe('StreamRecorder', () => {
     });
 
     it('should generate key if not provided', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       const stream = recorder.complete();
 
@@ -209,7 +209,7 @@ describe('StreamRecorder', () => {
 
   describe('Timing', () => {
     it('should track start and end time', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       const stream = recorder.complete();
 
@@ -220,7 +220,7 @@ describe('StreamRecorder', () => {
     });
 
     it('should get current duration while recording', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       const duration = recorder.getDuration();
 
@@ -237,7 +237,7 @@ describe('StreamRecorder', () => {
       vi.useFakeTimers();
 
       const timedRecorder = new StreamRecorder({ maxDurationMs: 100 });
-      timedRecorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      timedRecorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       // Fast-forward time
       vi.advanceTimersByTime(150);
@@ -250,7 +250,7 @@ describe('StreamRecorder', () => {
 
     it('should not timeout if maxDurationMs is 0', async () => {
       const noTimeoutRecorder = new StreamRecorder({ maxDurationMs: 0 });
-      noTimeoutRecorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      noTimeoutRecorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       expect(noTimeoutRecorder.isRecording()).toBe(true);
     });
@@ -258,7 +258,7 @@ describe('StreamRecorder', () => {
 
   describe('Token Usage', () => {
     it('should include token usage in completed stream', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
       recorder.recordText('Response');
 
       const stream = recorder.complete({
@@ -275,7 +275,7 @@ describe('StreamRecorder', () => {
     });
 
     it('should work without token usage', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
       recorder.recordText('Response');
 
       const stream = recorder.complete();
@@ -286,7 +286,7 @@ describe('StreamRecorder', () => {
 
   describe('Chunk Count', () => {
     it('should track chunk count', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       expect(recorder.getChunkCount()).toBe(0);
 
@@ -300,7 +300,7 @@ describe('StreamRecorder', () => {
 
   describe('Destroy', () => {
     it('should clean up resources', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       recorder.destroy();
 
@@ -314,7 +314,7 @@ describe('StreamRecorder', () => {
 
   describe('Chunk Indexing', () => {
     it('should auto-increment chunk indices', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       recorder.recordText('First');
       recorder.recordText('Second');
@@ -330,7 +330,7 @@ describe('StreamRecorder', () => {
 
   describe('Error Scenarios', () => {
     it('should handle abort with no reason', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       const stream = recorder.abort();
 
@@ -338,7 +338,7 @@ describe('StreamRecorder', () => {
     });
 
     it('should handle empty recordings', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
 
       const stream = recorder.complete();
 
@@ -349,23 +349,23 @@ describe('StreamRecorder', () => {
 
   describe('Reset State', () => {
     it('should reset state after complete', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
       recorder.recordText('Text');
       recorder.complete();
 
       // Should be able to start new recording
-      recorder.start('gpt-4', [{ role: 'user', content: 'World' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'World' }]);
       expect(recorder.isRecording()).toBe(true);
       expect(recorder.getChunkCount()).toBe(0);
     });
 
     it('should reset state after abort', () => {
-      recorder.start('gpt-4', [{ role: 'user', content: 'Hello' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'Hello' }]);
       recorder.recordText('Text');
       recorder.abort();
 
       // Should be able to start new recording
-      recorder.start('gpt-4', [{ role: 'user', content: 'World' }]);
+      recorder.start('gpt-5.5', [{ role: 'user', content: 'World' }]);
       expect(recorder.isRecording()).toBe(true);
     });
   });

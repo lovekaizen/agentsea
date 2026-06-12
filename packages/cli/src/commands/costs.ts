@@ -7,6 +7,26 @@ import { logger } from '../utils/logger';
 
 // Model pricing (per 1M tokens)
 const MODEL_PRICING = {
+  'claude-opus-4-8': {
+    input: 5.0,
+    output: 25.0,
+    provider: 'anthropic',
+  },
+  'claude-sonnet-4-6': {
+    input: 3.0,
+    output: 15.0,
+    provider: 'anthropic',
+  },
+  'claude-haiku-4-5': {
+    input: 1.0,
+    output: 5.0,
+    provider: 'anthropic',
+  },
+  'gpt-5.5': { input: 5.0, output: 30.0, provider: 'openai' },
+  'gpt-5.4-mini': { input: 0.75, output: 4.5, provider: 'openai' },
+  'gemini-3.1-pro-preview': { input: 2.0, output: 12.0, provider: 'google' },
+  'gemini-3.5-flash': { input: 1.5, output: 9.0, provider: 'google' },
+  // Legacy/retired models — kept so historical usage records still resolve
   'claude-opus-4-20250514': {
     input: 15.0,
     output: 75.0,
@@ -24,7 +44,6 @@ const MODEL_PRICING = {
   },
   'gpt-4o': { input: 2.5, output: 10.0, provider: 'openai' },
   'gpt-4o-mini': { input: 0.15, output: 0.6, provider: 'openai' },
-  'gpt-4-turbo': { input: 10.0, output: 30.0, provider: 'openai' },
   'gemini-1.5-pro': { input: 3.5, output: 10.5, provider: 'google' },
   'gemini-1.5-flash': { input: 0.075, output: 0.3, provider: 'google' },
 };

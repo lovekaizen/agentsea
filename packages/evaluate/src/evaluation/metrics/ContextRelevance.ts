@@ -23,7 +23,7 @@ export class ContextRelevance extends BaseMetric {
 
   constructor(config: ContextRelevanceMetricConfig = {}) {
     super(config);
-    this.model = config.model ?? 'claude-sonnet-4-20250514';
+    this.model = config.model ?? 'claude-sonnet-4-6';
     this.minRelevantChunks = config.minRelevantChunks ?? 1;
     this.initName(config);
   }

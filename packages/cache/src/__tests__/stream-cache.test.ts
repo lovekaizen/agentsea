@@ -36,7 +36,7 @@ describe('StreamCache', () => {
 
   describe('Lookup', () => {
     it('should miss on first lookup', async () => {
-      const result = await cache.lookup('gpt-4', createTestMessages('Hello'));
+      const result = await cache.lookup('gpt-5.5', createTestMessages('Hello'));
 
       expect(result.hit).toBe(false);
       expect(result.source).toBe('miss');
@@ -52,7 +52,7 @@ describe('StreamCache', () => {
           { type: 'text', content: 'Hello', timestamp: Date.now(), index: 0 },
           { type: 'text', content: ' world', timestamp: Date.now(), index: 1 },
         ],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages,
         startTime: Date.now(),
         endTime: Date.now() + 1000,
@@ -63,7 +63,7 @@ describe('StreamCache', () => {
 
       await cache.cache(stream);
 
-      const result = await cache.lookup('gpt-4', messages);
+      const result = await cache.lookup('gpt-5.5', messages);
 
       expect(result.hit).toBe(true);
       expect(result.source).toBe('exact');
@@ -72,8 +72,8 @@ describe('StreamCache', () => {
     });
 
     it('should track lookup statistics', async () => {
-      await cache.lookup('gpt-4', createTestMessages('Test 1'));
-      await cache.lookup('gpt-4', createTestMessages('Test 2'));
+      await cache.lookup('gpt-5.5', createTestMessages('Test 1'));
+      await cache.lookup('gpt-5.5', createTestMessages('Test 2'));
 
       const stats = cache.getStats();
       expect(stats.totalLookups).toBe(2);
@@ -96,7 +96,7 @@ describe('StreamCache', () => {
             index: 0,
           },
         ],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages,
         startTime: Date.now(),
         endTime: Date.now() + 500,
@@ -107,7 +107,7 @@ describe('StreamCache', () => {
 
       await cache.cache(stream);
 
-      const result = await cache.lookup('gpt-4', messages);
+      const result = await cache.lookup('gpt-5.5', messages);
       expect(result.hit).toBe(true);
     });
 
@@ -119,7 +119,7 @@ describe('StreamCache', () => {
         chunks: [
           { type: 'text', content: 'Partial', timestamp: Date.now(), index: 0 },
         ],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages,
         startTime: Date.now(),
         endTime: Date.now() + 500,
@@ -130,7 +130,7 @@ describe('StreamCache', () => {
 
       await cache.cache(stream);
 
-      const result = await cache.lookup('gpt-4', messages);
+      const result = await cache.lookup('gpt-5.5', messages);
       expect(result.hit).toBe(false);
     });
 
@@ -147,7 +147,7 @@ describe('StreamCache', () => {
         chunks: [
           { type: 'text', content: 'Partial', timestamp: Date.now(), index: 0 },
         ],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages,
         startTime: Date.now(),
         endTime: Date.now() + 500,
@@ -158,7 +158,7 @@ describe('StreamCache', () => {
 
       await cacheWithIncomplete.cache(stream);
 
-      const result = await cacheWithIncomplete.lookup('gpt-4', messages);
+      const result = await cacheWithIncomplete.lookup('gpt-5.5', messages);
       expect(result.hit).toBe(true);
 
       cacheWithIncomplete.destroy();
@@ -176,7 +176,7 @@ describe('StreamCache', () => {
         chunks: [
           { type: 'text', content: 'Short', timestamp: Date.now(), index: 0 },
         ],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages,
         startTime: Date.now(),
         endTime: Date.now() + 500,
@@ -187,7 +187,7 @@ describe('StreamCache', () => {
 
       await cacheWithMin.cache(stream);
 
-      const result = await cacheWithMin.lookup('gpt-4', messages);
+      const result = await cacheWithMin.lookup('gpt-5.5', messages);
       expect(result.hit).toBe(false);
 
       cacheWithMin.destroy();
@@ -206,7 +206,7 @@ describe('StreamCache', () => {
             index: 0,
           },
         ],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages,
         startTime: Date.now(),
         endTime: Date.now() + 1000,
@@ -230,7 +230,7 @@ describe('StreamCache', () => {
       const chunks = ['Hello', ' ', 'world', '!'];
       const collected: string[] = [];
 
-      for await (const chunk of cache.wrapStream('gpt-4', messages, () =>
+      for await (const chunk of cache.wrapStream('gpt-5.5', messages, () =>
         createMockStream(chunks),
       )) {
         collected.push(chunk.content ?? '');
@@ -239,7 +239,7 @@ describe('StreamCache', () => {
       expect(collected).toEqual(chunks);
 
       // Should be cached now
-      const result = await cache.lookup('gpt-4', messages);
+      const result = await cache.lookup('gpt-5.5', messages);
       expect(result.hit).toBe(true);
     });
 
@@ -249,7 +249,7 @@ describe('StreamCache', () => {
 
       // First call - record
       const collected1: string[] = [];
-      for await (const chunk of cache.wrapStream('gpt-4', messages, () =>
+      for await (const chunk of cache.wrapStream('gpt-5.5', messages, () =>
         createMockStream(originalChunks),
       )) {
         collected1.push(chunk.content ?? '');
@@ -257,7 +257,7 @@ describe('StreamCache', () => {
 
       // Second call - replay
       const collected2: string[] = [];
-      for await (const chunk of cache.wrapStream('gpt-4', messages, () =>
+      for await (const chunk of cache.wrapStream('gpt-5.5', messages, () =>
         createMockStream(['Should', 'not', 'see', 'this']),
       )) {
         collected2.push(chunk.content ?? '');
@@ -276,7 +276,7 @@ describe('StreamCache', () => {
 
       await expect(async () => {
         for await (const _chunk of cache.wrapStream(
-          'gpt-4',
+          'gpt-5.5',
           messages,
           errorStream,
         )) {
@@ -296,7 +296,7 @@ describe('StreamCache', () => {
           { type: 'text', content: ' ', timestamp: Date.now(), index: 1 },
           { type: 'text', content: 'world', timestamp: Date.now(), index: 2 },
         ],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Hello'),
         startTime: Date.now(),
         endTime: Date.now() + 1000,
@@ -333,7 +333,7 @@ describe('StreamCache', () => {
             index: 0,
           },
         ],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages,
         startTime: Date.now(),
         endTime: Date.now() + 500,
@@ -343,7 +343,7 @@ describe('StreamCache', () => {
       };
 
       await cache.cache(stream);
-      await cache.lookup('gpt-4', messages);
+      await cache.lookup('gpt-5.5', messages);
 
       expect(hitEvents.length).toBe(1);
     });
@@ -352,7 +352,7 @@ describe('StreamCache', () => {
       const missEvents: string[] = [];
       cache.on('miss', (key) => missEvents.push(key));
 
-      await cache.lookup('gpt-4', createTestMessages('Not cached'));
+      await cache.lookup('gpt-5.5', createTestMessages('Not cached'));
 
       expect(missEvents.length).toBe(1);
     });
@@ -373,7 +373,7 @@ describe('StreamCache', () => {
             index: 0,
           },
         ],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages,
         startTime: Date.now(),
         endTime: Date.now() + 500,
@@ -404,7 +404,7 @@ describe('StreamCache', () => {
         throw new Error('Store error');
       };
 
-      await errorCache.lookup('gpt-4', createTestMessages('Test'));
+      await errorCache.lookup('gpt-5.5', createTestMessages('Test'));
 
       expect(errors.length).toBeGreaterThan(0);
 
@@ -431,7 +431,7 @@ describe('StreamCache', () => {
             index: 0,
           },
         ],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: messages1,
         startTime: Date.now(),
         endTime: Date.now() + 500,
@@ -443,10 +443,10 @@ describe('StreamCache', () => {
       await cache.cache(stream);
 
       // 1 hit
-      await cache.lookup('gpt-4', messages1);
+      await cache.lookup('gpt-5.5', messages1);
 
       // 1 miss
-      await cache.lookup('gpt-4', messages2);
+      await cache.lookup('gpt-5.5', messages2);
 
       const stats = cache.getStats();
       expect(stats.totalLookups).toBe(2);
@@ -469,7 +469,7 @@ describe('StreamCache', () => {
             index: 0,
           },
         ],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Hello'),
         startTime: Date.now(),
         endTime: Date.now() + 500,
@@ -481,7 +481,7 @@ describe('StreamCache', () => {
       await cache.cache(stream);
 
       const beforeClear = await cache.lookup(
-        'gpt-4',
+        'gpt-5.5',
         createTestMessages('Hello'),
       );
       expect(beforeClear.hit).toBe(true);
@@ -489,7 +489,7 @@ describe('StreamCache', () => {
       await cache.clear();
 
       const afterClear = await cache.lookup(
-        'gpt-4',
+        'gpt-5.5',
         createTestMessages('Hello'),
       );
       expect(afterClear.hit).toBe(false);
@@ -526,7 +526,7 @@ describe('StreamCache', () => {
             index: 0,
           },
         ],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages,
         startTime: Date.now(),
         endTime: Date.now() + 500,
@@ -539,7 +539,7 @@ describe('StreamCache', () => {
 
       // Query with similar message
       const result = await semanticCache.lookup(
-        'gpt-4',
+        'gpt-5.5',
         createTestMessages('Hi world'),
       );
 

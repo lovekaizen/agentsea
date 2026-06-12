@@ -62,7 +62,7 @@ async function main() {
 
   const response1 = await cache.wrap(
     {
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       messages: [{ role: 'user', content: 'What is the capital of France?' }],
     },
     async (request) => {
@@ -81,7 +81,7 @@ async function main() {
 
   const response2 = await cache.wrap(
     {
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       messages: [{ role: 'user', content: 'What is the capital of France?' }],
     },
     async (request) => {
@@ -100,7 +100,7 @@ async function main() {
 
   const response3 = await cache.wrap(
     {
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       messages: [{ role: 'user', content: 'What is the capital of Germany?' }],
     },
     async (request) => {

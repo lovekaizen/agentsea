@@ -17,12 +17,9 @@ import { getModelInfo } from '../../utils/pricing.js';
 import { generateRequestId } from '../../utils/hashing.js';
 
 const DEFAULT_GEMINI_MODELS = [
-  'gemini-1.5-pro',
-  'gemini-1.5-pro-latest',
-  'gemini-1.5-flash',
-  'gemini-1.5-flash-latest',
-  'gemini-2.0-flash-exp',
-  'gemini-pro',
+  'gemini-3.1-pro-preview',
+  'gemini-3.5-flash',
+  'gemini-3.1-flash-lite',
 ];
 
 export interface GoogleProviderOptions extends ProviderOptions {

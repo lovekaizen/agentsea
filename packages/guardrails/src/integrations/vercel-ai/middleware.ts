@@ -56,7 +56,7 @@ export interface TransformResult {
  * });
  *
  * const result = await streamText({
- *   model: anthropic('claude-3-5-sonnet'),
+ *   model: anthropic('claude-sonnet-4-6'),
  *   prompt: userInput,
  *   experimental_transform: middleware,
  * });

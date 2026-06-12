@@ -89,7 +89,7 @@ describe('CostTracker', () => {
     it('should track a basic API call', async () => {
       const record = await tracker.track({
         provider: 'anthropic',
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         tokens: {
           inputTokens: 100,
           outputTokens: 50,
@@ -100,7 +100,7 @@ describe('CostTracker', () => {
       expect(record).toBeDefined();
       expect(record.id).toBeDefined();
       expect(record.provider).toBe('anthropic');
-      expect(record.model).toBe('claude-3-5-sonnet-20241022');
+      expect(record.model).toBe('claude-sonnet-4-6');
       expect(record.tokens.totalTokens).toBe(150);
       expect(record.cost.totalCost).toBeGreaterThan(0);
       expect(record.success).toBe(true);
@@ -129,7 +129,7 @@ describe('CostTracker', () => {
     it('should include cache costs when provided', async () => {
       const record = await tracker.track({
         provider: 'anthropic',
-        model: 'claude-3-5-haiku-20241022',
+        model: 'claude-haiku-4-5-20251001',
         tokens: {
           inputTokens: 1000,
           outputTokens: 500,
@@ -224,7 +224,7 @@ describe('CostTracker', () => {
 
     it('should track Anthropic response', async () => {
       const record = await tracker.trackAnthropicResponse({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         usage: {
           input_tokens: 100,
           output_tokens: 50,
@@ -238,7 +238,7 @@ describe('CostTracker', () => {
 
     it('should handle cache tokens', async () => {
       const record = await tracker.trackAnthropicResponse({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         usage: {
           input_tokens: 100,
           output_tokens: 50,
@@ -253,7 +253,7 @@ describe('CostTracker', () => {
 
     it('should handle missing usage', async () => {
       const record = await tracker.trackAnthropicResponse({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
       });
 
       expect(record.tokens.inputTokens).toBe(0);

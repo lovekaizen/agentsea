@@ -120,10 +120,9 @@ export async function initCommand(): Promise<void> {
         cloudProvider?: string;
         localProvider?: string;
       }) => {
-        if (answers.cloudProvider === 'anthropic')
-          return 'claude-sonnet-4-20250514';
-        if (answers.cloudProvider === 'openai') return 'gpt-4-turbo-preview';
-        if (answers.cloudProvider === 'gemini') return 'gemini-pro';
+        if (answers.cloudProvider === 'anthropic') return 'claude-opus-4-8';
+        if (answers.cloudProvider === 'openai') return 'gpt-5.5';
+        if (answers.cloudProvider === 'gemini') return 'gemini-3.1-pro-preview';
         if (answers.localProvider === 'ollama') return 'llama2';
         return 'local-model';
       },

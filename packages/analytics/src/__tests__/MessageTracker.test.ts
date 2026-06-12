@@ -64,14 +64,14 @@ describe('MessageTracker', () => {
         conversationId,
         'Assistant response',
         {
-          model: 'gpt-4',
+          model: 'gpt-5.5',
           tokenUsage: { input: 10, output: 15, total: 25 },
         },
       );
 
       expect(message.role).toBe('assistant');
       expect(message.content).toBe('Assistant response');
-      expect(message.model).toBe('gpt-4');
+      expect(message.model).toBe('gpt-5.5');
       expect(message.tokenUsage?.total).toBe(25);
     });
 

@@ -41,7 +41,7 @@ const crewConfig: CrewConfig = {
     {
       name: 'researcher',
       role: researcherRole,
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       provider: 'anthropic',
       tools: ['web-search'],
       temperature: 0.3,
@@ -49,7 +49,7 @@ const crewConfig: CrewConfig = {
     {
       name: 'writer',
       role: writerRole,
-      model: 'claude-sonnet-4-20250514',
+      model: 'claude-sonnet-4-6',
       provider: 'anthropic',
       tools: ['text-editor'],
       temperature: 0.7,

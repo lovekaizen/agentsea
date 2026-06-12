@@ -1,5 +1,5 @@
 // Re-export voice types from the types package for backward compatibility
-export {
+export type {
   AudioFormat,
   VoiceType,
   STTConfig,

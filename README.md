@@ -14,23 +14,28 @@ AgentSea ADK unites AI agents and services to create powerful, intelligent appli
 - 🤖 **Multi-Provider Support** - Anthropic Claude, OpenAI GPT, Google Gemini
 - 🎯 **Per-Model Type Safety** - Compile-time validation of model-specific options
 - 🏠 **Local & Open Source Models** - Ollama, LM Studio, LocalAI, Text Generation WebUI, vLLM
+- 💻 **Agentic Coding** - Interactive AI coding assistant with 13 built-in tools (file ops, git, shell, search)
 - 🎙️ **Voice Support (TTS/STT)** - OpenAI Whisper, ElevenLabs, Piper TTS, Local Whisper
 - 🔗 **MCP Protocol** - First-class Model Context Protocol integration
 - 🛒 **ACP Protocol** - Agentic Commerce Protocol for e-commerce integration
 - 🔄 **Multi-Agent Crews** - Role-based coordination with delegation strategies
 - 💬 **Conversation Schemas** - Structured conversational experiences with validation
 - 🧠 **Advanced Memory** - Episodic, semantic, and working memory with multi-agent sharing
-- 🔧 **Built-in Tools** - 8 production-ready tools + custom tool support
+- 🔧 **Built-in Tools** - 13 coding tools + 8 general tools + custom tool support
 - 🛡️ **Guardrails** - Content safety, prompt injection detection, PII filtering, and validation
 - 📊 **LLM Evaluation** - Metrics, LLM-as-Judge, human feedback, and continuous monitoring
+- 🔴 **Red Teaming** - Adversarial testing, vulnerability scanning, and compliance checking
 - 🌐 **LLM Gateway** - OpenAI-compatible API with intelligent routing, caching, and cost optimization
 - 🔍 **Embeddings** - Multi-provider embeddings with caching and quality metrics
 - 📝 **Structured Output** - TypeScript-native Zod schema enforcement for LLM responses
 - 📥 **Document Ingestion** - Flexible pipeline with parsers, chunkers, and transformers
+- 💾 **Intelligent Caching** - Exact match, semantic similarity, and streaming replay with multi-tier support
+- 📋 **Prompt Management** - Version control, A/B testing, and environment promotion for prompts
 - 🌐 **Browser Automation** - Web agents with Playwright, Puppeteer, and native backends
-- 📈 **Full Observability** - Logging, metrics, distributed tracing, and cost tracking
+- 📈 **Full Observability** - Logging, metrics, distributed tracing, cost tracking, and conversation analytics
 - 🎯 **NestJS Integration** - Decorators, modules, and dependency injection
 - 🌐 **REST API & Streaming** - HTTP endpoints, SSE streaming, WebSocket support
+- 🐛 **Agent Debugger** - Step-through execution, checkpoint replay, and what-if scenario testing
 - 🚀 **Production Ready** - Rate limiting, caching, error handling, retries
 - 📘 **TypeScript** - Fully typed with comprehensive definitions
 
@@ -381,6 +386,34 @@ const schema = new ConversationSchema({
 });
 ```
 
+### Agentic Coding
+
+Launch an interactive AI coding session with 13 built-in tools:
+
+```bash
+# Start agentic coding session
+sea code
+
+# Use a specific provider/model
+sea code --provider anthropic --model claude-sonnet-4-20250514
+
+# Verbose mode with token usage and latency
+sea code --verbose
+
+# Limit tool iterations
+sea code --maxIterations 50
+```
+
+The coding agent has access to:
+
+- **File Operations** - `file_read`, `file_write`, `file_list`
+- **Code Editing** - `code_edit` (precise search-and-replace)
+- **Search** - `glob` (pattern matching), `grep` (regex search)
+- **Shell** - `shell_execute` (with safety checks)
+- **Git** - `git_status`, `git_diff`, `git_add`, `git_commit`, `git_log`, `git_branch`
+
+[See CLI documentation →](./packages/cli)
+
 ### With CLI
 
 ```bash
@@ -392,6 +425,9 @@ sea init
 
 # Start chatting
 sea chat
+
+# Start an agentic coding session
+sea code
 
 # Run an agent
 sea agent run default "What is the capital of France?"
@@ -460,13 +496,13 @@ export class AppModule {}
 
 - **[@lov3kaizen/agentsea-memory](./packages/memory)** - Advanced memory with semantic retrieval and multi-agent support
 - **[@lov3kaizen/agentsea-embeddings](./packages/embeddings)** - Embedding providers with caching and quality metrics
-- **[@lov3kaizen/agentsea-cache](./packages/cache)** - Intelligent caching strategies for LLM responses
+- **[@lov3kaizen/agentsea-cache](./packages/cache)** - Intelligent caching with semantic similarity, streaming replay, and multi-tier support
 
 ### Data Processing
 
 - **[@lov3kaizen/agentsea-structured](./packages/structured)** - TypeScript-native structured output with Zod schema enforcement
 - **[@lov3kaizen/agentsea-ingest](./packages/ingest)** - Document ingestion pipeline with parsers and chunkers
-- **[@lov3kaizen/agentsea-prompts](./packages/prompts)** - Prompt management and templating
+- **[@lov3kaizen/agentsea-prompts](./packages/prompts)** - Prompt management with version control, A/B testing, and environment promotion
 
 ### Safety & Evaluation
 
@@ -476,13 +512,13 @@ export class AppModule {}
 
 ### Observability & Operations
 
-- **[@lov3kaizen/agentsea-analytics](./packages/analytics)** - Usage analytics and insights
-- **[@lov3kaizen/agentsea-costs](./packages/costs)** - Cost tracking and optimization
-- **[@lov3kaizen/agentsea-debugger](./packages/debugger)** - Debugging and tracing tools
+- **[@lov3kaizen/agentsea-analytics](./packages/analytics)** - Conversation analytics with intent classification, sentiment tracking, flow analysis, and KPI monitoring
+- **[@lov3kaizen/agentsea-costs](./packages/costs)** - Cost tracking with 60+ model pricing registry, budget enforcement, and Stripe billing integration
+- **[@lov3kaizen/agentsea-debugger](./packages/debugger)** - Agent debugger with step-through execution, checkpoint replay, and what-if scenario testing
 
 ### Automation
 
-- **[@lov3kaizen/agentsea-surf](./packages/surf)** - Browser automation for web agents (Puppeteer/Playwright)
+- **[@lov3kaizen/agentsea-surf](./packages/surf)** - Computer-use agent for desktop automation with screen capture, mouse/keyboard control, and browser automation
 
 ### UI
 
@@ -567,6 +603,26 @@ Model Context Protocol integration for seamless tool and resource integration.
 
 Define structured conversation flows with validation and dynamic routing.
 
+### Agentic Coding
+
+Interactive AI coding sessions with 13 built-in tools for file operations, code editing, search, shell execution, and git operations. Works with any provider.
+
+### Red Teaming
+
+Proactive security testing with adversarial attack generation, vulnerability scanning, jailbreak detection, compliance checking, and audit logging.
+
+### Prompt Management
+
+Git-like version control for prompts with environment promotion (dev/staging/prod), A/B testing, and team collaboration.
+
+### Debugger
+
+Step-through agent execution with breakpoints, checkpoint replay, what-if scenario testing, and decision tree visualization.
+
+### Analytics
+
+Conversation analytics with intent classification, sentiment analysis, topic clustering, anomaly detection, and KPI tracking.
+
 ## 📚 Documentation
 
 Full documentation available at [agentsea.dev](https://agentsea.dev)
@@ -587,6 +643,7 @@ Full documentation available at [agentsea.dev](https://agentsea.dev)
 
 ### Package Documentation
 
+- [Core - Agent Framework](./packages/core/README.md)
 - [Structured - Zod Schema Enforcement](./packages/structured/README.md)
 - [Guardrails - Safety & Validation](./packages/guardrails/README.md)
 - [Gateway - LLM Gateway](./packages/gateway/README.md)
@@ -594,8 +651,14 @@ Full documentation available at [agentsea.dev](https://agentsea.dev)
 - [Crews - Multi-Agent Orchestration](./packages/crews/README.md)
 - [Memory - Advanced Memory Systems](./packages/memory/README.md)
 - [Embeddings - Embedding Providers](./packages/embeddings/README.md)
+- [Cache - Intelligent LLM Caching](./packages/cache/README.md)
 - [Evaluate - LLM Evaluation](./packages/evaluate/README.md)
-- [Surf - Browser Automation](./packages/surf/README.md)
+- [Red Team - AI Safety Testing](./packages/redteam/README.md)
+- [Analytics - Conversation Analytics](./packages/analytics/README.md)
+- [Prompts - Prompt Management](./packages/prompts/README.md)
+- [Debugger - Agent Debugging](./packages/debugger/README.md)
+- [Costs - Cost Tracking](./packages/costs/README.md)
+- [Surf - Computer-Use Agent](./packages/surf/README.md)
 - [React - UI Components](./packages/react/README.md)
 
 ### Integrations
@@ -640,14 +703,17 @@ pnpm type-check
 
 ### ✅ Completed
 
-- [x] Multi-provider support (Claude, GPT, Gemini)
+- [x] Multi-provider support (Claude, GPT, Gemini) with 60+ models including GPT-5, GPT-4.1, o3, o4-mini
+- [x] Per-model type safety with compile-time validation of model-specific options
 - [x] Local & open source model support (Ollama, LM Studio, LocalAI, etc.)
 - [x] Voice support (TTS/STT) with multiple providers
-- [x] Command-line interface (CLI)
+- [x] Command-line interface (CLI) with interactive chat
+- [x] Agentic coding (`sea code`) with 13 built-in coding tools
 - [x] MCP protocol integration
+- [x] ACP (Agentic Commerce Protocol) with 14 commerce operations
 - [x] Multi-agent crews with role-based coordination
-- [x] Delegation strategies (round-robin, best-match, auction, hierarchical)
-- [x] Conversation schema system
+- [x] Delegation strategies (round-robin, best-match, auction, hierarchical, consensus)
+- [x] Conversation schema system with step-based flows
 - [x] Advanced memory stores (Buffer, Redis, PostgreSQL, SQLite, Pinecone)
 - [x] Memory structures (Episodic, Semantic, Working)
 - [x] Multi-agent memory sharing with access control
@@ -658,16 +724,22 @@ pnpm type-check
 - [x] Guardrails for content safety, prompt injection, and PII detection
 - [x] Content filtering and validation
 - [x] LLM evaluation metrics and LLM-as-Judge
-- [x] Human feedback collection and preference learning
+- [x] Human feedback collection and preference learning (RLHF, DPO)
 - [x] Continuous evaluation monitoring
-- [x] Red teaming and adversarial testing
-- [x] Embeddings with multi-provider support
+- [x] Red teaming and adversarial testing with compliance checking
+- [x] Embeddings with multi-provider support (OpenAI, Cohere, Voyage, HuggingFace)
+- [x] Intelligent caching with semantic similarity, streaming replay, and multi-tier support
+- [x] Prompt management with version control, A/B testing, and environment promotion
+- [x] Computer-use agent (desktop automation with screen capture, mouse/keyboard control)
 - [x] Browser automation (Playwright, Puppeteer, native)
-- [x] Built-in tools (8 tools + custom support)
+- [x] Agent debugger with step-through execution, checkpoint replay, and what-if testing
+- [x] Conversation analytics with intent classification, sentiment, and topic clustering
+- [x] Built-in tools (13 coding tools + 8 general tools + custom support)
 - [x] Observability (logging, metrics, tracing)
-- [x] Cost tracking and analytics
+- [x] Cost tracking with 60+ model pricing registry and budget enforcement
 - [x] NestJS integration for all packages
 - [x] React components for agent interfaces
+- [x] Multi-tenancy support
 - [x] Rate limiting and caching
 - [x] Comprehensive test suite
 - [x] TypeScript definitions with strict type safety
@@ -677,7 +749,7 @@ pnpm type-check
 
 - [ ] Admin UI dashboard improvements
 - [ ] Additional MCP tools/servers
-- [ ] Enhanced computer use agent capabilities
+- [ ] Enhanced computer-use agent capabilities
 
 ## 🤝 Contributing
 

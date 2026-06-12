@@ -144,7 +144,7 @@ async function middlewareExample() {
   // Create the base agent
   const agent = new Agent({
     name: 'research-assistant',
-    model: 'claude-3-sonnet-20240229',
+    model: 'claude-sonnet-4-6',
     systemPrompt: 'You are a helpful research assistant.',
     tools: [searchTool, calculatorTool],
   });
@@ -230,7 +230,7 @@ async function guardedAgentExample() {
   // Create the base agent
   const baseAgent = new Agent({
     name: 'customer-service',
-    model: 'claude-3-sonnet-20240229',
+    model: 'claude-sonnet-4-6',
     systemPrompt: 'You are a customer service representative.',
     tools: [searchTool],
   });

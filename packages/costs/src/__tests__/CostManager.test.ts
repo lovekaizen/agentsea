@@ -110,7 +110,7 @@ describe('CostManager', () => {
 
     it('should track Anthropic response', async () => {
       const record = await manager.trackAnthropicResponse({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
         usage: {
           input_tokens: 100,
           output_tokens: 50,
@@ -367,7 +367,7 @@ describe('CostManager', () => {
         },
         {
           dimension: 'model',
-          value: 'claude-3-5-sonnet-20241022',
+          value: 'claude-sonnet-4-6',
           totalCost: 66,
           totalTokens: 800,
           requestCount: 8,

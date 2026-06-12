@@ -20,6 +20,14 @@ import { percentile, mean } from '../core/utils.js';
  * Default model pricing (per 1K tokens)
  */
 const DEFAULT_MODEL_PRICING: Record<string, ModelPricing> = {
+  'gpt-5.5': { inputPer1K: 0.005, outputPer1K: 0.03 },
+  'gpt-5.4-mini': { inputPer1K: 0.00075, outputPer1K: 0.0045 },
+  'claude-opus-4-8': { inputPer1K: 0.005, outputPer1K: 0.025 },
+  'claude-sonnet-4-6': { inputPer1K: 0.003, outputPer1K: 0.015 },
+  'claude-haiku-4-5': { inputPer1K: 0.001, outputPer1K: 0.005 },
+  'gemini-3.1-pro-preview': { inputPer1K: 0.002, outputPer1K: 0.012 },
+  'gemini-3.5-flash': { inputPer1K: 0.0015, outputPer1K: 0.009 },
+  // Legacy/retired models — kept so cached historical entries still price
   'gpt-4o': { inputPer1K: 0.0025, outputPer1K: 0.01 },
   'gpt-4o-mini': { inputPer1K: 0.00015, outputPer1K: 0.0006 },
   'gpt-4-turbo': { inputPer1K: 0.01, outputPer1K: 0.03 },

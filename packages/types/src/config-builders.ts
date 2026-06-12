@@ -6,8 +6,8 @@
  *
  * @example
  * ```ts
- * // ✅ Valid: Claude 3.5 Sonnet supports tools
- * const config = anthropic('claude-3-5-sonnet-20241022', {
+ * // ✅ Valid: Claude Opus 4.8 supports tools
+ * const config = anthropic('claude-opus-4-8', {
  *   tools: [myTool],
  *   systemPrompt: 'You are helpful',
  * });
@@ -120,16 +120,17 @@ export interface AnthropicConfig<TModel extends AnthropicModel> {
  *
  * @example
  * ```ts
- * // Claude 3.5 Sonnet - supports tools, system prompts, extended thinking
- * const config = anthropic('claude-3-5-sonnet-20241022', {
+ * // Claude Opus 4.8 (recommended default) - supports tools and system prompts.
+ * // Note: temperature/top_p and budget_tokens-style thinking are removed at
+ * // the API level on claude-fable-5, claude-opus-4-8, and claude-opus-4-7.
+ * const config = anthropic('claude-opus-4-8', {
  *   tools: [calculatorTool],
  *   systemPrompt: 'You are a helpful assistant',
- *   thinking: { type: 'enabled', budgetTokens: 10000 },
- *   temperature: 0.7,
  * });
  *
- * // Claude 3 Haiku - supports tools and system prompts but NOT extended thinking
- * const config = anthropic('claude-3-haiku-20240307', {
+ * // Claude Haiku 4.5 - fast/cheap; supports tools and system prompts
+ * // but NOT extended thinking
+ * const config = anthropic('claude-haiku-4-5-20251001', {
  *   tools: [calculatorTool],
  *   systemPrompt: 'You are helpful',
  *   // thinking: { ... } // ❌ Would be a TypeScript error

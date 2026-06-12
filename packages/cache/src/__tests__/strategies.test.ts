@@ -21,11 +21,11 @@ function createTestEntry(overrides: Partial<CacheEntry> = {}): CacheEntry {
     key: 'test-key',
     request: {
       messages: [{ role: 'user', content: 'test message' }],
-      model: 'gpt-4',
+      model: 'gpt-5.5',
     },
     response: {
       content: 'test response',
-      model: 'gpt-4',
+      model: 'gpt-5.5',
       finishReason: 'stop',
     },
     metadata: {
@@ -50,7 +50,7 @@ describe('ExactMatchStrategy', () => {
   it('returns hit for exact key match', async () => {
     // Create an entry and compute its key properly
     const messages = [{ role: 'user' as const, content: 'hello world' }];
-    const model = 'gpt-4';
+    const model = 'gpt-5.5';
     const key = generateCacheKey(model, messages);
 
     const entry = createTestEntry({
@@ -75,7 +75,7 @@ describe('ExactMatchStrategy', () => {
   it('returns miss for non-existent key', async () => {
     const request: MatchRequest = {
       messages: [{ role: 'user', content: 'test message' }],
-      model: 'gpt-4',
+      model: 'gpt-5.5',
     };
 
     const result = await strategy.match(request, store);
@@ -87,7 +87,7 @@ describe('ExactMatchStrategy', () => {
 
   it('generates consistent keys', async () => {
     const messages = [{ role: 'user' as const, content: 'same message' }];
-    const model = 'gpt-4';
+    const model = 'gpt-5.5';
     const key = generateCacheKey(model, messages);
 
     const entry = createTestEntry({
@@ -112,7 +112,7 @@ describe('ExactMatchStrategy', () => {
 
   it('normalizes whitespace by default', async () => {
     const messages = [{ role: 'user' as const, content: 'hello world' }];
-    const model = 'gpt-4';
+    const model = 'gpt-5.5';
     const key = generateCacheKey(model, messages, {
       normalizeWhitespace: true,
     });
@@ -182,7 +182,7 @@ describe('SemanticMatchStrategy', () => {
 
     const request: MatchRequest = {
       messages: [{ role: 'user', content: 'test' }],
-      model: 'gpt-4',
+      model: 'gpt-5.5',
     };
 
     const result = await strategy.match(request, store);
@@ -198,14 +198,14 @@ describe('SemanticMatchStrategy', () => {
       embedding,
       request: {
         messages: [{ role: 'user', content: 'hello' }],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
       },
     });
     await store.set('key-1', entry);
 
     const request: MatchRequest = {
       messages: [{ role: 'user', content: 'hello' }],
-      model: 'gpt-4',
+      model: 'gpt-5.5',
     };
 
     // Mock embed to return similar embedding
@@ -224,14 +224,14 @@ describe('SemanticMatchStrategy', () => {
       embedding,
       request: {
         messages: [{ role: 'user', content: 'hello' }],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
       },
     });
     await store.set('key-1', entry);
 
     const request: MatchRequest = {
       messages: [{ role: 'user', content: 'completely different' }],
-      model: 'gpt-4',
+      model: 'gpt-5.5',
     };
 
     // Return orthogonal embedding
@@ -252,7 +252,7 @@ describe('SemanticMatchStrategy', () => {
 
     const request: MatchRequest = {
       messages: [{ role: 'user', content: 'test message' }],
-      model: 'gpt-4',
+      model: 'gpt-5.5',
     };
 
     mockSimilarityEngine.embed = vi.fn().mockResolvedValue(embedding);
@@ -271,7 +271,7 @@ describe('SemanticMatchStrategy', () => {
       embedding,
       request: {
         messages: [{ role: 'user', content: 'hello' }],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
       },
     });
     await store.set('key-1', entry);
@@ -283,7 +283,7 @@ describe('SemanticMatchStrategy', () => {
 
     const request: MatchRequest = {
       messages: [{ role: 'user', content: 'hello world' }],
-      model: 'gpt-4',
+      model: 'gpt-5.5',
     };
 
     const result = await strategyStrict.match(
@@ -320,7 +320,7 @@ describe('HybridMatchStrategy', () => {
 
   it('returns exact match if available', async () => {
     const messages = [{ role: 'user' as const, content: 'exact query' }];
-    const model = 'gpt-4';
+    const model = 'gpt-5.5';
     const key = generateCacheKey(model, messages);
 
     const entry = createTestEntry({
@@ -348,14 +348,14 @@ describe('HybridMatchStrategy', () => {
       embedding,
       request: {
         messages: [{ role: 'user', content: 'stored query' }],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
       },
     });
     await store.set('other-key', entry);
 
     const request: MatchRequest = {
       messages: [{ role: 'user', content: 'similar query' }],
-      model: 'gpt-4',
+      model: 'gpt-5.5',
     };
 
     mockSimilarityEngine.embed = vi.fn().mockResolvedValue(embedding);
@@ -369,7 +369,7 @@ describe('HybridMatchStrategy', () => {
   it('returns miss if both strategies miss', async () => {
     const request: MatchRequest = {
       messages: [{ role: 'user', content: 'test' }],
-      model: 'gpt-4',
+      model: 'gpt-5.5',
     };
 
     // Return embedding that won't match anything
@@ -395,14 +395,14 @@ describe('HybridMatchStrategy', () => {
       embedding,
       request: {
         messages: [{ role: 'user', content: 'stored' }],
-        model: 'gpt-4',
+        model: 'gpt-5.5',
       },
     });
     await store.set('key-1', entry);
 
     const request: MatchRequest = {
       messages: [{ role: 'user', content: 'similar' }],
-      model: 'gpt-4',
+      model: 'gpt-5.5',
     };
 
     mockSimilarityEngine.embed = vi.fn().mockResolvedValue(embedding);
@@ -420,7 +420,7 @@ describe('HybridMatchStrategy', () => {
   it('tracks latency', async () => {
     const request: MatchRequest = {
       messages: [{ role: 'user', content: 'test' }],
-      model: 'gpt-4',
+      model: 'gpt-5.5',
     };
 
     const result = await strategy.match(request, store);

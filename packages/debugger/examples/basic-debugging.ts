@@ -21,7 +21,7 @@ function main() {
   const agent = {
     id: 'demo-agent',
     name: 'Demo Agent',
-    model: 'gpt-4',
+    model: 'gpt-5.5',
   };
 
   // Attach debugger to agent

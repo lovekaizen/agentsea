@@ -49,7 +49,7 @@ const cache = new SemanticCache(
 // Wrap your LLM call
 const response = await cache.wrap(
   {
-    model: 'gpt-4o',
+    model: 'gpt-5.5',
     messages: [{ role: 'user', content: 'What is the capital of France?' }],
   },
   async (request) => {
@@ -99,7 +99,7 @@ const cache = new SemanticCache(
 // Similar queries will hit cache
 const response1 = await cache.wrap(
   {
-    model: 'gpt-4o',
+    model: 'gpt-5.5',
     messages: [{ role: 'user', content: 'What is the capital of France?' }],
   },
   llmCall,
@@ -108,7 +108,7 @@ const response1 = await cache.wrap(
 // This will hit cache due to semantic similarity!
 const response2 = await cache.wrap(
   {
-    model: 'gpt-4o',
+    model: 'gpt-5.5',
     messages: [{ role: 'user', content: "What's France's capital city?" }],
   },
   llmCall,
@@ -251,7 +251,7 @@ const streamCache = new StreamCache(store, {
 });
 
 // Wrap streaming calls
-const stream = streamCache.wrapStream('gpt-4o', messages, async function* () {
+const stream = streamCache.wrapStream('gpt-5.5', messages, async function* () {
   for await (const chunk of llm.stream(request)) {
     yield chunk;
   }
@@ -280,7 +280,7 @@ const cachedProvider = new CachedProvider({
 
 // Uses cache transparently
 const response = await cachedProvider.complete({
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-sonnet-4-6',
   messages: [{ role: 'user', content: 'Hello' }],
 });
 ```

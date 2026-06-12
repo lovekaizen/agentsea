@@ -211,6 +211,10 @@ export class OpenAICompatibleProvider implements LLMProvider {
     const choice = rawResponse.choices[0];
     if (choice?.message.tool_calls) {
       for (const toolCall of choice.message.tool_calls) {
+        // openai v6: tool_calls is a union of function and custom tool calls
+        if (toolCall.type !== 'function') {
+          continue;
+        }
         toolCalls.push({
           id: toolCall.id,
           tool: toolCall.function.name,

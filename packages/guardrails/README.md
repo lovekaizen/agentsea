@@ -464,7 +464,7 @@ import { streamText } from 'ai';
 import { guardrailsMiddleware } from '@lov3kaizen/agentsea-guardrails/vercel-ai';
 
 const result = await streamText({
-  model: anthropic('claude-3-5-sonnet'),
+  model: anthropic('claude-sonnet-4-6'),
   prompt: userInput,
   experimental_transform: guardrailsMiddleware(guardrailsConfig),
 });

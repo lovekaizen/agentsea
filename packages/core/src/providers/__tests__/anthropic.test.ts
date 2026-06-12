@@ -42,7 +42,7 @@ describe('AnthropicProvider', () => {
     const messages: Message[] = [{ role: 'user', content: 'Hello' }];
 
     const config: ProviderConfig = {
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-6',
       maxTokens: 1024,
       temperature: 0.7,
     };
@@ -165,7 +165,7 @@ describe('AnthropicProvider', () => {
 
       expect(mockClient.messages.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          max_tokens: 1024,
+          max_tokens: 16000,
         }),
       );
     });
@@ -183,7 +183,7 @@ describe('AnthropicProvider', () => {
     const messages: Message[] = [{ role: 'user', content: 'Hello' }];
 
     const config: ProviderConfig = {
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-sonnet-4-6',
       maxTokens: 1024,
     };
 
@@ -356,7 +356,7 @@ describe('AnthropicProvider', () => {
       mockClient.messages.create.mockResolvedValue(mockResponse);
 
       await provider.generateResponse(messages, {
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
       });
 
       const callArgs = mockClient.messages.create.mock.calls[0][0];
@@ -380,7 +380,7 @@ describe('AnthropicProvider', () => {
       mockClient.messages.create.mockResolvedValue(mockResponse);
 
       await provider.generateResponse(messages, {
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-sonnet-4-6',
       });
 
       const callArgs = mockClient.messages.create.mock.calls[0][0];

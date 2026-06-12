@@ -14,7 +14,7 @@ function createTestMessages(content: string): CacheMessage[] {
 function createMockResponse(content: string) {
   return {
     content,
-    model: 'gpt-4',
+    model: 'gpt-5.5',
     usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
     finishReason: 'stop',
   };
@@ -42,7 +42,7 @@ describe('SemanticCache', () => {
       let callCount = 0;
 
       const response = await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => {
           callCount++;
           return createMockResponse('Hi there!');
@@ -55,7 +55,7 @@ describe('SemanticCache', () => {
 
       // Second call should hit cache
       const response2 = await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => {
           callCount++;
           return createMockResponse('Different response');
@@ -71,7 +71,7 @@ describe('SemanticCache', () => {
       let callCount = 0;
 
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => {
           callCount++;
           return createMockResponse('Response 1');
@@ -79,7 +79,7 @@ describe('SemanticCache', () => {
       );
 
       const response = await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => {
           callCount++;
           return createMockResponse('Response 2');
@@ -95,7 +95,7 @@ describe('SemanticCache', () => {
       let callCount = 0;
 
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => {
           callCount++;
           return createMockResponse(`Response ${callCount}`);
@@ -103,7 +103,7 @@ describe('SemanticCache', () => {
       );
 
       const response = await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => {
           callCount++;
           return createMockResponse(`Response ${callCount}`);
@@ -119,7 +119,7 @@ describe('SemanticCache', () => {
       let callCount = 0;
 
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => {
           callCount++;
           return createMockResponse('GPT-4 response');
@@ -127,7 +127,7 @@ describe('SemanticCache', () => {
       );
 
       const response = await cache.wrap(
-        { model: 'gpt-3.5-turbo', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.4-mini', messages: createTestMessages('Hello') },
         async () => {
           callCount++;
           return createMockResponse('GPT-3.5 response');
@@ -142,7 +142,7 @@ describe('SemanticCache', () => {
       let callCount = 0;
 
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => {
           callCount++;
           return createMockResponse('Response to Hello');
@@ -150,7 +150,7 @@ describe('SemanticCache', () => {
       );
 
       const response = await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Goodbye') },
+        { model: 'gpt-5.5', messages: createTestMessages('Goodbye') },
         async () => {
           callCount++;
           return createMockResponse('Response to Goodbye');
@@ -165,12 +165,12 @@ describe('SemanticCache', () => {
   describe('get/set', () => {
     it('should get and set entries directly', async () => {
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Test') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test') },
         createMockResponse('Cached response'),
       );
 
       const result = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Test'),
       });
 
@@ -181,7 +181,7 @@ describe('SemanticCache', () => {
 
     it('should return miss for non-existent keys', async () => {
       const result = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Non-existent'),
       });
 
@@ -193,13 +193,13 @@ describe('SemanticCache', () => {
   describe('delete', () => {
     it('should delete entries', async () => {
       const response = await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Delete me') },
+        { model: 'gpt-5.5', messages: createTestMessages('Delete me') },
         async () => createMockResponse('To be deleted'),
       );
 
       // Get the key that was used
       const result = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Delete me'),
       });
 
@@ -211,7 +211,7 @@ describe('SemanticCache', () => {
 
       // Verify it's gone
       const afterDelete = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Delete me'),
       });
       expect(afterDelete.hit).toBe(false);
@@ -221,23 +221,23 @@ describe('SemanticCache', () => {
   describe('clear', () => {
     it('should clear all entries', async () => {
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Entry 1') },
+        { model: 'gpt-5.5', messages: createTestMessages('Entry 1') },
         async () => createMockResponse('Response 1'),
       );
 
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Entry 2') },
+        { model: 'gpt-5.5', messages: createTestMessages('Entry 2') },
         async () => createMockResponse('Response 2'),
       );
 
       await cache.clear();
 
       const result1 = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Entry 1'),
       });
       const result2 = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Entry 2'),
       });
 
@@ -250,7 +250,7 @@ describe('SemanticCache', () => {
     it('should track hit/miss statistics', async () => {
       // First call = miss
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Response'),
       );
 
@@ -260,7 +260,7 @@ describe('SemanticCache', () => {
 
       // Second call = hit
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Different'),
       );
 
@@ -273,13 +273,13 @@ describe('SemanticCache', () => {
 
     it('should track tokens saved', async () => {
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Response'),
       );
 
       // Hit the cache
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Different'),
       );
 
@@ -291,31 +291,31 @@ describe('SemanticCache', () => {
   describe('invalidation', () => {
     it('should invalidate by pattern', async () => {
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Test 1') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test 1') },
         async () => createMockResponse('Response 1'),
       );
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Test 2') },
+        { model: 'gpt-5.5', messages: createTestMessages('Test 2') },
         async () => createMockResponse('Response 2'),
       );
       await cache.wrap(
-        { model: 'gpt-3.5', messages: createTestMessages('Other') },
+        { model: 'gpt-5.4-mini', messages: createTestMessages('Other') },
         async () => createMockResponse('Response 3'),
       );
 
-      const invalidated = await cache.invalidateByPattern(/gpt-4/);
+      const invalidated = await cache.invalidateByPattern(/gpt-5.5/);
       expect(invalidated).toBe(2);
 
       // GPT-4 entries should be gone
       const result1 = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Test 1'),
       });
       expect(result1.hit).toBe(false);
 
       // GPT-3.5 entry should still exist
       const result2 = await cache.get({
-        model: 'gpt-3.5',
+        model: 'gpt-5.4-mini',
         messages: createTestMessages('Other'),
       });
       expect(result2.hit).toBe(true);
@@ -323,13 +323,13 @@ describe('SemanticCache', () => {
 
     it('should invalidate by tags', async () => {
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Tagged') },
+        { model: 'gpt-5.5', messages: createTestMessages('Tagged') },
         createMockResponse('Response'),
         { tags: ['important', 'test'] },
       );
 
       await cache.set(
-        { model: 'gpt-4', messages: createTestMessages('Untagged') },
+        { model: 'gpt-5.5', messages: createTestMessages('Untagged') },
         createMockResponse('Response'),
       );
 
@@ -338,14 +338,14 @@ describe('SemanticCache', () => {
 
       // Tagged entry should be gone
       const result1 = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Tagged'),
       });
       expect(result1.hit).toBe(false);
 
       // Untagged entry should still exist
       const result2 = await cache.get({
-        model: 'gpt-4',
+        model: 'gpt-5.5',
         messages: createTestMessages('Untagged'),
       });
       expect(result2.hit).toBe(true);
@@ -361,12 +361,12 @@ describe('SemanticCache', () => {
       });
 
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Response'),
       );
 
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Different'),
       );
 
@@ -382,12 +382,12 @@ describe('SemanticCache', () => {
       });
 
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Response'),
       );
 
       expect(missKey).not.toBeNull();
-      expect(missKey).toContain('cache:gpt-4:');
+      expect(missKey).toContain('cache:gpt-5.5:');
     });
 
     it('should emit set events', async () => {
@@ -398,7 +398,7 @@ describe('SemanticCache', () => {
       });
 
       await cache.wrap(
-        { model: 'gpt-4', messages: createTestMessages('Hello') },
+        { model: 'gpt-5.5', messages: createTestMessages('Hello') },
         async () => createMockResponse('Response'),
       );
 

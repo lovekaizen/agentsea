@@ -14,7 +14,7 @@ import type {
 const createMockState = (): AgentState => ({
   agentId: 'test-agent',
   agentName: 'Test Agent',
-  model: 'gpt-4',
+  model: 'gpt-5.5',
   memory: { size: 0 },
   context: {},
   tools: [],
@@ -427,10 +427,10 @@ describe('StateRestorer', () => {
 
   describe('create minimal state', () => {
     it('should create minimal valid state', () => {
-      const state = restorer.createMinimalState('agent-1', 'Agent', 'gpt-4');
+      const state = restorer.createMinimalState('agent-1', 'Agent', 'gpt-5.5');
       expect(state.agentId).toBe('agent-1');
       expect(state.agentName).toBe('Agent');
-      expect(state.model).toBe('gpt-4');
+      expect(state.model).toBe('gpt-5.5');
       const validation = restorer.validate(state);
       expect(validation.valid).toBe(true);
     });

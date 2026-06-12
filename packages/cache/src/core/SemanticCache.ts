@@ -91,7 +91,7 @@ export interface CacheResponseInput {
  *
  * // Wrap an LLM call
  * const response = await cache.wrap(
- *   { model: 'gpt-4', messages: [{ role: 'user', content: 'Hello' }] },
+ *   { model: 'gpt-5.5', messages: [{ role: 'user', content: 'Hello' }] },
  *   async (req) => llm.chat(req)
  * );
  * ```

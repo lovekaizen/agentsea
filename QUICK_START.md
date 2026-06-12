@@ -123,7 +123,36 @@ console.log('Response:', result.response.content);
 writeFileSync('./response.mp3', result.audio!);
 ```
 
-### 4. Using CLI
+### 4. Agentic Coding
+
+```typescript
+// The CLI provides an interactive coding session with 13 built-in tools
+// Launch it with: sea code
+```
+
+```bash
+# Start agentic coding session (uses default agent)
+sea code
+
+# Use a specific model
+sea code --provider anthropic --model claude-sonnet-4-20250514
+
+# Verbose mode (shows tool calls, token usage, latency)
+sea code --verbose
+
+# Limit max tool iterations
+sea code --maxIterations 50
+```
+
+**Built-in Coding Tools:**
+
+- `file_read` / `file_write` / `file_list` - File operations
+- `code_edit` - Precise search-and-replace editing
+- `glob` / `grep` - File and content search
+- `shell_execute` - Shell command execution
+- `git_status` / `git_diff` / `git_add` / `git_commit` / `git_log` / `git_branch` - Git operations
+
+### 5. Using CLI
 
 ```bash
 # Initialize configuration
@@ -131,6 +160,9 @@ agentsea init
 
 # Start interactive chat
 agentsea chat
+
+# Start agentic coding session
+agentsea code
 
 # Create an agent
 agentsea agent create my-agent \
@@ -147,7 +179,7 @@ agentsea model pull llama2
 agentsea model list
 ```
 
-### 5. REST API & Streaming with NestJS
+### 6. REST API & Streaming with NestJS
 
 ```typescript
 import { Module } from '@nestjs/common';
@@ -447,11 +479,11 @@ ffmpeg -i input.m4a -ar 16000 output.wav
 
 ## What's Included?
 
-✅ **12 LLM Providers**
+✅ **60+ LLM Models Supported**
 
-- 3 Cloud providers (Claude, GPT, Gemini)
-- 6 Local providers (Ollama, LM Studio, etc.)
-- 3 OpenAI-compatible providers
+- 3 Cloud providers (Claude, GPT, Gemini) with latest models (GPT-5, GPT-4.1, o3, o4-mini, Claude Opus 4.6)
+- 6 Local providers (Ollama, LM Studio, LocalAI, Text Generation WebUI, vLLM, custom)
+- Per-model type safety with compile-time validation
 
 ✅ **5 Voice Providers**
 
@@ -461,17 +493,23 @@ ffmpeg -i input.m4a -ar 16000 output.wav
 ✅ **Complete CLI Tool**
 
 - Interactive setup and chat
+- Agentic coding with 13 built-in tools (`sea code`)
 - Agent and provider management
 - Model management (Ollama)
 
-✅ **Full-Featured ADK**
+✅ **21-Package ADK**
 
-- Multi-agent workflows
-- Memory management
-- Tool system
-- MCP protocol
-- Observability
+- Multi-agent crews with delegation strategies
+- Advanced memory with semantic retrieval
+- Intelligent caching with streaming replay
+- Guardrails, evaluation, and red teaming
+- Prompt management with version control
+- Agent debugger with replay
+- Conversation analytics
+- Cost tracking with budget enforcement
+- MCP and ACP protocol integration
 - NestJS integration
+- React components
 
 ---
 

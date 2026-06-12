@@ -187,7 +187,7 @@ it('should handle POST request', async () => {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       messages: [{ role: 'user', content: 'Hello' }],
     }),
   });
@@ -375,7 +375,7 @@ describe('MetricsCollector', () => {
     // Arrange
     const requestData = {
       provider: 'openai',
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       status: 'success' as const,
       latencyMs: 150,
       inputTokens: 100,
@@ -441,7 +441,7 @@ it('should handle validation errors', async () => {
   // Act
   const res = await app.request('/v1/chat/completions', {
     method: 'POST',
-    body: JSON.stringify({ model: 'gpt-4o', messages: [] }),
+    body: JSON.stringify({ model: 'gpt-5.5', messages: [] }),
   });
 
   // Assert

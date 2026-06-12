@@ -227,7 +227,7 @@ export function createCustomerSupportCrewConfig(
         ...tier1AgentRole,
         systemPrompt: tier1AgentRole.systemPrompt + contextAddition,
       },
-      model: options.model ?? 'claude-sonnet-4-20250514',
+      model: options.model ?? 'claude-opus-4-8',
       provider: options.provider ?? 'anthropic',
       tools: ['knowledge-base', 'ticket-system', ...(options.tools ?? [])],
       temperature: 0.4,
@@ -241,7 +241,7 @@ export function createCustomerSupportCrewConfig(
         ...specialistRole,
         systemPrompt: specialistRole.systemPrompt + contextAddition,
       },
-      model: options.model ?? 'claude-sonnet-4-20250514',
+      model: options.model ?? 'claude-opus-4-8',
       provider: options.provider ?? 'anthropic',
       tools: [
         'diagnostic-tools',
@@ -260,7 +260,7 @@ export function createCustomerSupportCrewConfig(
         ...escalationManagerRole,
         systemPrompt: escalationManagerRole.systemPrompt + contextAddition,
       },
-      model: options.model ?? 'claude-sonnet-4-20250514',
+      model: options.model ?? 'claude-opus-4-8',
       provider: options.provider ?? 'anthropic',
       tools: [
         'crm',

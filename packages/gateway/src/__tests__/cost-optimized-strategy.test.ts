@@ -170,13 +170,13 @@ describe('CostOptimizedStrategy', () => {
       strategy = new CostOptimizedStrategy({ qualityThreshold: 0.8 });
 
       registry.register(
-        new MockProvider('cheap-lowq', ['gpt-3.5-turbo'], {
+        new MockProvider('cheap-lowq', ['gemini-3.1-flash-lite'], {
           inputPrice: 0.1,
           outputPrice: 0.2,
         }),
       );
       registry.register(
-        new MockProvider('expensive-highq', ['gpt-4o'], {
+        new MockProvider('expensive-highq', ['gpt-5.5'], {
           inputPrice: 5,
           outputPrice: 15,
         }),
@@ -225,7 +225,7 @@ describe('CostOptimizedStrategy', () => {
         }),
       );
       registry.register(
-        new MockProvider('openai', ['gpt-4o'], {
+        new MockProvider('openai', ['gpt-5.5'], {
           inputPrice: 5,
           outputPrice: 15,
           isLocal: false,
@@ -500,13 +500,13 @@ describe('CostOptimizedStrategy', () => {
   describe('model-specific behavior', () => {
     it('should handle known model quality scores', () => {
       registry.register(
-        new MockProvider('openai', ['gpt-4o'], {
+        new MockProvider('openai', ['gpt-5.5'], {
           inputPrice: 5,
           outputPrice: 15,
         }),
       );
       registry.register(
-        new MockProvider('google', ['gemini-1.5-flash'], {
+        new MockProvider('google', ['gemini-3.5-flash'], {
           inputPrice: 0.1,
           outputPrice: 0.2,
         }),

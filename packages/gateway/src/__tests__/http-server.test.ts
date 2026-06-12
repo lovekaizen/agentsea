@@ -13,7 +13,7 @@ const createMockGateway = () => {
     id: 'test-123',
     object: 'chat.completion',
     created: Date.now(),
-    model: 'gpt-4o',
+    model: 'gpt-5.5',
     choices: [
       {
         index: 0,
@@ -35,14 +35,14 @@ const createMockGateway = () => {
       id: 'test-stream-123',
       object: 'chat.completion.chunk',
       created: Date.now(),
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       choices: [{ index: 0, delta: { content: 'Hello' }, finish_reason: null }],
     };
     yield {
       id: 'test-stream-123',
       object: 'chat.completion.chunk',
       created: Date.now(),
-      model: 'gpt-4o',
+      model: 'gpt-5.5',
       choices: [{ index: 0, delta: {}, finish_reason: 'stop' }],
       usage: { prompt_tokens: 10, completion_tokens: 5, total_tokens: 15 },
     };
@@ -72,13 +72,13 @@ const createMockGateway = () => {
       cost: {
         total: 0.05,
         byProvider: { openai: 0.03, anthropic: 0.02 },
-        byModel: { 'gpt-4o': 0.03, 'claude-3-5-sonnet-20241022': 0.02 },
+        byModel: { 'gpt-5.5': 0.03, 'claude-sonnet-4-6': 0.02 },
       },
       cache: { hits: 3, misses: 7, hitRate: 0.3 },
       providers: {},
     } as GatewayMetrics),
     getRegistry: vi.fn().mockReturnValue({
-      getAllModels: () => ['gpt-4o', 'claude-3-5-sonnet-20241022'],
+      getAllModels: () => ['gpt-5.5', 'claude-sonnet-4-6'],
       getModelInfo: (model: string) => ({
         id: model,
         provider: model.startsWith('gpt') ? 'openai' : 'anthropic',
@@ -250,7 +250,7 @@ describe('createHTTPServer', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           messages: [{ role: 'user', content: 'Hello' }],
         }),
       });
@@ -270,7 +270,7 @@ describe('createHTTPServer', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           messages: [{ role: 'user', content: 'Hello' }],
           stream: true,
         }),
@@ -294,7 +294,7 @@ describe('createHTTPServer', () => {
           'X-Request-Id': 'custom-id-123',
         },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           messages: [{ role: 'user', content: 'Hello' }],
         }),
       });
@@ -322,7 +322,7 @@ describe('createHTTPServer', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           messages: [],
         }),
       });
@@ -349,7 +349,7 @@ describe('createHTTPServer', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           messages: [{ role: 'user', content: 'Hello' }],
         }),
       });
@@ -370,7 +370,7 @@ describe('createHTTPServer', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           messages: [{ role: 'user', content: 'Hello' }],
         }),
       });
@@ -390,7 +390,7 @@ describe('createHTTPServer', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           messages: [{ role: 'user', content: 'Hello' }],
         }),
       });
@@ -407,7 +407,7 @@ describe('createHTTPServer', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           prompt: 'Hello',
         }),
       });
@@ -447,7 +447,7 @@ describe('createHTTPServer', () => {
           id: 'test',
           object: 'chat.completion.chunk',
           created: Date.now(),
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           choices: [
             { index: 0, delta: { content: 'Hello' }, finish_reason: null },
           ],
@@ -470,7 +470,7 @@ describe('createHTTPServer', () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          model: 'gpt-4o',
+          model: 'gpt-5.5',
           messages: [{ role: 'user', content: 'Hello' }],
           stream: true,
         }),

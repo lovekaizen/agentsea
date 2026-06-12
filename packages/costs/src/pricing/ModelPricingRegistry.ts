@@ -13,21 +13,112 @@ import type {
 } from '../types/index.js';
 
 /**
- * Default pricing data (as of late 2024)
+ * Default pricing data (as of June 2026)
  * Prices are per 1M tokens in USD
  */
 const DEFAULT_PRICING: ModelPricing[] = [
   // ---- Anthropic Models ----
+  // Claude Fable 5 — most capable model. Adaptive thinking + effort param;
+  // no budget_tokens extended thinking, no assistant prefill;
+  // temperature/top_p removed at the API level.
+  {
+    model: 'claude-fable-5',
+    provider: 'anthropic',
+    displayName: 'Claude Fable 5',
+    inputPricePerMillion: 10.0,
+    outputPricePerMillion: 50.0,
+    cacheReadPricePerMillion: 1.0,
+    cacheWritePricePerMillion: 12.5,
+    contextWindow: 1000000,
+    maxOutputTokens: 128000,
+    currency: 'USD',
+    capabilities: {
+      vision: true,
+      functionCalling: true,
+      streaming: true,
+      jsonMode: true,
+      systemMessage: true,
+      extendedThinking: true,
+    },
+  },
+  // Claude Opus 4.8 — recommended default. Adaptive thinking + effort param;
+  // no budget_tokens extended thinking, no assistant prefill;
+  // temperature/top_p removed at the API level.
+  {
+    model: 'claude-opus-4-8',
+    provider: 'anthropic',
+    displayName: 'Claude Opus 4.8',
+    inputPricePerMillion: 5.0,
+    outputPricePerMillion: 25.0,
+    cacheReadPricePerMillion: 0.5,
+    cacheWritePricePerMillion: 6.25,
+    contextWindow: 1000000,
+    maxOutputTokens: 128000,
+    currency: 'USD',
+    capabilities: {
+      vision: true,
+      functionCalling: true,
+      streaming: true,
+      jsonMode: true,
+      systemMessage: true,
+      extendedThinking: true,
+    },
+  },
+  // Claude Opus 4.7 — previous-generation Opus. Adaptive thinking + effort
+  // param; no budget_tokens extended thinking, no assistant prefill;
+  // temperature/top_p removed at the API level.
+  {
+    model: 'claude-opus-4-7',
+    provider: 'anthropic',
+    displayName: 'Claude Opus 4.7',
+    inputPricePerMillion: 5.0,
+    outputPricePerMillion: 25.0,
+    cacheReadPricePerMillion: 0.5,
+    cacheWritePricePerMillion: 6.25,
+    contextWindow: 1000000,
+    maxOutputTokens: 128000,
+    currency: 'USD',
+    capabilities: {
+      vision: true,
+      functionCalling: true,
+      streaming: true,
+      jsonMode: true,
+      systemMessage: true,
+      extendedThinking: true,
+    },
+  },
+  // Claude Sonnet 4.6 — best speed/intelligence balance. Adaptive thinking +
+  // effort param; no budget_tokens extended thinking, no assistant prefill.
+  {
+    model: 'claude-sonnet-4-6',
+    provider: 'anthropic',
+    displayName: 'Claude Sonnet 4.6',
+    inputPricePerMillion: 3.0,
+    outputPricePerMillion: 15.0,
+    cacheReadPricePerMillion: 0.3,
+    cacheWritePricePerMillion: 3.75,
+    contextWindow: 1000000,
+    maxOutputTokens: 64000,
+    currency: 'USD',
+    capabilities: {
+      vision: true,
+      functionCalling: true,
+      streaming: true,
+      jsonMode: true,
+      systemMessage: true,
+      extendedThinking: true,
+    },
+  },
   {
     model: 'claude-opus-4-6',
     provider: 'anthropic',
     displayName: 'Claude Opus 4.6',
-    inputPricePerMillion: 15.0,
-    outputPricePerMillion: 75.0,
-    cacheReadPricePerMillion: 1.5,
-    cacheWritePricePerMillion: 18.75,
-    contextWindow: 200000,
-    maxOutputTokens: 32000,
+    inputPricePerMillion: 5.0,
+    outputPricePerMillion: 25.0,
+    cacheReadPricePerMillion: 0.5,
+    cacheWritePricePerMillion: 6.25,
+    contextWindow: 1000000,
+    maxOutputTokens: 128000,
     currency: 'USD',
     capabilities: {
       vision: true,
@@ -97,10 +188,12 @@ const DEFAULT_PRICING: ModelPricing[] = [
       extendedThinking: true,
     },
   },
+  /** @deprecated Retiring 2026-06-15. Use 'claude-opus-4-8' instead. */
   {
     model: 'claude-opus-4-0-20250514',
     provider: 'anthropic',
     displayName: 'Claude Opus 4',
+    deprecated: true,
     inputPricePerMillion: 15.0,
     outputPricePerMillion: 75.0,
     cacheReadPricePerMillion: 1.5,
@@ -117,10 +210,12 @@ const DEFAULT_PRICING: ModelPricing[] = [
       extendedThinking: true,
     },
   },
+  /** @deprecated Retiring 2026-06-15. Use 'claude-sonnet-4-6' instead. */
   {
     model: 'claude-sonnet-4-0-20250514',
     provider: 'anthropic',
     displayName: 'Claude Sonnet 4',
+    deprecated: true,
     inputPricePerMillion: 3.0,
     outputPricePerMillion: 15.0,
     cacheReadPricePerMillion: 0.3,
@@ -137,10 +232,12 @@ const DEFAULT_PRICING: ModelPricing[] = [
       extendedThinking: true,
     },
   },
+  /** @deprecated Retired 2026-02-19 (API returns 404). Use 'claude-sonnet-4-6' instead. */
   {
     model: 'claude-3-7-sonnet-20250219',
     provider: 'anthropic',
     displayName: 'Claude 3.7 Sonnet',
+    deprecated: true,
     inputPricePerMillion: 3.0,
     outputPricePerMillion: 15.0,
     cacheReadPricePerMillion: 0.3,
@@ -158,10 +255,12 @@ const DEFAULT_PRICING: ModelPricing[] = [
       computerUse: true,
     },
   },
+  /** @deprecated Retired 2025-10-28 (API returns 404). Use 'claude-sonnet-4-6' instead. */
   {
     model: 'claude-3-5-sonnet-20241022',
     provider: 'anthropic',
     displayName: 'Claude 3.5 Sonnet',
+    deprecated: true,
     inputPricePerMillion: 3.0,
     outputPricePerMillion: 15.0,
     cacheReadPricePerMillion: 0.3,
@@ -178,10 +277,12 @@ const DEFAULT_PRICING: ModelPricing[] = [
       computerUse: true,
     },
   },
+  /** @deprecated Retired 2026-02-19 (API returns 404). Use 'claude-haiku-4-5' instead. */
   {
     model: 'claude-3-5-haiku-20241022',
     provider: 'anthropic',
     displayName: 'Claude 3.5 Haiku',
+    deprecated: true,
     inputPricePerMillion: 0.8,
     outputPricePerMillion: 4.0,
     cacheReadPricePerMillion: 0.08,
@@ -197,10 +298,12 @@ const DEFAULT_PRICING: ModelPricing[] = [
       systemMessage: true,
     },
   },
+  /** @deprecated Retired 2026-01-05 (API returns 404). Use 'claude-opus-4-8' instead. */
   {
     model: 'claude-3-opus-20240229',
     provider: 'anthropic',
     displayName: 'Claude 3 Opus',
+    deprecated: true,
     inputPricePerMillion: 15.0,
     outputPricePerMillion: 75.0,
     cacheReadPricePerMillion: 1.5,
@@ -216,10 +319,12 @@ const DEFAULT_PRICING: ModelPricing[] = [
       systemMessage: true,
     },
   },
+  /** @deprecated Retired 2026-04-19 (API returns 404). Use 'claude-haiku-4-5' instead. */
   {
     model: 'claude-3-haiku-20240307',
     provider: 'anthropic',
     displayName: 'Claude 3 Haiku',
+    deprecated: true,
     inputPricePerMillion: 0.25,
     outputPricePerMillion: 1.25,
     cacheReadPricePerMillion: 0.03,
@@ -279,6 +384,40 @@ const DEFAULT_PRICING: ModelPricing[] = [
     outputPricePerMillion: 0.4,
     contextWindow: 1047576,
     maxOutputTokens: 16384,
+    currency: 'USD',
+    capabilities: {
+      vision: true,
+      functionCalling: true,
+      streaming: true,
+      jsonMode: true,
+      systemMessage: true,
+    },
+  },
+  {
+    model: 'gpt-5.5',
+    provider: 'openai',
+    displayName: 'GPT-5.5',
+    inputPricePerMillion: 5.0,
+    outputPricePerMillion: 30.0,
+    contextWindow: 1050000,
+    maxOutputTokens: 128000,
+    currency: 'USD',
+    capabilities: {
+      vision: true,
+      functionCalling: true,
+      streaming: true,
+      jsonMode: true,
+      systemMessage: true,
+    },
+  },
+  {
+    model: 'gpt-5.4-mini',
+    provider: 'openai',
+    displayName: 'GPT-5.4 Mini',
+    inputPricePerMillion: 0.75,
+    outputPricePerMillion: 4.5,
+    contextWindow: 400000,
+    maxOutputTokens: 128000,
     currency: 'USD',
     capabilities: {
       vision: true,
@@ -701,6 +840,40 @@ const DEFAULT_PRICING: ModelPricing[] = [
   },
 
   // ---- Google Models ----
+  {
+    model: 'gemini-3.1-pro-preview',
+    provider: 'google',
+    displayName: 'Gemini 3.1 Pro Preview',
+    inputPricePerMillion: 2.0,
+    outputPricePerMillion: 12.0,
+    contextWindow: 1048576,
+    maxOutputTokens: 65536,
+    currency: 'USD',
+    capabilities: {
+      vision: true,
+      functionCalling: true,
+      streaming: true,
+      jsonMode: true,
+      systemMessage: true,
+    },
+  },
+  {
+    model: 'gemini-3.5-flash',
+    provider: 'google',
+    displayName: 'Gemini 3.5 Flash',
+    inputPricePerMillion: 1.5,
+    outputPricePerMillion: 9.0,
+    contextWindow: 1048576,
+    maxOutputTokens: 65536,
+    currency: 'USD',
+    capabilities: {
+      vision: true,
+      functionCalling: true,
+      streaming: true,
+      jsonMode: true,
+      systemMessage: true,
+    },
+  },
   {
     model: 'gemini-2.5-pro',
     provider: 'google',

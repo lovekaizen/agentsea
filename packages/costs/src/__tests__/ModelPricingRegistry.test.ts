@@ -110,6 +110,7 @@ describe('ModelPricingRegistry', () => {
     });
 
     it('should get Anthropic model pricing', () => {
+      // Retired model kept in the registry as @deprecated
       const pricing = registry.getPricing(
         'anthropic',
         'claude-3-5-sonnet-20241022',
@@ -118,6 +119,18 @@ describe('ModelPricingRegistry', () => {
       expect(pricing).toBeDefined();
       expect(pricing?.inputPricePerMillion).toBe(3.0);
       expect(pricing?.outputPricePerMillion).toBe(15.0);
+    });
+
+    it('should get current Anthropic model pricing', () => {
+      const sonnet = registry.getPricing('anthropic', 'claude-sonnet-4-6');
+      expect(sonnet).toBeDefined();
+      expect(sonnet?.inputPricePerMillion).toBe(3.0);
+      expect(sonnet?.outputPricePerMillion).toBe(15.0);
+
+      const opus = registry.getPricing('anthropic', 'claude-opus-4-8');
+      expect(opus).toBeDefined();
+      expect(opus?.inputPricePerMillion).toBe(5.0);
+      expect(opus?.outputPricePerMillion).toBe(25.0);
     });
   });
 
@@ -130,10 +143,18 @@ describe('ModelPricingRegistry', () => {
     });
 
     it('should find by partial match', () => {
+      // Retired model kept in the registry as @deprecated
       const pricing = registry.getPricingByModel('claude-3-5-sonnet');
 
       expect(pricing).toBeDefined();
       expect(pricing?.model).toContain('claude-3-5-sonnet');
+    });
+
+    it('should find current models by partial match', () => {
+      const pricing = registry.getPricingByModel('claude-haiku-4-5');
+
+      expect(pricing).toBeDefined();
+      expect(pricing?.model).toContain('claude-haiku-4-5');
     });
 
     it('should return null for unknown model', () => {

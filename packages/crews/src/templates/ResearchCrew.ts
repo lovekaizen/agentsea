@@ -199,7 +199,7 @@ export function createResearchCrewConfig(
     {
       name: 'researcher',
       role: researcherRole,
-      model: options.model ?? 'claude-sonnet-4-20250514',
+      model: options.model ?? 'claude-opus-4-8',
       provider: options.provider ?? 'anthropic',
       tools: ['web-search', 'read-document', ...(options.tools ?? [])],
       temperature: 0.3,
@@ -207,7 +207,7 @@ export function createResearchCrewConfig(
     {
       name: 'analyst',
       role: analystRole,
-      model: options.model ?? 'claude-sonnet-4-20250514',
+      model: options.model ?? 'claude-opus-4-8',
       provider: options.provider ?? 'anthropic',
       tools: ['calculator', 'data-analysis', ...(options.tools ?? [])],
       temperature: 0.2,
@@ -218,7 +218,7 @@ export function createResearchCrewConfig(
     agents.push({
       name: 'writer',
       role: writerRole,
-      model: options.model ?? 'claude-sonnet-4-20250514',
+      model: options.model ?? 'claude-opus-4-8',
       provider: options.provider ?? 'anthropic',
       tools: ['text-editor', ...(options.tools ?? [])],
       temperature: 0.5,

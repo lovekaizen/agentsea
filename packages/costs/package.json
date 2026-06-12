@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-costs",
-  "version": "0.6.0",
+  "version": "0.7.0",
   "description": "AI cost management platform with real-time tracking, budget enforcement, and optimization",
   "type": "module",
   "main": "./dist/index.js",
@@ -38,13 +38,13 @@
   "author": "lov3kaizen",
   "license": "MIT",
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.52.0",
+    "@anthropic-ai/sdk": "^0.104.1",
     "croner": "^9.0.0",
     "decimal.js": "^10.4.3",
     "eventemitter3": "^5.0.1",
     "nanoid": "^5.0.7",
     "tiktoken": "^1.0.18",
-    "zod": "^3.24.1"
+    "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.11",
@@ -56,7 +56,7 @@
     "stripe": "^17.4.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
-    "vitest": "^2.1.8"
+    "vitest": "^3.2.6"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.0.0",

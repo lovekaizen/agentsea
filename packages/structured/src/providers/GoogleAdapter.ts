@@ -105,50 +105,32 @@ interface GoogleGenerateContentStreamResult {
  * Model capabilities for Google models
  */
 const MODEL_CAPABILITIES: Record<string, Partial<ProviderCapabilities>> = {
-  'gemini-2.0-flash': {
+  'gemini-3.1-pro-preview': {
     jsonMode: true,
     strictJsonMode: true,
     toolCalling: true,
     streaming: true,
     systemMessages: true,
-    maxContextWindow: 1000000,
-    maxOutputTokens: 8192,
+    maxContextWindow: 1048576,
+    maxOutputTokens: 65536,
   },
-  'gemini-2.0-flash-lite': {
+  'gemini-3.5-flash': {
     jsonMode: true,
     strictJsonMode: true,
     toolCalling: true,
     streaming: true,
     systemMessages: true,
-    maxContextWindow: 1000000,
-    maxOutputTokens: 8192,
+    maxContextWindow: 1048576,
+    maxOutputTokens: 65536,
   },
-  'gemini-1.5-pro': {
+  'gemini-3.1-flash-lite': {
     jsonMode: true,
     strictJsonMode: true,
     toolCalling: true,
     streaming: true,
     systemMessages: true,
-    maxContextWindow: 2000000,
-    maxOutputTokens: 8192,
-  },
-  'gemini-1.5-flash': {
-    jsonMode: true,
-    strictJsonMode: true,
-    toolCalling: true,
-    streaming: true,
-    systemMessages: true,
-    maxContextWindow: 1000000,
-    maxOutputTokens: 8192,
-  },
-  'gemini-1.0-pro': {
-    jsonMode: true,
-    strictJsonMode: false,
-    toolCalling: true,
-    streaming: true,
-    systemMessages: true,
-    maxContextWindow: 32000,
-    maxOutputTokens: 8192,
+    maxContextWindow: 1048576,
+    maxOutputTokens: 65536,
   },
 };
 
@@ -175,7 +157,7 @@ export class GoogleAdapter implements ProviderAdapter {
     );
     const base = modelKey
       ? MODEL_CAPABILITIES[modelKey]
-      : MODEL_CAPABILITIES['gemini-2.0-flash'];
+      : MODEL_CAPABILITIES['gemini-3.5-flash'];
 
     return {
       jsonMode: base.jsonMode ?? true,

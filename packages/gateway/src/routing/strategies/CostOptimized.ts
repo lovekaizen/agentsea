@@ -35,26 +35,21 @@ export interface CostOptimizedConfig {
 // Quality scores for models (subjective, 0-100)
 const MODEL_QUALITY_SCORES: Record<string, number> = {
   // Top tier
-  o1: 98,
-  'o1-preview': 96,
-  'claude-3-opus-20240229': 95,
-  'claude-3-5-sonnet-20241022': 94,
-  'claude-sonnet-4-20250514': 95,
-  'gpt-4o': 93,
-  'gemini-1.5-pro': 91,
+  o1: 96,
+  'o1-preview': 94,
+  'claude-opus-4-8': 98,
+  'claude-sonnet-4-6': 95,
+  'gpt-5.5': 95,
+  'gemini-3.1-pro-preview': 93,
 
   // Mid tier
-  'gpt-4-turbo': 88,
-  'gpt-4': 87,
-  'claude-3-sonnet-20240229': 85,
   'o1-mini': 84,
 
   // Fast/cheap tier
-  'gpt-4o-mini': 80,
-  'claude-3-5-haiku-20241022': 79,
-  'claude-3-haiku-20240307': 75,
-  'gemini-1.5-flash': 78,
-  'gpt-3.5-turbo': 70,
+  'gpt-5.4-mini': 82,
+  'claude-haiku-4-5': 81,
+  'gemini-3.5-flash': 80,
+  'gemini-3.1-flash-lite': 74,
 
   // Local models
   llama3: 65,

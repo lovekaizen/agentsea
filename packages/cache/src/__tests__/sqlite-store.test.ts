@@ -128,12 +128,12 @@ function createTestEntry(
     key,
     embedding,
     request: {
-      model: 'gpt-4',
+      model: 'gpt-5.5',
       messages: [{ role: 'user', content }],
     },
     response: {
       content: `Response to: ${content}`,
-      model: 'gpt-4',
+      model: 'gpt-5.5',
       usage: { promptTokens: 10, completionTokens: 5, totalTokens: 15 },
       finishReason: 'stop',
     },

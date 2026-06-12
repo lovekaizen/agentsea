@@ -110,7 +110,7 @@ describe('Debugger', () => {
       const mockAgent = {
         id: 'agent-1',
         name: 'Test Agent',
-        model: 'gpt-4',
+        model: 'gpt-5.5',
       };
       debugger_.attach(mockAgent);
       // No direct way to verify, but should not throw
