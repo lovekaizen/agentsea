@@ -1,6 +1,8 @@
 {
   "version": "6",
   "dialect": "sqlite",
+  "id": "f4bdf7c1-78aa-4b90-ad15-2ac2e7acb449",
+  "prevId": "934b2129-d8b9-494b-b778-44be6fa1df10",
   "tables": {
     "agents": {
       "name": "agents",
@@ -47,7 +49,7 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false,
-          "default": "'claude-3-5-sonnet-20241022'"
+          "default": "'claude-opus-4-8'"
         },
         "temperature": {
           "name": "temperature",
@@ -205,20 +207,20 @@
         "executions_workflow_id_workflows_id_fk": {
           "name": "executions_workflow_id_workflows_id_fk",
           "tableFrom": "executions",
-          "columnsFrom": ["workflow_id"],
           "tableTo": "workflows",
+          "columnsFrom": ["workflow_id"],
           "columnsTo": ["id"],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         },
         "executions_agent_id_agents_id_fk": {
           "name": "executions_agent_id_agents_id_fk",
           "tableFrom": "executions",
-          "columnsFrom": ["agent_id"],
           "tableTo": "agents",
+          "columnsFrom": ["agent_id"],
           "columnsTo": ["id"],
-          "onUpdate": "no action",
-          "onDelete": "no action"
+          "onDelete": "no action",
+          "onUpdate": "no action"
         }
       },
       "compositePrimaryKeys": {},
@@ -516,12 +518,14 @@
       "checkConstraints": {}
     }
   },
+  "views": {},
   "enums": {},
   "_meta": {
+    "schemas": {},
     "tables": {},
     "columns": {}
   },
-  "id": "934b2129-d8b9-494b-b778-44be6fa1df10",
-  "prevId": "00000000-0000-0000-0000-000000000000",
-  "views": {}
+  "internal": {
+    "indexes": {}
+  }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-nestjs",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "NestJS integration for AgentSea - Unite and orchestrate AI agents in your NestJS applications",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -27,10 +27,10 @@
   "dependencies": {
     "@lov3kaizen/agentsea-types": "workspace:*",
     "@lov3kaizen/agentsea-core": "workspace:*",
-    "@nestjs/common": "^10.3.0",
-    "@nestjs/core": "^10.3.0",
-    "@nestjs/websockets": "^10.3.0",
-    "@nestjs/platform-socket.io": "^10.3.0",
+    "@nestjs/common": "^11.1.26",
+    "@nestjs/core": "^11.1.26",
+    "@nestjs/websockets": "^11.1.26",
+    "@nestjs/platform-socket.io": "^11.1.26",
     "class-validator": "^0.14.1",
     "class-transformer": "^0.5.1",
     "reflect-metadata": "^0.2.1",
@@ -45,8 +45,8 @@
     "vitest": "^3.2.6"
   },
   "peerDependencies": {
-    "@nestjs/common": "^10.0.0",
-    "@nestjs/core": "^10.0.0"
+    "@nestjs/common": "^10.0.0 || ^11.0.0",
+    "@nestjs/core": "^10.0.0 || ^11.0.0"
   },
   "keywords": [
     "agentsea",

@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-costs",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "AI cost management platform with real-time tracking, budget enforcement, and optimization",
   "type": "module",
   "main": "./dist/index.js",
@@ -59,8 +59,8 @@
     "vitest": "^3.2.6"
   },
   "peerDependencies": {
-    "@nestjs/common": "^10.0.0",
-    "@nestjs/core": "^10.0.0",
+    "@nestjs/common": "^10.0.0 || ^11.0.0",
+    "@nestjs/core": "^10.0.0 || ^11.0.0",
     "better-sqlite3": "^11.0.0",
     "pg": "^8.0.0",
     "stripe": "^17.0.0"
