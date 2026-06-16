@@ -1,6 +1,9 @@
 {
   "name": "@lov3kaizen/agentsea-memory",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "description": "Advanced memory management system for AI agents with semantic retrieval, hierarchical structures, and multi-agent support",
   "type": "module",
   "main": "./dist/index.js",

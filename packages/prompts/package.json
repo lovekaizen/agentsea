@@ -1,6 +1,9 @@
 {
   "name": "@lov3kaizen/agentsea-prompts",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "description": "Self-hosted prompt management with Git-like version control, environment promotion, A/B testing, and team collaboration",
   "type": "module",
   "main": "./dist/index.js",

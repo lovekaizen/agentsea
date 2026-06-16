@@ -1,6 +1,9 @@
 {
   "name": "@lov3kaizen/agentsea-analytics",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "description": "Conversation analytics for AI agents - intent classification, flow analysis, sentiment tracking, and insights",
   "type": "module",
   "main": "./dist/index.js",

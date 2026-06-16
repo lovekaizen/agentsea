@@ -1,6 +1,9 @@
 {
   "name": "@lov3kaizen/agentsea-admin-ui",
   "version": "1.0.0",
+  "engines": {
+    "node": ">=20.0.0"
+  },
   "description": "Web-based admin UI for AgentSea SDK - Visual workflow builder and agent management",
   "private": true,
   "scripts": {
