@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-surf",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Surf - Computer-use agent for AgentSea. Control desktop environments through screen capture, mouse, and keyboard actions using Claude's vision capabilities.",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -45,10 +45,10 @@
     "vitest": "^3.2.6"
   },
   "peerDependencies": {
-    "@nestjs/common": "^10.0.0",
-    "@nestjs/core": "^10.0.0",
-    "@nestjs/websockets": "^10.0.0",
-    "@nestjs/platform-socket.io": "^10.0.0",
+    "@nestjs/common": "^10.0.0 || ^11.0.0",
+    "@nestjs/core": "^10.0.0 || ^11.0.0",
+    "@nestjs/websockets": "^10.0.0 || ^11.0.0",
+    "@nestjs/platform-socket.io": "^10.0.0 || ^11.0.0",
     "puppeteer-core": "^21.0.0"
   },
   "peerDependenciesMeta": {
