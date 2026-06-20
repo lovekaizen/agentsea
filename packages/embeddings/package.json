@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-embeddings",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Vector embedding lifecycle management toolkit for Node.js - versioning, caching, chunking, drift detection, and migration",
   "main": "dist/index.js",
   "module": "dist/index.mjs",
@@ -97,6 +97,6 @@
     "@qdrant/js-client-rest": "^1.7.0"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   }
 }

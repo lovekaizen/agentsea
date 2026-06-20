@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-react",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "React components for rendering AgentSea agent responses with formatting support",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -58,7 +58,7 @@
     "agents"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "author": "lovekaizen",
   "license": "MIT",

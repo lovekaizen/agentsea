@@ -7,7 +7,7 @@ AgentSea ADK unites AI agents and services to create powerful, intelligent appli
 [![npm version](https://img.shields.io/npm/v/@lov3kaizen/agentsea-core.svg)](https://www.npmjs.com/package/@lov3kaizen/agentsea-core)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0+-blue.svg)](https://www.typescriptlang.org/)
-[![Node.js Version](https://img.shields.io/badge/node-%3E%3D18.0.0-brightgreen.svg)](https://nodejs.org/)
+[![Node.js Version](https://img.shields.io/badge/node-%3E%3D20.0.0-brightgreen.svg)](https://nodejs.org/)
 
 ## ✨ Features
 
@@ -40,6 +40,11 @@ AgentSea ADK unites AI agents and services to create powerful, intelligent appli
 - 📘 **TypeScript** - Fully typed with comprehensive definitions
 
 ## 🚀 Quick Start
+
+### Requirements
+
+- **Node.js >= 20.0.0** (Node 18 is no longer supported as of v1.0.1)
+- TypeScript 5.0+ (recommended)
 
 ### Installation
 

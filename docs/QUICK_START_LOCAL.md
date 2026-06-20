@@ -4,7 +4,7 @@ Get started with local AI models in under 5 minutes.
 
 ## Prerequisites
 
-- Node.js 18+
+- Node.js 20+
 - One of the following local LLM tools:
   - Ollama (recommended for beginners)
   - LM Studio

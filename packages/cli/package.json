@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-cli",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CLI tool for AgentSea ADK - Build and orchestrate AI agents",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -49,7 +49,7 @@
     "typescript": "^5.3.3"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   },
   "repository": {
     "type": "git",

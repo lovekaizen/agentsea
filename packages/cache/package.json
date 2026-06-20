@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-cache",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Semantic caching layer for LLM responses - exact match, semantic similarity, and hybrid strategies",
   "type": "module",
   "main": "./dist/index.js",
@@ -103,6 +103,6 @@
     "ioredis": "^5.4.1"
   },
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=20.0.0"
   }
 }
