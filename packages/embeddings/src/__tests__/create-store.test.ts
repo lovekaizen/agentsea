@@ -1,5 +1,11 @@
 import { describe, it, expect } from 'vitest';
-import { createStore, MemoryStore } from '../stores/index.js';
+import {
+  createStore,
+  MemoryStore,
+  PgVectorStore,
+  WeaviateStore,
+  MilvusStore,
+} from '../stores/index.js';
 
 describe('createStore factory', () => {
   it('creates a MemoryStore for type "memory"', () => {
@@ -7,14 +13,31 @@ describe('createStore factory', () => {
     expect(store).toBeInstanceOf(MemoryStore);
   });
 
-  it.each(['weaviate', 'milvus', 'pgvector'] as const)(
-    'throws a clear "not implemented" error for %s instead of silently falling back',
-    (type) => {
-      expect(() => createStore(type, { dimensions: 8 })).toThrow(
-        /not implemented/i,
-      );
-    },
-  );
+  it('creates a PgVectorStore for type "pgvector"', () => {
+    const store = createStore('pgvector', {
+      dimensions: 8,
+      tableName: 'embeddings',
+    } as never);
+    expect(store).toBeInstanceOf(PgVectorStore);
+  });
+
+  it('creates a WeaviateStore for type "weaviate"', () => {
+    const store = createStore('weaviate', {
+      dimensions: 8,
+      url: 'http://localhost:8080',
+      className: 'Doc',
+    } as never);
+    expect(store).toBeInstanceOf(WeaviateStore);
+  });
+
+  it('creates a MilvusStore for type "milvus"', () => {
+    const store = createStore('milvus', {
+      dimensions: 8,
+      url: 'http://localhost:19530',
+      collectionName: 'docs',
+    } as never);
+    expect(store).toBeInstanceOf(MilvusStore);
+  });
 
   it('throws for an unknown store type', () => {
     expect(() =>

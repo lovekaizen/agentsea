@@ -307,6 +307,12 @@ export interface WorkflowConfig {
   agents: AgentConfig[];
   routing?: RoutingLogic;
   errorHandling?: ErrorHandlingStrategy;
+  /**
+   * Tuning for the `retry` error-handling strategy (reuses the shared
+   * {@link RetryConfig}). Ignored for other strategies. When omitted, defaults
+   * to 3 attempts with no delay.
+   */
+  retry?: RetryConfig;
 }
 
 /**

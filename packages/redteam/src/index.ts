@@ -140,6 +140,9 @@ export {
   EvidenceCollector,
   createAuditLogger,
   createEvidenceCollector,
+  FileAuditStore,
+  createFileAuditStore,
+  type AuditStore,
   type AuditEntryInput,
 } from './audit/index.js';
 
@@ -152,6 +155,7 @@ export {
   createScheduler,
   createAlertManager,
   nextRunAt,
+  nextCronAt,
   type TestRunner,
 } from './continuous/index.js';
 

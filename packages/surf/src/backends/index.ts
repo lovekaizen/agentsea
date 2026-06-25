@@ -13,11 +13,24 @@ export {
   createNativeBackend,
 } from './native';
 
-// Browser backend
-export { PuppeteerBackend } from './browser';
+// Browser backends
+export { PuppeteerBackend, PlaywrightBackend } from './browser';
 
 // Docker backend
 export { DockerBackend } from './docker';
+
+// Kubernetes backend
+export { KubernetesBackend, createKubernetesBackend } from './kubernetes';
+
+// Remote-display backends (VNC / RDP)
+export {
+  RemoteDisplayBackend,
+  type RemoteDisplayClient,
+  VNCBackend,
+  createVNCBackend,
+  RDPBackend,
+  createRDPBackend,
+} from './remote';
 
 // Types
 import type {
@@ -29,8 +42,10 @@ import type {
 } from '../types';
 
 import { createNativeBackend } from './native';
-import { PuppeteerBackend } from './browser';
+import { PuppeteerBackend, PlaywrightBackend } from './browser';
 import { DockerBackend } from './docker';
+import { KubernetesBackend } from './kubernetes';
+import { VNCBackend, RDPBackend } from './remote';
 
 /**
  * Create a backend from configuration
@@ -43,19 +58,23 @@ export function createBackend(config: BackendConfig): Promise<DesktopBackend> {
       );
 
     case 'browser':
-      return Promise.resolve(new PuppeteerBackend(config.options));
+      return Promise.resolve(
+        config.options?.engine === 'playwright'
+          ? new PlaywrightBackend(config.options)
+          : new PuppeteerBackend(config.options),
+      );
 
     case 'docker':
       return Promise.resolve(new DockerBackend(config.options));
 
     case 'vnc':
-      throw new Error('VNC backend not yet implemented');
+      return Promise.resolve(new VNCBackend(config.options));
 
     case 'rdp':
-      throw new Error('RDP backend not yet implemented');
+      return Promise.resolve(new RDPBackend(config.options));
 
     case 'kubernetes':
-      throw new Error('Kubernetes backend not yet implemented');
+      return Promise.resolve(new KubernetesBackend(config.options));
 
     default:
       throw new Error(

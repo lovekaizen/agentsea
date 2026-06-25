@@ -171,9 +171,14 @@ export interface NativeBackendOptions {
 }
 
 /**
- * Browser (Puppeteer) backend options
+ * Browser backend options (Puppeteer or Playwright)
  */
 export interface BrowserBackendOptions {
+  /**
+   * Browser automation engine. Defaults to `puppeteer` for backwards
+   * compatibility; `playwright` adds firefox/webkit support via `browserType`.
+   */
+  engine?: 'puppeteer' | 'playwright';
   /** Run browser in headless mode */
   headless?: boolean;
   /** Viewport dimensions */

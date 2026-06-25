@@ -26,7 +26,7 @@ export class SupervisorWorkflow extends Workflow {
 
       try {
         const agent = this.getAgent(currentAgentName);
-        const response = await agent.execute(currentInput, context);
+        const response = await this.executeAgent(agent, currentInput, context);
 
         // Accumulate metrics
         totalTokens += response.metadata.tokensUsed;

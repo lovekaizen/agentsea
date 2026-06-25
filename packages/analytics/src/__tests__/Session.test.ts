@@ -85,6 +85,36 @@ describe('SessionManager', () => {
       const retrieved = manager.get('non-existent');
       expect(retrieved).toBeNull();
     });
+
+    it('fetch() returns an active session from memory', async () => {
+      const created = await manager.create({ userId: 'user-123' });
+      const retrieved = await manager.fetch(created.id);
+      expect(retrieved?.id).toBe(created.id);
+    });
+
+    it('fetch() retrieves an ended session from storage (get() does not)', async () => {
+      const created = await manager.create({ userId: 'user-123' });
+      await manager.end(created.id);
+
+      // get() is in-memory only: an ended session is gone.
+      expect(manager.get(created.id)).toBeNull();
+
+      // fetch() falls back to persistent storage.
+      const persisted = await manager.fetch(created.id);
+      expect(persisted?.id).toBe(created.id);
+      expect(persisted?.endedAt).toBeDefined();
+    });
+
+    it('fetch() returns null when the session exists nowhere', async () => {
+      expect(await manager.fetch('nope')).toBeNull();
+    });
+
+    it('persists sessions via the dedicated saveSession adapter method', async () => {
+      const created = await manager.create({ userId: 'user-123' });
+      // Readable straight from the storage adapter, independent of memory.
+      const fromStore = await storage.getSession(created.id);
+      expect(fromStore?.id).toBe(created.id);
+    });
   });
 
   describe('session updates', () => {

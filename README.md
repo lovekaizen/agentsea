@@ -743,29 +743,33 @@ README); **WIP** = under active development, APIs and behavior may change.
 - [x] Rate limiting and caching
 - [x] TypeScript definitions with strict type safety
 - [x] CI/CD workflows with automated releases
-
-### 🧪 Beta
-
-- [~] **Evaluate** — LLM evaluation metrics, LLM-as-Judge, human feedback, and
-  preference learning (RLHF/DPO). Continuous monitoring works; HuggingFace
-  import/export and email/PagerDuty alert channels are still placeholders.
-- [~] **Embeddings** — multi-provider support (OpenAI, Cohere, Voyage, HuggingFace),
-  chunking, caching, and Pinecone/Chroma/Qdrant stores. Weaviate/Milvus/pgvector
-  and local ONNX are advertised in types but not yet implemented.
-- [~] **Surf** — vision-driven computer use and browser automation. Puppeteer +
-  Docker/Linux/macOS/Windows backends exist but lack integration test coverage;
-  there is no Playwright backend yet and some native input paths are fragile.
-- [~] **Red Team** — adversarial attack generation, vulnerability scanning, and
-  jailbreak detection are implemented. Safety benchmarks, compliance checking,
-  audit logging, and continuous testing now ship functional MVP implementations
-  with tests (some advanced options — persistent audit storage, cron schedules,
-  alert delivery — are still pending).
-- [~] **Crews** — multi-agent orchestration with role-based coordination and
-  delegation strategies (round-robin, best-match, auction, hierarchical,
-  consensus). Orchestration, workflows, strategies, and **real LLM execution by
-  default** (via the core-backed `CoreExecutor`; deterministic mock path is
-  opt-in with `mock: true`) are implemented. Live-provider end-to-end coverage
-  is still being expanded.
+- [x] **Crews** — multi-agent orchestration (role-based coordination; round-robin,
+      best-match, auction, hierarchical, and consensus delegation) with real LLM
+      execution by default via the core-backed `CoreExecutor` (mock path opt-in
+      with `mock: true`). The default execution path is covered end-to-end in the
+      `e2e` package via an injectable provider seam.
+- [x] **Evaluate** — LLM evaluation metrics, LLM-as-Judge, human feedback, and
+      preference learning (RLHF/DPO). Continuous monitoring with email (SMTP via
+      nodemailer), webhook/Slack, and PagerDuty (Events API v2) alert channels;
+      HuggingFace dataset import (datasets-server REST) and Hub export
+      (`@huggingface/hub`).
+- [x] **Red Team** — adversarial attack generation, vulnerability scanning, and
+      jailbreak detection; safety benchmarks, compliance checking. Continuous
+      testing with cron-driven schedules (`cron-parser`), real alert delivery
+      (webhook/Slack/Teams/Discord/PagerDuty/email), and tamper-evident,
+      hash-chained audit logging with pluggable persistent storage
+      (`FileAuditStore`).
+- [x] **Embeddings** — multi-provider support (OpenAI, Cohere, Voyage, HuggingFace),
+      chunking, caching, and Pinecone/Chroma/Qdrant/**pgvector/Weaviate/Milvus**
+      stores, plus local **ONNX** models via Transformers.js
+      (`@xenova/transformers`).
+- [x] **Surf** — vision-driven computer use and browser automation across
+      **Puppeteer/Playwright** (chromium/firefox/webkit), **Docker**,
+      **Kubernetes** (pod via `kubectl exec`), **VNC/RDP** (remote display), and
+      native Linux/macOS/Windows backends. Backend action translation is
+      unit-tested (injected exec/clients) and a guarded headless smoke test
+      covers the real browser launch path. VNC/RDP frame-capture and the RDP
+      transport are experimental — inject a custom client for production.
 
 ### 🚧 Work in Progress
 

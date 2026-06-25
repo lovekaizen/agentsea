@@ -168,6 +168,34 @@ export interface CrewConfig {
     iterations: number;
     toolCalls?: Array<{ tool: string; input: unknown; result: unknown }>;
   }>;
+  /**
+   * Inject a pre-built core LLM provider for the default executor instead of
+   * having it lazily construct one from `@lov3kaizen/agentsea-core` by name.
+   * Useful for dependency injection, custom provider instances, and
+   * deterministic end-to-end tests (no network). Ignored when `execute` or
+   * `mock` is set.
+   */
+  provider?: CoreLLMProvider;
+}
+
+/**
+ * Minimal shape of a `@lov3kaizen/agentsea-core` LLM provider that the default
+ * crew executor relies on. A concrete provider (e.g. core's `AnthropicProvider`)
+ * satisfies this structurally, as does any custom or test double.
+ */
+export interface CoreLLMProvider {
+  generateResponse(
+    messages: Array<{ role: string; content: string }>,
+    config: {
+      model: string;
+      systemPrompt?: string;
+      temperature?: number;
+      maxTokens?: number;
+    },
+  ): Promise<{
+    content: string;
+    usage: { inputTokens: number; outputTokens: number };
+  }>;
 }
 
 /**

@@ -13,11 +13,28 @@ import type {
   AlertChannelConfig,
   AlertNotification,
 } from '../types/index.js';
+import { importOptional } from '../utils/optional-import.js';
 
 interface AlertManagerEvents {
   'alert:triggered': (alert: Alert) => void;
   'alert:resolved': (alert: Alert) => void;
   'notification:sent': (notification: AlertNotification) => void;
+}
+
+/**
+ * Minimal structural contract for `nodemailer` so the email channel can be
+ * implemented without taking a hard type dependency on the optional package.
+ */
+interface NodemailerLike {
+  createTransport(options: unknown): {
+    sendMail(mail: {
+      from: string;
+      to: string;
+      subject: string;
+      text: string;
+      html?: string;
+    }): Promise<unknown>;
+  };
 }
 
 /**
@@ -230,16 +247,113 @@ export class AlertManager extends EventEmitter<AlertManagerEvents> {
         break;
 
       case 'email':
-        // Email would require an email service - log for now
-        console.log(`[Email Alert] To: ${channel.to?.join(', ')}`);
-        console.log(`Subject: Alert: ${alert.metric} - ${alert.severity}`);
-        console.log(`Body: ${alert.message}`);
+        await this.sendEmail(channel, alert);
         break;
 
       case 'pagerduty':
-        // PagerDuty integration would go here
-        console.log(`[PagerDuty Alert] ${alert.severity}: ${alert.message}`);
+        await this.sendPagerDuty(channel, alert);
         break;
+    }
+  }
+
+  /**
+   * Deliver an alert by email over SMTP via `nodemailer` (lazily imported so it
+   * is only required when the email channel is actually used).
+   */
+  private async sendEmail(
+    channel: AlertChannelConfig,
+    alert: Alert,
+  ): Promise<void> {
+    if (!channel.to?.length) {
+      throw new Error('Email alert channel requires `to` recipients');
+    }
+    if (!channel.smtp?.host) {
+      throw new Error('Email alert channel requires `smtp.host`');
+    }
+
+    // `nodemailer` is an optional dependency and may not be installed; import it
+    // dynamically and type it with a minimal local contract so the package
+    // type-checks without `@types/nodemailer` present.
+    let mod: unknown;
+    try {
+      mod = await importOptional('nodemailer');
+    } catch {
+      throw new Error(
+        'Email alerts require the "nodemailer" package. Install it to use the ' +
+          'email channel, or choose a different alert channel.',
+      );
+    }
+    // Some bundlers wrap the CJS module under `.default`.
+    const mailer = ((mod as { default?: NodemailerLike }).default ??
+      mod) as NodemailerLike;
+
+    const transport = mailer.createTransport({
+      host: channel.smtp.host,
+      port: channel.smtp.port ?? 587,
+      secure: channel.smtp.secure ?? false,
+      auth: channel.smtp.auth,
+    });
+
+    await transport.sendMail({
+      from: channel.from ?? channel.smtp.auth?.user ?? 'alerts@agentsea.local',
+      to: channel.to.join(', '),
+      subject: `[${alert.severity.toUpperCase()}] ${alert.metric} alert`,
+      text: alert.message,
+      html:
+        `<p><strong>${alert.severity.toUpperCase()}</strong>: ${alert.message}</p>` +
+        `<ul><li>Metric: ${alert.metric}</li>` +
+        `<li>Value: ${alert.currentValue}</li>` +
+        `<li>Threshold: ${alert.threshold}</li></ul>`,
+    });
+  }
+
+  /**
+   * Trigger a PagerDuty incident through the Events API v2 enqueue endpoint.
+   */
+  private async sendPagerDuty(
+    channel: AlertChannelConfig,
+    alert: Alert,
+  ): Promise<void> {
+    const routingKey = channel.routingKey ?? channel.apiKey;
+    if (!routingKey) {
+      throw new Error(
+        'PagerDuty alert channel requires a `routingKey` (or `apiKey`)',
+      );
+    }
+
+    // PagerDuty severities are info | warning | error | critical.
+    const severity =
+      alert.severity === 'critical'
+        ? 'critical'
+        : alert.severity === 'warning'
+          ? 'warning'
+          : 'info';
+
+    const res = await fetch('https://events.pagerduty.com/v2/enqueue', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        routing_key: routingKey,
+        event_action: 'trigger',
+        // Group repeated alerts for the same metric into one incident.
+        dedup_key: `agentsea-evaluate:${alert.metric}`,
+        payload: {
+          summary: alert.message,
+          source: 'agentsea-evaluate',
+          severity,
+          custom_details: {
+            metric: alert.metric,
+            value: alert.currentValue,
+            threshold: alert.threshold,
+          },
+        },
+      }),
+    });
+
+    if (!res.ok) {
+      throw new Error(
+        `PagerDuty enqueue failed: ${res.status} ${res.statusText}`,
+      );
     }
   }
 

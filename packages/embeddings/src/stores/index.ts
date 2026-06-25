@@ -7,6 +7,26 @@ export { MemoryStore, createMemoryStore } from './MemoryStore.js';
 export { PineconeStore, createPineconeStore } from './PineconeStore.js';
 export { ChromaStore, createChromaStore } from './ChromaStore.js';
 export { QdrantStore, createQdrantStore } from './QdrantStore.js';
+export {
+  PgVectorStore,
+  createPgVectorStore,
+  type PgVectorStoreOptions,
+  type PgPoolLike,
+} from './PgVectorStore.js';
+export {
+  WeaviateStore,
+  WeaviateSdkBackend,
+  createWeaviateStore,
+  type WeaviateStoreOptions,
+  type WeaviateBackend,
+} from './WeaviateStore.js';
+export {
+  MilvusStore,
+  MilvusSdkBackend,
+  createMilvusStore,
+  type MilvusStoreOptions,
+  type MilvusBackend,
+} from './MilvusStore.js';
 
 // Re-export store types
 export type {
@@ -41,11 +61,17 @@ import type {
   PineconeStoreConfig,
   ChromaStoreConfig,
   QdrantStoreConfig,
+  WeaviateStoreConfig,
+  MilvusStoreConfig,
+  PgVectorStoreConfig,
 } from '../types/index.js';
 import { MemoryStore } from './MemoryStore.js';
 import { PineconeStore } from './PineconeStore.js';
 import { ChromaStore } from './ChromaStore.js';
 import { QdrantStore } from './QdrantStore.js';
+import { PgVectorStore } from './PgVectorStore.js';
+import { WeaviateStore } from './WeaviateStore.js';
+import { MilvusStore } from './MilvusStore.js';
 import { BaseStore } from './BaseStore.js';
 
 /**
@@ -65,20 +91,15 @@ export function createStore(
     case 'qdrant':
       return new QdrantStore(config as QdrantStoreConfig);
     case 'weaviate':
+      return new WeaviateStore(config as WeaviateStoreConfig);
     case 'milvus':
+      return new MilvusStore(config as MilvusStoreConfig);
     case 'pgvector':
-      // Types exist for these stores but no runtime implementation ships yet.
-      // Fail loudly instead of silently falling back to an in-memory store
-      // (which would quietly lose data and confuse users).
-      throw new Error(
-        `Vector store "${type}" is not implemented yet. Supported stores: ` +
-          'memory, pinecone, chroma, qdrant. Use one of those, or pass a ' +
-          'custom BaseStore implementation.',
-      );
+      return new PgVectorStore(config as PgVectorStoreConfig);
     default:
       throw new Error(
         `Unknown vector store type "${String(type)}". Supported stores: ` +
-          'memory, pinecone, chroma, qdrant.',
+          'memory, pinecone, chroma, qdrant, weaviate, milvus, pgvector.',
       );
   }
 }

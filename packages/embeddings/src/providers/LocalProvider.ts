@@ -1,12 +1,11 @@
 /**
  * Local Provider
  *
- * Embedding provider for local/custom models via a user-supplied embedding
- * function (`embedFn`).
- *
- * NOTE: Loading ONNX models directly from `modelPath` is on the roadmap but not
- * implemented yet. For now, load your model however you like and pass an
- * `embedFn` that returns the vectors.
+ * Embedding provider for local/custom models. Either supply a custom embedding
+ * function (`embedFn`), or point `modelPath` at an ONNX feature-extraction model
+ * (local directory or a HuggingFace repo id) and the provider will load it via
+ * Transformers.js (`@xenova/transformers`, an optional dependency) — handling
+ * tokenization, the ONNX runtime, and mean-pooling for you.
  */
 
 import { BaseProvider } from './BaseProvider.js';
@@ -16,6 +15,19 @@ import type {
   EmbeddingOptions,
 } from '../types/index.js';
 import { EmbeddingModel } from '../core/EmbeddingModel.js';
+import { importOptional } from '../core/optional-import.js';
+
+/** Minimal shape of the Transformers.js feature-extraction pipeline output. */
+interface TransformersTensor {
+  tolist(): number[][] | number[];
+}
+type FeatureExtractor = (
+  texts: string[],
+  options?: { pooling?: string; normalize?: boolean },
+) => Promise<TransformersTensor>;
+interface TransformersModule {
+  pipeline: (task: string, model: string) => Promise<FeatureExtractor>;
+}
 
 /**
  * Custom embedding function type
@@ -49,23 +61,21 @@ export class LocalProvider extends BaseProvider {
   private embedFn: LocalEmbeddingFn | null = null;
   private normalize: boolean;
   private batchSize: number;
+  private readonly modelPath?: string;
+  /** Lazily-built ONNX extractor (only when loading from `modelPath`). */
+  private extractorPromise?: Promise<FeatureExtractor>;
 
   constructor(config: LocalProviderOptions) {
     super({ ...config, type: 'local' });
 
-    if (!config.embedFn) {
-      if (config.modelPath) {
-        // modelPath implies ONNX loading, which isn't implemented yet. Fail
-        // here rather than constructing a provider that throws at embed time.
-        throw new Error(
-          'Loading local models from `modelPath` (ONNX) is not implemented ' +
-            'yet. Provide an `embedFn` that returns embeddings instead.',
-        );
-      }
-      throw new Error('`embedFn` is required for the local provider');
+    if (!config.embedFn && !config.modelPath) {
+      throw new Error(
+        '`embedFn` or `modelPath` (ONNX) is required for the local provider',
+      );
     }
 
     this.embedFn = config.embedFn ?? null;
+    this.modelPath = config.modelPath;
     this.normalize = config.normalize ?? true;
     this.batchSize = config.batchSize ?? 32;
 
@@ -80,6 +90,29 @@ export class LocalProvider extends BaseProvider {
     };
   }
 
+  /**
+   * Lazily load the ONNX feature-extraction pipeline from `modelPath` via
+   * Transformers.js and adapt it into a {@link LocalEmbeddingFn}.
+   */
+  private getOnnxEmbedFn(): Promise<FeatureExtractor> {
+    if (!this.extractorPromise) {
+      this.extractorPromise = (async () => {
+        let mod: unknown;
+        try {
+          mod = await importOptional('@xenova/transformers');
+        } catch {
+          throw new Error(
+            'Loading local ONNX models from `modelPath` requires the ' +
+              '"@xenova/transformers" package. Install it, or pass an `embedFn`.',
+          );
+        }
+        const transformers = mod as TransformersModule;
+        return transformers.pipeline('feature-extraction', this.modelPath!);
+      })();
+    }
+    return this.extractorPromise;
+  }
+
   get info(): EmbeddingModelInfo {
     return this.modelInfo;
   }
@@ -88,6 +121,20 @@ export class LocalProvider extends BaseProvider {
     texts: string[],
     options?: EmbeddingOptions,
   ): Promise<{ vectors: number[][]; tokenCount: number }> {
+    // Fall back to the ONNX pipeline when no custom embedFn was supplied.
+    if (!this.embedFn && this.modelPath) {
+      const extractor = await this.getOnnxEmbedFn();
+      this.embedFn = async (input: string[]) => {
+        const output = await extractor(input, {
+          pooling: 'mean',
+          normalize: false, // we normalize below if configured
+        });
+        const list = output.tolist();
+        // A single input yields a 1-D tensor; wrap it to a 2-D shape.
+        return (Array.isArray(list[0]) ? list : [list]) as number[][];
+      };
+    }
+
     if (!this.embedFn) {
       throw new Error('No embedding function configured');
     }

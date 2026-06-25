@@ -9,16 +9,19 @@
 
 import { EventEmitter } from 'eventemitter3';
 import { nanoid } from 'nanoid';
+import { CronExpressionParser } from 'cron-parser';
 import type {
   ScheduleConfig,
   AlertRule,
   AlertChannel,
   Alert,
+  NotificationRecord,
   TestRun,
   RunStatus,
   RunSummary,
   TriggerConfig,
 } from '../types/continuous.types.js';
+import { importOptional } from '../utils/optional-import.js';
 
 // Re-export types
 export type {
@@ -73,9 +76,35 @@ export function nextRunAt(
       return from + WEEK;
     case 'monthly':
       return from + 30 * DAY;
+    case 'custom':
+      // Custom schedules are driven by a cron expression when provided.
+      return schedule.cronExpression
+        ? nextCronAt(schedule.cronExpression, from, schedule.timezone)
+        : null;
     default:
-      // on_deploy / on_change / custom are event/cron driven, not time-scheduled.
+      // on_deploy / on_change are event-driven, not time-scheduled.
       return null;
+  }
+}
+
+/**
+ * Compute the next fire time (epoch ms) strictly after `from` for a standard
+ * cron expression. Returns null if the expression is invalid so a bad schedule
+ * degrades to "never auto-runs" rather than throwing.
+ */
+export function nextCronAt(
+  cronExpression: string,
+  from: number,
+  timezone?: string,
+): number | null {
+  try {
+    const interval = CronExpressionParser.parse(cronExpression, {
+      currentDate: new Date(from),
+      tz: timezone,
+    });
+    return interval.next().getTime();
+  } catch {
+    return null;
   }
 }
 
@@ -160,6 +189,18 @@ interface AlertManagerEvents {
   alert: (alert: Alert) => void;
 }
 
+/** Minimal structural contract for `nodemailer` (optional email dependency). */
+interface NodemailerLike {
+  createTransport(options: unknown): {
+    sendMail(mail: {
+      from: string;
+      to: string;
+      subject: string;
+      text: string;
+    }): Promise<unknown>;
+  };
+}
+
 /**
  * Evaluates threshold/change alert rules against a metrics snapshot and emits
  * `Alert`s. Records a notification per configured channel (delivery itself is
@@ -187,7 +228,9 @@ export class AlertManager extends EventEmitter<AlertManagerEvents> {
 
   /**
    * Evaluate all enabled rules against a metrics snapshot. Returns (and emits)
-   * an Alert for every rule whose condition is met.
+   * an Alert for every rule whose condition is met. Notifications are not
+   * delivered here — call {@link AlertManager.deliver} (or use
+   * {@link AlertManager.evaluateAndDeliver}) to actually contact channels.
    */
   evaluate(metrics: Record<string, number>, runId?: string): Alert[] {
     const alerts: Alert[] = [];
@@ -209,12 +252,7 @@ export class AlertManager extends EventEmitter<AlertManagerEvents> {
         details: { metric: rule.condition.metric, value },
         triggeredAt: Date.now(),
         runId,
-        notificationHistory: this.channels.map((ch) => ({
-          channelId: ch.id,
-          channelType: ch.type,
-          sentAt: Date.now(),
-          status: 'sent' as const,
-        })),
+        notificationHistory: [],
       };
 
       alerts.push(alert);
@@ -222,6 +260,201 @@ export class AlertManager extends EventEmitter<AlertManagerEvents> {
     }
 
     return alerts;
+  }
+
+  /** Evaluate rules and deliver notifications for every triggered alert. */
+  async evaluateAndDeliver(
+    metrics: Record<string, number>,
+    runId?: string,
+  ): Promise<Alert[]> {
+    const alerts = this.evaluate(metrics, runId);
+    for (const alert of alerts) {
+      await this.deliver(alert);
+    }
+    return alerts;
+  }
+
+  /**
+   * Deliver an alert to the channels configured on its triggering rule (falling
+   * back to all channels when the rule lists none). Each channel attempt is
+   * recorded on the alert's `notificationHistory`; failures are captured rather
+   * than thrown so one bad channel never blocks the others.
+   */
+  async deliver(alert: Alert): Promise<NotificationRecord[]> {
+    const rule = this.rules.find((r) => r.id === alert.ruleId);
+    const targetIds = rule?.channelIds?.length ? rule.channelIds : undefined;
+
+    const targets = this.channels.filter((ch) => {
+      if (!ch.enabled) return false;
+      if (targetIds && !targetIds.includes(ch.id)) return false;
+      // Honor per-channel severity routing when specified.
+      if (ch.severities?.length && !ch.severities.includes(alert.severity)) {
+        return false;
+      }
+      return true;
+    });
+
+    const records: NotificationRecord[] = [];
+    for (const channel of targets) {
+      const record: NotificationRecord = {
+        channelId: channel.id,
+        channelType: channel.type,
+        sentAt: Date.now(),
+        status: 'sent',
+      };
+      try {
+        await this.deliverToChannel(channel, alert);
+      } catch (e) {
+        record.status = 'failed';
+        record.error = e instanceof Error ? e.message : String(e);
+      }
+      records.push(record);
+    }
+
+    alert.notificationHistory = records;
+    return records;
+  }
+
+  /** Deliver a single alert to a single channel based on its type. */
+  private async deliverToChannel(
+    channel: AlertChannel,
+    alert: Alert,
+  ): Promise<void> {
+    const cfg = channel.config;
+    const text = `[${alert.severity.toUpperCase()}] ${alert.title} — ${alert.message}`;
+
+    switch (channel.type) {
+      case 'webhook':
+      case 'custom': {
+        await this.postJson(
+          cfg.webhookUrl,
+          {
+            id: alert.id,
+            ruleId: alert.ruleId,
+            severity: alert.severity,
+            title: alert.title,
+            message: alert.message,
+            details: alert.details,
+            triggeredAt: alert.triggeredAt,
+          },
+          cfg.headers,
+        );
+        break;
+      }
+      case 'slack': {
+        await this.postJson(cfg.webhookUrl, { text }, cfg.headers);
+        break;
+      }
+      case 'discord': {
+        await this.postJson(cfg.webhookUrl, { content: text }, cfg.headers);
+        break;
+      }
+      case 'teams': {
+        await this.postJson(cfg.webhookUrl, { text }, cfg.headers);
+        break;
+      }
+      case 'pagerduty': {
+        const routingKey = cfg.apiKey;
+        if (!routingKey) {
+          throw new Error(
+            'PagerDuty channel requires config.apiKey (routing key)',
+          );
+        }
+        const severity =
+          alert.severity === 'critical'
+            ? 'critical'
+            : alert.severity === 'warning'
+              ? 'warning'
+              : 'info';
+        const res = await fetch('https://events.pagerduty.com/v2/enqueue', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            routing_key: routingKey,
+            event_action: 'trigger',
+            dedup_key: `agentsea-redteam:${alert.ruleId}`,
+            payload: {
+              summary: alert.message,
+              source: 'agentsea-redteam',
+              severity,
+              custom_details: alert.details,
+            },
+          }),
+        });
+        if (!res.ok) {
+          throw new Error(
+            `PagerDuty enqueue failed: ${res.status} ${res.statusText}`,
+          );
+        }
+        break;
+      }
+      case 'email': {
+        await this.deliverEmail(channel, alert, text);
+        break;
+      }
+    }
+  }
+
+  /** POST a JSON body to a webhook URL, throwing on a missing URL or non-2xx. */
+  private async postJson(
+    url: string | undefined,
+    body: unknown,
+    headers?: Record<string, string>,
+  ): Promise<void> {
+    if (!url) {
+      throw new Error('Channel requires config.webhookUrl');
+    }
+    const res = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', ...headers },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      throw new Error(
+        `Webhook delivery failed: ${res.status} ${res.statusText}`,
+      );
+    }
+  }
+
+  /** Deliver an email alert via the optional `nodemailer` dependency. */
+  private async deliverEmail(
+    channel: AlertChannel,
+    alert: Alert,
+    text: string,
+  ): Promise<void> {
+    const recipients = channel.config.emails;
+    if (!recipients?.length) {
+      throw new Error('Email channel requires config.emails');
+    }
+    const smtp = channel.config.settings?.smtp as
+      | { host: string; port?: number; secure?: boolean; auth?: unknown }
+      | undefined;
+    if (!smtp?.host) {
+      throw new Error('Email channel requires config.settings.smtp.host');
+    }
+
+    let mod: unknown;
+    try {
+      mod = await importOptional('nodemailer');
+    } catch {
+      throw new Error(
+        'Email alerts require the "nodemailer" package; install it or use a ' +
+          'different channel type.',
+      );
+    }
+    const mailer = ((mod as { default?: NodemailerLike }).default ??
+      mod) as NodemailerLike;
+
+    const from =
+      (channel.config.settings?.from as string | undefined) ??
+      'alerts@agentsea.local';
+    const transport = mailer.createTransport(smtp);
+    await transport.sendMail({
+      from,
+      to: recipients.join(', '),
+      subject: `[${alert.severity.toUpperCase()}] ${alert.title}`,
+      text,
+    });
   }
 
   private conditionMet(rule: AlertRule, value: number): boolean {
@@ -286,7 +519,11 @@ export class ContinuousTesting {
       summary = result.summary;
       status = 'completed';
       if (result.metrics) {
-        triggeredAlerts = this.alerts.evaluate(result.metrics, id);
+        // Evaluate alert rules and deliver notifications to configured channels.
+        triggeredAlerts = await this.alerts.evaluateAndDeliver(
+          result.metrics,
+          id,
+        );
       }
     } catch (e) {
       status = 'failed';
