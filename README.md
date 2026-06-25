@@ -738,6 +738,11 @@ README); **WIP** = under active development, APIs and behavior may change.
 - [x] Rate limiting and caching
 - [x] TypeScript definitions with strict type safety
 - [x] CI/CD workflows with automated releases
+- [x] **Crews** — multi-agent orchestration (role-based coordination; round-robin,
+      best-match, auction, hierarchical, and consensus delegation) with real LLM
+      execution by default via the core-backed `CoreExecutor` (mock path opt-in
+      with `mock: true`). The default execution path is covered end-to-end in the
+      `e2e` package via an injectable provider seam.
 
 ### 🧪 Beta
 
@@ -755,12 +760,6 @@ README); **WIP** = under active development, APIs and behavior may change.
   audit logging, and continuous testing now ship functional MVP implementations
   with tests (some advanced options — persistent audit storage, cron schedules,
   alert delivery — are still pending).
-- [~] **Crews** — multi-agent orchestration with role-based coordination and
-  delegation strategies (round-robin, best-match, auction, hierarchical,
-  consensus). Orchestration, workflows, strategies, and **real LLM execution by
-  default** (via the core-backed `CoreExecutor`; deterministic mock path is
-  opt-in with `mock: true`) are implemented. Live-provider end-to-end coverage
-  is still being expanded.
 
 ### 🚧 Work in Progress
 
