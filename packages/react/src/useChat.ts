@@ -68,6 +68,14 @@ export function useChat(config: UseChatConfig): UseChatReturn {
   );
   const retryCountRef = useRef(0);
 
+  // Mirror the in-flight stream into refs so the terminal `done` handler reads
+  // the current accumulated values rather than a stale render closure. Without
+  // this, a content chunk and the done chunk arriving in the same tick would
+  // drop the final assistant message.
+  const streamingContentRef = useRef('');
+  const thinkingContentRef = useRef('');
+  const activeToolCallsRef = useRef<TrackedToolCall[]>([]);
+
   // Cleanup on unmount
   useEffect(() => {
     return () => {
@@ -83,20 +91,18 @@ export function useChat(config: UseChatConfig): UseChatReturn {
     (chunk: ChatStreamChunk) => {
       switch (chunk.type) {
         case 'content':
-          if (chunk.delta) {
-            setStreamingContent((prev) => prev + chunk.content);
-          } else {
-            setStreamingContent(chunk.content);
-          }
+          streamingContentRef.current = chunk.delta
+            ? streamingContentRef.current + chunk.content
+            : chunk.content;
+          setStreamingContent(streamingContentRef.current);
           onContentUpdate?.(chunk.content);
           break;
 
         case 'thinking': {
-          if (chunk.delta) {
-            setThinkingContent((prev) => prev + chunk.content);
-          } else {
-            setThinkingContent(chunk.content);
-          }
+          thinkingContentRef.current = chunk.delta
+            ? thinkingContentRef.current + chunk.content
+            : chunk.content;
+          setThinkingContent(thinkingContentRef.current);
           const thinking: ThinkingPart = {
             type: 'thinking',
             content: chunk.content,
@@ -106,16 +112,15 @@ export function useChat(config: UseChatConfig): UseChatReturn {
           break;
         }
 
-        case 'tool_call':
-          setActiveToolCalls((prev) => {
-            const existing = prev.find((tc) => tc.id === chunk.toolCall.id);
-            if (existing) {
-              return prev.map((tc) =>
+        case 'tool_call': {
+          const prevCalls = activeToolCallsRef.current;
+          const existing = prevCalls.find((tc) => tc.id === chunk.toolCall.id);
+          activeToolCallsRef.current = existing
+            ? prevCalls.map((tc) =>
                 tc.id === chunk.toolCall.id ? chunk.toolCall : tc,
-              );
-            }
-            return [...prev, chunk.toolCall];
-          });
+              )
+            : [...prevCalls, chunk.toolCall];
+          setActiveToolCalls(activeToolCallsRef.current);
 
           // Handle approval flow
           if (chunk.toolCall.needsApproval && !autoApprove) {
@@ -128,33 +133,32 @@ export function useChat(config: UseChatConfig): UseChatReturn {
             });
           }
           break;
+        }
 
         case 'tool_result':
-          setActiveToolCalls((prev) =>
-            prev.map((tc) =>
-              tc.id === chunk.toolCall.id
-                ? { ...chunk.toolCall, state: 'complete' as const }
-                : tc,
-            ),
+          activeToolCallsRef.current = activeToolCallsRef.current.map((tc) =>
+            tc.id === chunk.toolCall.id
+              ? { ...chunk.toolCall, state: 'complete' as const }
+              : tc,
           );
+          setActiveToolCalls(activeToolCallsRef.current);
           break;
 
         case 'tool_state':
-          setActiveToolCalls((prev) =>
-            prev.map((tc) =>
-              tc.id === chunk.toolCallId ? { ...tc, state: chunk.state } : tc,
-            ),
+          activeToolCallsRef.current = activeToolCallsRef.current.map((tc) =>
+            tc.id === chunk.toolCallId ? { ...tc, state: chunk.state } : tc,
           );
+          setActiveToolCalls(activeToolCallsRef.current);
           break;
 
         case 'done': {
           setIsStreaming(false);
           setIsLoading(false);
 
-          // Create the final message
-          const finalContent = streamingContent;
-          const finalThinking = thinkingContent;
-          const finalToolCalls = [...activeToolCalls];
+          // Create the final message (read from refs — always current)
+          const finalContent = streamingContentRef.current;
+          const finalThinking = thinkingContentRef.current;
+          const finalToolCalls = [...activeToolCallsRef.current];
 
           if (finalContent || finalToolCalls.length > 0) {
             const assistantMessage = createMessage('assistant', finalContent, {
@@ -170,7 +174,10 @@ export function useChat(config: UseChatConfig): UseChatReturn {
             onComplete?.(assistantMessage);
           }
 
-          // Reset streaming state
+          // Reset streaming state (refs + render state)
+          streamingContentRef.current = '';
+          thinkingContentRef.current = '';
+          activeToolCallsRef.current = [];
           setStreamingContent('');
           setThinkingContent('');
           setActiveToolCalls([]);
@@ -188,10 +195,10 @@ export function useChat(config: UseChatConfig): UseChatReturn {
         }
       }
     },
+    // Reads accumulated stream state from refs, so it no longer depends on the
+    // streamingContent/thinkingContent/activeToolCalls render state — keeping
+    // processChunk stable across renders.
     [
-      streamingContent,
-      thinkingContent,
-      activeToolCalls,
       autoApprove,
       onContentUpdate,
       onThinking,
@@ -213,10 +220,13 @@ export function useChat(config: UseChatConfig): UseChatReturn {
       const userMessage = createMessage('user', content);
       setMessages((prev) => [...prev, userMessage]);
 
-      // Reset state
+      // Reset state (refs + render state)
       setError(null);
       setIsLoading(true);
       setIsStreaming(true);
+      streamingContentRef.current = '';
+      thinkingContentRef.current = '';
+      activeToolCallsRef.current = [];
       setStreamingContent('');
       setThinkingContent('');
       setActiveToolCalls([]);
@@ -329,21 +339,27 @@ export function useChat(config: UseChatConfig): UseChatReturn {
     setIsLoading(false);
 
     // Save partial response as a message if there's content
-    if (streamingContent) {
-      const partialMessage = createMessage('assistant', streamingContent, {
-        toolCalls: activeToolCalls.length > 0 ? activeToolCalls : undefined,
-        thinking: thinkingContent
-          ? { type: 'thinking', content: thinkingContent, isComplete: false }
+    const partialContent = streamingContentRef.current;
+    if (partialContent) {
+      const partialToolCalls = activeToolCallsRef.current;
+      const partialThinking = thinkingContentRef.current;
+      const partialMessage = createMessage('assistant', partialContent, {
+        toolCalls: partialToolCalls.length > 0 ? partialToolCalls : undefined,
+        thinking: partialThinking
+          ? { type: 'thinking', content: partialThinking, isComplete: false }
           : undefined,
         metadata: { finishReason: 'stopped' },
       });
       setMessages((prev) => [...prev, partialMessage]);
     }
 
+    streamingContentRef.current = '';
+    thinkingContentRef.current = '';
+    activeToolCallsRef.current = [];
     setStreamingContent('');
     setThinkingContent('');
     setActiveToolCalls([]);
-  }, [streamingContent, thinkingContent, activeToolCalls]);
+  }, []);
 
   /**
    * Clear all messages

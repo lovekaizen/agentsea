@@ -616,24 +616,36 @@ export function createDAGFromSteps(
   steps: WorkflowStepConfig[],
   _handlers: Map<string, StepHandler>,
 ): DAG {
-  const nodes: DAGNode[] = [];
-  const previousNodeIds: string[] = [];
-
+  // First pass: assign a node id to every step and index by step name so that
+  // `dependsOn` (which references step names) can be resolved — including
+  // forward references — regardless of declaration order.
+  const nodeIds = steps.map(() => nanoid());
+  const nameToId = new Map<string, string>();
   for (let i = 0; i < steps.length; i++) {
-    const step = steps[i];
-    const nodeId = nanoid();
+    nameToId.set(steps[i].name, nodeIds[i]);
+  }
 
-    const node: DAGNode = {
-      id: nodeId,
+  const nodes: DAGNode[] = steps.map((step, i) => {
+    let dependencies: string[];
+
+    if (step.dependsOn && step.dependsOn.length > 0) {
+      // Honor explicit dependencies so independent steps can run in parallel.
+      dependencies = step.dependsOn
+        .map((name) => nameToId.get(name))
+        .filter((id): id is string => id !== undefined);
+    } else {
+      // No explicit dependencies: default to depending on the previous step
+      // (sequential), preserving backward-compatible behavior.
+      dependencies = i > 0 ? [nodeIds[i - 1]] : [];
+    }
+
+    return {
+      id: nodeIds[i],
       name: step.name,
       stepConfig: step,
-      dependencies: [...previousNodeIds], // Sequential by default
+      dependencies,
     };
-
-    nodes.push(node);
-    previousNodeIds.length = 0;
-    previousNodeIds.push(nodeId);
-  }
+  });
 
   return {
     id: nanoid(),

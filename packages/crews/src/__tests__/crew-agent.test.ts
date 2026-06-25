@@ -120,8 +120,9 @@ describe('CrewAgent', () => {
       const result = await agent.execute('Test input');
 
       expect(result.output).toContain('TestAgent');
+      // Deterministic mock: tokens scale with input length, no real latency.
       expect(result.tokensUsed).toBeGreaterThan(0);
-      expect(result.latencyMs).toBeGreaterThan(0);
+      expect(result.latencyMs).toBe(0);
       expect(result.iterations).toBe(1);
     });
 
@@ -526,6 +527,47 @@ describe('CrewAgent', () => {
     it('should create agent instance', () => {
       const agent = createCrewAgent({ config: createAgentConfig() });
       expect(agent).toBeInstanceOf(CrewAgent);
+    });
+
+    it('should use a custom execute function when provided', async () => {
+      const execute = vi.fn().mockResolvedValue({
+        output: 'custom',
+        tokensUsed: 42,
+        latencyMs: 5,
+        iterations: 1,
+      });
+      const agent = createCrewAgent({ config: createAgentConfig(), execute });
+
+      const result = await agent.execute('hi');
+
+      expect(execute).toHaveBeenCalledOnce();
+      expect(result.output).toBe('custom');
+      expect(result.tokensUsed).toBe(42);
+    });
+
+    it('should use the deterministic mock path when mock: true', async () => {
+      const agent = createCrewAgent({
+        config: createAgentConfig(),
+        mock: true,
+      });
+
+      const result = await agent.execute('Test input');
+
+      expect(result.output).toContain('[Mock response from TestAgent]');
+      expect(result.latencyMs).toBe(0);
+    });
+
+    it('should wire a real executor by default that errors for unknown providers', async () => {
+      // No execute, no mock → factory attaches the core-backed executor.
+      // An unsupported provider should fail with a helpful message rather than
+      // silently returning mock data.
+      const agent = createCrewAgent({
+        config: createAgentConfig({ provider: 'definitely-not-a-provider' }),
+      });
+
+      await expect(agent.execute('Test input')).rejects.toThrow(
+        /unsupported provider/i,
+      );
     });
   });
 });

@@ -16,6 +16,7 @@ import type {
   ConsensusResult,
 } from '../types/index.js';
 import type { AnnotationTask } from './AnnotationTask.js';
+import { ConsensusManager } from './ConsensusManager.js';
 
 interface QueueEvents {
   'item:assigned': (itemId: string, annotatorId: string) => void;
@@ -238,6 +239,11 @@ export class AnnotationQueue extends EventEmitter<QueueEvents> {
     let flagged = 0;
     let totalAnnotations = 0;
 
+    // Inter-annotator agreement is only defined for items annotated by 2+ people.
+    const consensus = new ConsensusManager({ method: 'majority' });
+    let agreementSum = 0;
+    let agreementItems = 0;
+
     for (const item of this.items.values()) {
       switch (item.status) {
         case 'pending':
@@ -255,6 +261,11 @@ export class AnnotationQueue extends EventEmitter<QueueEvents> {
           break;
       }
       totalAnnotations += item.annotations.length;
+
+      if (item.annotations.length >= 2) {
+        agreementSum += consensus.calculateAgreement(item.annotations);
+        agreementItems++;
+      }
     }
 
     const avgAnnotationsPerItem =
@@ -268,7 +279,7 @@ export class AnnotationQueue extends EventEmitter<QueueEvents> {
       completedItems: completed,
       flaggedItems: flagged,
       averageAnnotationsPerItem: avgAnnotationsPerItem,
-      averageAgreement: 0, // Would need consensus calculation
+      averageAgreement: agreementItems > 0 ? agreementSum / agreementItems : 0,
     };
   }
 

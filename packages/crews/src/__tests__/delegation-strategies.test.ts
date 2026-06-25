@@ -13,6 +13,7 @@ function createAgent(
   name: string,
   capabilities: string[] = ['coding'],
   proficiency: 'novice' | 'intermediate' | 'expert' | 'master' = 'expert',
+  model = 'claude-sonnet-4-6',
 ): CrewAgent {
   const config: CrewAgentConfig = {
     name,
@@ -26,7 +27,7 @@ function createAgent(
       })),
       systemPrompt: 'You are a developer.',
     },
-    model: 'claude-sonnet-4-6',
+    model,
     provider: 'anthropic',
   };
 
@@ -227,6 +228,30 @@ describe('Delegation Strategies', () => {
         strategy.selectAgent(task, agents, context),
       ).rejects.toThrow();
     });
+
+    it('cheapest criterion should prefer the cheaper model', async () => {
+      const cheapAgent = createAgent(
+        'CheapAgent',
+        ['coding'],
+        'expert',
+        'claude-haiku-4-5',
+      );
+      const pricyAgent = createAgent(
+        'PricyAgent',
+        ['coding'],
+        'expert',
+        'claude-opus-4-8',
+      );
+      const cheapest = new AuctionStrategy({ selectionCriteria: 'cheapest' });
+
+      const result = await cheapest.selectAgent(
+        createTask({ requiredCapabilities: ['coding'] }),
+        [pricyAgent, cheapAgent],
+        context,
+      );
+
+      expect(result.selectedAgent).toBe('CheapAgent');
+    });
   });
 
   describe('HierarchicalStrategy', () => {
@@ -352,6 +377,28 @@ describe('Delegation Strategies', () => {
       const result = await strat.selectAgent(createTask(), agents, context);
 
       expect(result.selectedAgent).toBeDefined();
+    });
+
+    it('voting is deterministic (no Math.random) — same inputs, same winner', async () => {
+      const task = createTask({ requiredCapabilities: ['coding'] });
+
+      // Run several times; the capability-based vote must be stable.
+      const winners = new Set<string>();
+      for (let i = 0; i < 8; i++) {
+        const fresh = new ConsensusStrategy();
+        const result = await fresh.selectAgent(task, agents, context);
+        winners.add(result.selectedAgent);
+      }
+
+      expect(winners.size).toBe(1);
+    });
+
+    it('elects the most capable agent by task fit', async () => {
+      // Agent3 is a 'master' at coding+testing; should win a coding task.
+      const task = createTask({ requiredCapabilities: ['coding'] });
+      const result = await strategy.selectAgent(task, agents, context);
+
+      expect(['Agent1', 'Agent3']).toContain(result.selectedAgent);
     });
   });
 

@@ -22,15 +22,15 @@ pnpm add @lov3kaizen/agentsea-evaluate
 ```typescript
 import {
   EvaluationPipeline,
-  AccuracyMetric,
-  RelevanceMetric,
+  Accuracy,
+  Relevance,
   LLMJudge,
   EvalDataset,
 } from '@lov3kaizen/agentsea-evaluate';
 
 // Create metrics
-const accuracy = new AccuracyMetric({ type: 'fuzzy' });
-const relevance = new RelevanceMetric();
+const accuracy = new Accuracy({ type: 'fuzzy' });
+const relevance = new Relevance();
 
 // Create evaluation pipeline
 const pipeline = new EvaluationPipeline({
@@ -71,18 +71,15 @@ console.log(results.summary);
 
 ### Built-in Metrics
 
-| Metric                   | Description                                             |
-| ------------------------ | ------------------------------------------------------- |
-| `AccuracyMetric`         | Exact, fuzzy, or semantic match against expected output |
-| `RelevanceMetric`        | How relevant the response is to the input               |
-| `CoherenceMetric`        | Logical flow and consistency of the response            |
-| `ToxicityMetric`         | Detection of harmful or inappropriate content           |
-| `FaithfulnessMetric`     | Factual accuracy relative to provided context (RAG)     |
-| `ContextRelevanceMetric` | Relevance of retrieved context (RAG)                    |
-| `FluencyMetric`          | Grammar, spelling, and readability                      |
-| `ConcisenessMetric`      | Brevity without losing important information            |
-| `HelpfulnessMetric`      | How helpful the response is to the user                 |
-| `SafetyMetric`           | Detection of unsafe or harmful outputs                  |
+| Metric             | Description                                                                                                |
+| ------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `Accuracy`         | Exact or fuzzy match against expected output (`semantic` falls back to fuzzy until embeddings are wired)   |
+| `Relevance`        | How relevant the response is to the input                                                                  |
+| `Coherence`        | Logical flow and consistency of the response                                                               |
+| `Toxicity`         | Heuristic (regex) detection of harmful or inappropriate content                                            |
+| `Faithfulness`     | Factual accuracy relative to provided context (RAG)                                                        |
+| `ContextRelevance` | Relevance of retrieved context (RAG)                                                                       |
+| `CustomMetric`     | Build your own — see `createLengthMetric`, `createRegexMetric`, `createJSONMetric`, `createContainsMetric` |
 
 ### Custom Metrics
 
@@ -93,7 +90,8 @@ import {
   EvaluationInput,
 } from '@lov3kaizen/agentsea-evaluate';
 
-class CustomMetric extends BaseMetric {
+// Subclass BaseMetric (or use the `CustomMetric` / `createRegexMetric` helpers)
+class MyMetric extends BaseMetric {
   readonly type = 'custom';
   readonly name = 'my-metric';
 
@@ -240,15 +238,21 @@ const [train, test] = dataset.split(0.8);
 
 ### HuggingFace Integration
 
-```typescript
-import { loadHuggingFaceDataset } from '@lov3kaizen/agentsea-evaluate/datasets';
+> **Roadmap.** `EvalDataset.fromHuggingFace()` and `DatasetExporter.exportToHuggingFace()`
+> are placeholders today (they warn and return/write locally). For now, load data
+> yourself and construct an `EvalDataset` directly:
 
-const dataset = await loadHuggingFaceDataset('squad', {
-  split: 'validation',
-  inputField: 'question',
-  outputField: 'answers.text[0]',
-  contextField: 'context',
-  limit: 1000,
+```typescript
+import { EvalDataset } from '@lov3kaizen/agentsea-evaluate';
+
+const raw = await fetchYourData(); // e.g. read a JSONL/CSV export
+const dataset = new EvalDataset({
+  items: raw.map((r, i) => ({
+    id: String(i),
+    input: r.question,
+    expectedOutput: r.answer,
+    context: r.context,
+  })),
 });
 ```
 
@@ -257,28 +261,43 @@ const dataset = await loadHuggingFaceDataset('squad', {
 ### Production Monitoring
 
 ```typescript
-import { ContinuousEvaluator } from '@lov3kaizen/agentsea-evaluate/continuous';
+import {
+  EvaluationPipeline,
+  ContinuousEval,
+  AlertManager,
+  Accuracy,
+  Toxicity,
+} from '@lov3kaizen/agentsea-evaluate';
 
-const evaluator = new ContinuousEvaluator({
-  metrics: [accuracy, relevance, toxicity],
-  sampleRate: 0.1, // Evaluate 10% of requests
-  alertThresholds: {
-    accuracy: 0.8,
-    toxicity: 0.1,
-  },
+// A pipeline supplies the metrics that run on each sampled interaction
+const pipeline = new EvaluationPipeline({
+  metrics: [new Accuracy(), new Toxicity()],
 });
 
-// In your production code
-evaluator.on('alert', (alert) => {
-  console.error(`Quality alert: ${alert.metric} below threshold`);
+const monitor = new ContinuousEval({
+  pipeline,
+  sampleRate: 0.1, // Evaluate 10% of requests
+});
+
+// Wire alerting via AlertManager
+const alerts = new AlertManager({
+  channels: [{ type: 'webhook', webhook: process.env.ALERT_WEBHOOK! }],
+});
+monitor.setAlerts(alerts, {
+  accuracy: { threshold: 0.8, direction: 'below' },
+  toxicity: { threshold: 0.1, direction: 'above' },
+});
+alerts.on('alert:triggered', (alert) => {
+  console.error(`Quality alert: ${alert.metric} crossed threshold`);
   notifyOncall(alert);
 });
 
-// Log production interactions
-await evaluator.log({
+monitor.start();
+
+// Sample production interactions
+await monitor.evaluate({
   input: userQuery,
   output: agentResponse,
-  expectedOutput: groundTruth, // Optional
 });
 ```
 

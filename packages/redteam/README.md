@@ -5,17 +5,30 @@
 [![npm version](https://img.shields.io/npm/v/@lov3kaizen/agentsea-redteam.svg)](https://www.npmjs.com/package/@lov3kaizen/agentsea-redteam)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+> **Status: Beta.** The full surface is implemented and exported. The Safety
+> Benchmarks, Compliance Checking, Audit Logging, and Continuous Testing modules
+> ship functional MVP implementations (see notes below) and are covered by tests;
+> some advanced options in their type definitions are not yet wired.
+
 ## Features
 
 - **Attack Simulation** - Adversarial attack generation with mutation and combination strategies
 - **Vulnerability Scanning** - Automated scanning for prompt injection, jailbreaks, and data leakage
-- **Safety Benchmarks** - Evaluate agent safety against standard benchmarks
 - **Jailbreak Detection** - Real-time detection of jailbreak attempts
-- **Compliance Checking** - Verify compliance with AI safety regulations
-- **Audit Logging** - Evidence collection and audit trails for security reviews
-- **Continuous Testing** - Scheduled security testing with alerting
+- **Safety Benchmarks** - Run benchmark suites against a target model and score responses (`SafetyBenchmark`)
+- **Compliance Checking** - Score a target against a framework's requirements with findings and recommendations (`ComplianceChecker`)
+- **Audit Logging** - Hash-chained, tamper-evident audit log + evidence packaging (`AuditLogger`, `EvidenceCollector`)
+- **Continuous Testing** - Scheduling, threshold alerting, and run history (`ContinuousTesting`, `Scheduler`, `AlertManager`)
 - **CI/CD Integration** - Run security tests in your CI pipeline
 - **AgentSea Integration** - Direct integration with AgentSea agents
+
+### MVP notes
+
+These modules deliver their headline capability and are tested, but a few
+optional fields from the type definitions are not yet implemented: persistent
+audit storage backends (in-memory only today), evidence file/screenshot capture,
+cron-expression scheduling (fixed frequencies only), and alert-channel delivery
+(notifications are recorded, not dispatched). Contributions welcome.
 
 ## Installation
 

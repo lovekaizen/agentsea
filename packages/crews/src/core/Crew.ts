@@ -105,7 +105,11 @@ export class Crew {
    */
   private initializeAgents(): void {
     for (const agentConfig of this.config.agents) {
-      const agent = createCrewAgent({ config: agentConfig });
+      const agent = createCrewAgent({
+        config: agentConfig,
+        execute: this.config.execute,
+        mock: this.config.mock,
+      });
       this.addAgent(agent);
     }
   }

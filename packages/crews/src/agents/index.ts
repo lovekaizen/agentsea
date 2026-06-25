@@ -15,6 +15,8 @@ export {
   type AgentExecutionResult,
 } from './CrewAgent';
 
+export { createCoreExecutor } from './CoreExecutor';
+
 export { AgentCapabilities, type CapableAgent } from './AgentCapabilities';
 
 export {

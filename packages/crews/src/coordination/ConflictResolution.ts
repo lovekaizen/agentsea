@@ -412,18 +412,30 @@ export class ConflictResolver {
   }
 
   /**
+   * Normalize response content for equality comparison: trim, collapse runs of
+   * whitespace, and lowercase. This groups textually-equivalent answers (ignoring
+   * incidental formatting) over their FULL content rather than a fragile first-N
+   * characters prefix. Note: this is exact-match-after-normalization, not semantic
+   * similarity — agents that express the same idea with different wording will not
+   * group. Semantic grouping would require embeddings (future enhancement).
+   */
+  private normalizeContent(content: string): string {
+    return content.trim().replace(/\s+/g, ' ').toLowerCase();
+  }
+
+  /**
    * Resolve by voting
    */
   private resolveByVoting(
     conflict: Conflict,
     _context: ExecutionContext,
   ): Promise<Resolution> {
-    // Simple voting: each response is a vote for itself
-    // Weight by confidence
+    // Each distinct (normalized) answer accrues the summed confidence of the
+    // agents that produced it; the highest-weight answer wins.
     const votes = new Map<string, number>();
 
     for (const response of conflict.responses) {
-      const key = response.content.substring(0, 100); // Use first 100 chars as key
+      const key = this.normalizeContent(response.content);
       const current = votes.get(key) ?? 0;
       votes.set(key, current + response.confidence);
     }
@@ -439,7 +451,7 @@ export class ConflictResolver {
     }
 
     const winner = conflict.responses.find(
-      (r) => r.content.substring(0, 100) === winningKey,
+      (r) => this.normalizeContent(r.content) === winningKey,
     );
 
     return Promise.resolve({
@@ -460,9 +472,44 @@ export class ConflictResolver {
     conflict: Conflict,
     _context: ExecutionContext,
   ): Promise<Resolution> {
-    // Find response from agent with highest authority (by role)
-    // For now, use confidence as proxy for authority
-    return Promise.resolve(this.resolveByConfidence(conflict));
+    // Use an explicit authority signal when callers provide one in response
+    // metadata (e.g. role seniority), picking the highest-authority response.
+    // Fall back to confidence only when no response declares authority.
+    const ranked = conflict.responses
+      .map((r) => ({
+        response: r,
+        authority:
+          typeof r.metadata?.authority === 'number'
+            ? r.metadata.authority
+            : undefined,
+      }))
+      .filter(
+        (x): x is { response: AgentResponse; authority: number } =>
+          x.authority !== undefined,
+      );
+
+    if (ranked.length === 0) {
+      return Promise.resolve({
+        ...this.resolveByConfidence(conflict),
+        strategy: 'authority',
+        explanation:
+          'No authority metadata provided; fell back to highest confidence',
+      });
+    }
+
+    const winnerEntry = ranked.reduce((best, cur) =>
+      cur.authority > best.authority ? cur : best,
+    );
+
+    return Promise.resolve({
+      conflictId: conflict.id,
+      strategy: 'authority',
+      winner: winnerEntry.response,
+      explanation: `Selected response from highest-authority agent "${winnerEntry.response.agentName}" (authority: ${winnerEntry.authority})`,
+      successful: true,
+      escalated: false,
+      resolved: new Date(),
+    });
   }
 
   /**
@@ -476,7 +523,7 @@ export class ConflictResolver {
     const contentGroups = new Map<string, AgentResponse[]>();
 
     for (const response of conflict.responses) {
-      const key = response.content.substring(0, 100);
+      const key = this.normalizeContent(response.content);
       const group = contentGroups.get(key) ?? [];
       group.push(response);
       contentGroups.set(key, group);

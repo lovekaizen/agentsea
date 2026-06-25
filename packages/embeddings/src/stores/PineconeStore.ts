@@ -199,8 +199,11 @@ export class PineconeStore extends BaseStore {
       ids,
     );
 
+    // Pinecone's deleteMany does not report how many ids actually existed.
     return {
       deletedCount: ids.length,
+      requestedCount: ids.length,
+      countExact: false,
       durationMs: performance.now() - startTime,
     };
   }
@@ -210,13 +213,18 @@ export class PineconeStore extends BaseStore {
     const startTime = performance.now();
     const namespace = options?.namespace ?? this.namespace;
 
+    // Read the count before clearing so we can report an exact number.
+    const before = await this.getStats().catch(() => undefined);
+
     const ns = (this.index as { namespace: (ns: string) => unknown }).namespace(
       namespace,
     );
     await (ns as { deleteAll: () => Promise<void> }).deleteAll();
 
     return {
-      deletedCount: -1, // Unknown count
+      deletedCount: before?.vectorCount ?? 0,
+      requestedCount: before?.vectorCount,
+      countExact: before !== undefined,
       durationMs: performance.now() - startTime,
     };
   }

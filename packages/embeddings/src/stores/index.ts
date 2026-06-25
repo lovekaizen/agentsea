@@ -64,7 +64,21 @@ export function createStore(
       return new ChromaStore(config as ChromaStoreConfig);
     case 'qdrant':
       return new QdrantStore(config as QdrantStoreConfig);
+    case 'weaviate':
+    case 'milvus':
+    case 'pgvector':
+      // Types exist for these stores but no runtime implementation ships yet.
+      // Fail loudly instead of silently falling back to an in-memory store
+      // (which would quietly lose data and confuse users).
+      throw new Error(
+        `Vector store "${type}" is not implemented yet. Supported stores: ` +
+          'memory, pinecone, chroma, qdrant. Use one of those, or pass a ' +
+          'custom BaseStore implementation.',
+      );
     default:
-      return new MemoryStore(config as MemoryStoreConfig);
+      throw new Error(
+        `Unknown vector store type "${String(type)}". Supported stores: ` +
+          'memory, pinecone, chroma, qdrant.',
+      );
   }
 }

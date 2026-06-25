@@ -1,0 +1,17 @@
+{
+  "name": "@lov3kaizen/agentsea-e2e",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Cross-package end-to-end tests wiring AgentSea packages together as a user would.",
+  "type": "module",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest"
+  },
+  "devDependencies": {
+    "@lov3kaizen/agentsea-core": "workspace:*",
+    "@lov3kaizen/agentsea-crews": "workspace:*",
+    "@lov3kaizen/agentsea-types": "workspace:*",
+    "vitest": "^3.2.6"
+  }
+}

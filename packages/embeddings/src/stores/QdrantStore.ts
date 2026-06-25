@@ -254,8 +254,11 @@ export class QdrantStore extends BaseStore {
       points: ids,
     });
 
+    // Qdrant's delete does not report how many points actually existed.
     return {
       deletedCount: ids.length,
+      requestedCount: ids.length,
+      countExact: false,
       durationMs: performance.now() - startTime,
     };
   }
@@ -263,6 +266,9 @@ export class QdrantStore extends BaseStore {
   async deleteAll(_options?: DeleteOptions): Promise<DeleteResult> {
     await this.ensureInitialized();
     const startTime = performance.now();
+
+    // Read the count before clearing so we can report an exact number.
+    const before = await this.getStats().catch(() => undefined);
 
     // Delete collection and recreate
     await (
@@ -288,7 +294,9 @@ export class QdrantStore extends BaseStore {
     }
 
     return {
-      deletedCount: -1,
+      deletedCount: before?.vectorCount ?? 0,
+      requestedCount: before?.vectorCount,
+      countExact: before !== undefined,
       durationMs: performance.now() - startTime,
     };
   }

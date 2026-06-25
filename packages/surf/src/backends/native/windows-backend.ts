@@ -280,18 +280,12 @@ export class WindowsBackend extends BaseBackend {
         await new Promise((resolve) => setTimeout(resolve, 50));
       }
 
-      // Type the text using SendKeys
-      const escapedText = text
-        .replace(/\+/g, '{+}')
-        .replace(/\^/g, '{^}')
-        .replace(/%/g, '{%}')
-        .replace(/~/g, '{~}')
-        .replace(/\(/g, '{(}')
-        .replace(/\)/g, '{)}')
-        .replace(/\[/g, '{[}')
-        .replace(/\]/g, '{]}')
-        .replace(/\{/g, '{{}')
-        .replace(/\}/g, '{}}');
+      // Type the text using SendKeys. Every SendKeys metacharacter must be
+      // wrapped in braces, including the braces themselves ({ -> {{}, } -> {}}).
+      // This MUST be a single pass: escaping sequentially would re-escape the
+      // braces introduced by earlier replacements (e.g. "+" -> "{+}" then the
+      // brace pass turns it into "{{{}}+{}}"). Match each special char once.
+      const escapedText = text.replace(/[+^%~(){}[\]]/g, (ch) => `{${ch}}`);
 
       const script = `
         Add-Type -AssemblyName System.Windows.Forms
@@ -528,10 +522,50 @@ export class WindowsBackend extends BaseBackend {
   }
 
   /**
-   * Send a key press or release
+   * Send a key press (down) or release (up) for a single key using the Win32
+   * keybd_event API. Used to hold/release modifier keys around a click.
    */
-  private async sendKey(_key: string, _down: boolean): Promise<void> {
-    // This is a simplified version - full implementation would use keybd_event
+  private async sendKey(key: string, down: boolean): Promise<void> {
+    const vk = this.virtualKeyCode(key);
+    if (vk === undefined) {
+      throw new Error(
+        `Windows backend: cannot send unsupported key "${key}". ` +
+          'Supported modifier keys: CTRL, ALT, SHIFT, WIN.',
+      );
+    }
+
+    // KEYEVENTF_KEYUP = 0x0002; 0 = key down.
+    const flags = down ? 0 : 0x0002;
+    const script = `
+      Add-Type -TypeDefinition @"
+      using System;
+      using System.Runtime.InteropServices;
+      public class Keyboard {
+        [DllImport("user32.dll")]
+        public static extern void keybd_event(byte bVk, byte bScan, int dwFlags, int dwExtraInfo);
+      }
+"@
+      [Keyboard]::keybd_event(${vk}, 0, ${flags}, 0)
+    `;
+
+    await this.runPowerShell(script);
+  }
+
+  /**
+   * Map a key name to a Win32 virtual-key code. Currently covers the modifier
+   * keys used by click(); returns undefined for anything else.
+   */
+  private virtualKeyCode(key: string): number | undefined {
+    const map: Record<string, number> = {
+      CTRL: 0x11, // VK_CONTROL
+      CONTROL: 0x11,
+      ALT: 0x12, // VK_MENU
+      SHIFT: 0x10, // VK_SHIFT
+      WIN: 0x5b, // VK_LWIN
+      META: 0x5b,
+      COMMAND: 0x5b,
+    };
+    return map[key.toUpperCase()];
   }
 
   /**
@@ -579,15 +613,24 @@ export class WindowsBackend extends BaseBackend {
    * Map modifier key to SendKeys format
    */
   private mapModifierForSendKeys(modifier: ModifierKey): string {
-    const modifierMap: Record<ModifierKey, string> = {
+    // SendKeys only represents Ctrl (^), Alt (%) and Shift (+). The Windows key
+    // has no SendKeys encoding, so meta/command/win cannot be expressed here —
+    // mapping them to Ctrl would silently send the wrong combination. Fail
+    // loudly instead; callers wanting the Windows key should use a keybd_event
+    // based path.
+    const modifierMap: Partial<Record<ModifierKey, string>> = {
       ctrl: '^',
       alt: '%',
       shift: '+',
-      meta: '^',
-      command: '^',
-      win: '^',
     };
-    return modifierMap[modifier] || '^';
+    const mapped = modifierMap[modifier];
+    if (!mapped) {
+      throw new Error(
+        `Windows backend: modifier "${modifier}" cannot be sent via SendKeys ` +
+          '(no encoding for the Windows key). Supported: ctrl, alt, shift.',
+      );
+    }
+    return mapped;
   }
 
   /**

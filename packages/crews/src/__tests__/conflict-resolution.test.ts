@@ -223,6 +223,68 @@ describe('ConflictResolver', () => {
       expect(resolution.successful).toBe(true);
     });
 
+    it('authority should pick the highest-authority response when provided', async () => {
+      const authConflict: Conflict = {
+        ...conflict,
+        responses: [
+          createResponse({
+            agentName: 'Junior',
+            content: 'Junior take',
+            confidence: 0.95,
+            metadata: { authority: 1 },
+          }),
+          createResponse({
+            agentName: 'Senior',
+            content: 'Senior take',
+            confidence: 0.4,
+            metadata: { authority: 10 },
+          }),
+        ],
+      };
+
+      const resolution = await resolver.resolve(
+        authConflict,
+        context,
+        'authority',
+      );
+
+      // Senior wins on authority despite lower confidence.
+      expect(resolution.winner?.agentName).toBe('Senior');
+      expect(resolution.strategy).toBe('authority');
+    });
+
+    it('voting should group answers that differ only in whitespace/case', async () => {
+      const votingConflict: Conflict = {
+        ...conflict,
+        responses: [
+          createResponse({
+            agentName: 'A',
+            content: 'The answer is 42',
+            confidence: 0.4,
+          }),
+          createResponse({
+            agentName: 'B',
+            content: '  the   ANSWER is 42 ',
+            confidence: 0.4,
+          }),
+          createResponse({
+            agentName: 'C',
+            content: 'Something else entirely',
+            confidence: 0.7,
+          }),
+        ],
+      };
+
+      const resolution = await resolver.resolve(
+        votingConflict,
+        context,
+        'voting',
+      );
+
+      // A and B normalize to the same answer (0.4 + 0.4 = 0.8 > C's 0.7).
+      expect(['A', 'B']).toContain(resolution.winner?.agentName);
+    });
+
     it('should resolve by consensus', async () => {
       const consensusConflict: Conflict = {
         ...conflict,

@@ -307,8 +307,19 @@ export interface DeleteOptions {
  * Delete result
  */
 export interface DeleteResult {
-  /** Deleted count */
+  /**
+   * Number of vectors deleted. When `countExact` is false this is a best-effort
+   * estimate (e.g. the number of ids requested) because the backend does not
+   * report how many vectors actually existed and were removed.
+   */
   deletedCount: number;
+  /**
+   * Whether `deletedCount` is an exact, backend-confirmed figure. False for
+   * backends whose delete APIs do not return a count.
+   */
+  countExact: boolean;
+  /** Number of deletions requested (ids passed, or all for deleteAll). */
+  requestedCount?: number;
   /** Duration (ms) */
   durationMs: number;
 }

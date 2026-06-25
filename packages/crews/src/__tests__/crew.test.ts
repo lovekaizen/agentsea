@@ -35,6 +35,7 @@ function createMockCrewConfig(overrides: Partial<CrewConfig> = {}): CrewConfig {
     description: 'A test crew',
     agents: [createMockAgentConfig()],
     delegationStrategy: 'best-match',
+    mock: true,
     ...overrides,
   };
 }

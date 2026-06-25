@@ -280,20 +280,33 @@ describe('Pipeline', () => {
     });
 
     it('should apply timeout to guards', async () => {
-      const slowGuard = new MockGuard('slow-guard', true, 100);
+      // Use fake timers so the race between the guard delay (100ms) and the
+      // pipeline timeout (50ms) is deterministic regardless of event-loop load.
+      vi.useFakeTimers();
+      try {
+        const slowGuard = new MockGuard('slow-guard', true, 100);
 
-      const pipeline = new Pipeline(
-        {
-          name: 'test',
-          guards: ['slow-guard'],
-          timeoutMs: 50,
-        },
-        [slowGuard],
-      );
+        const pipeline = new Pipeline(
+          {
+            name: 'test',
+            guards: ['slow-guard'],
+            timeoutMs: 50,
+          },
+          [slowGuard],
+        );
 
-      await expect(pipeline.execute(createContext())).rejects.toThrow(
-        /timed out/,
-      );
+        const assertion = expect(
+          pipeline.execute(createContext()),
+        ).rejects.toThrow(/timed out/);
+
+        // Advance past the 50ms timeout but not the 100ms guard delay, so the
+        // timeout always wins the race.
+        await vi.advanceTimersByTimeAsync(60);
+
+        await assertion;
+      } finally {
+        vi.useRealTimers();
+      }
     });
   });
 
