@@ -129,17 +129,27 @@ export class SessionManager extends EventEmitter<SessionManagerEvents> {
   }
 
   /**
-   * Get a session by ID
+   * Get an active (in-memory) session by ID, synchronously.
+   *
+   * This only returns sessions currently held in memory — it does NOT read
+   * persisted sessions (ended/expired ones, or sessions from a previous
+   * process). Use {@link fetch} for storage-backed retrieval.
    */
   get(id: string): Session | null {
-    // Check active sessions first
+    return this.activeSessions.get(id) ?? null;
+  }
+
+  /**
+   * Retrieve a session by ID, falling back to persistent storage when it is no
+   * longer active in memory (e.g. it has ended, expired, or was created in a
+   * previous process). Returns null if it exists nowhere.
+   */
+  async fetch(id: string): Promise<Session | null> {
     const active = this.activeSessions.get(id);
     if (active) {
       return active;
     }
-
-    // Fall back to storage (would need to implement session retrieval in storage)
-    return null;
+    return this.storage.getSession(id);
   }
 
   /**
@@ -331,12 +341,16 @@ export class SessionManager extends EventEmitter<SessionManagerEvents> {
   }
 
   /**
-   * Persist session to storage
-   * Note: This would ideally use a dedicated session storage method
+   * Persist a session to storage.
+   *
+   * Writes through the dedicated `saveSession` adapter method (so the session
+   * is retrievable via {@link fetch} after it leaves memory) AND records a
+   * session_start/session_end analytics event for event-based reporting.
    */
   private async persistSession(session: Session): Promise<void> {
-    // For now, we'll store sessions as events
-    // A proper implementation would have dedicated session storage
+    await this.storage.saveSession(session);
+
+    // Also emit a lifecycle event so event/aggregation queries see the session.
     await this.storage.saveEvent({
       id: `session_${session.id}`,
       type: session.endedAt ? 'session_end' : 'session_start',
