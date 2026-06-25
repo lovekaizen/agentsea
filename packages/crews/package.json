@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-crews",
-  "version": "1.0.1",
+  "version": "1.1.0",
   "description": "Multi-agent orchestration framework for AgentSea. Build, compose, and orchestrate agent crews with role-based coordination, task delegation, and workflow automation.",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
