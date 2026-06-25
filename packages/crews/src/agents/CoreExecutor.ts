@@ -33,6 +33,11 @@ interface CoreLLMProvider {
 
 /** Lazily import core and instantiate the provider for a given provider name. */
 async function loadProvider(providerName: string): Promise<CoreLLMProvider> {
+  // Validate the provider name BEFORE importing core. Unsupported providers
+  // reject immediately and never pay the (potentially multi-second, cold)
+  // cost of loading core's full provider module graph.
+  const ctorName = resolveProviderCtorName(providerName);
+
   let core: Record<string, unknown>;
   try {
     core = (await import('@lov3kaizen/agentsea-core')) as Record<
@@ -47,26 +52,24 @@ async function loadProvider(providerName: string): Promise<CoreLLMProvider> {
     );
   }
 
-  const Ctor = resolveProviderCtor(core, providerName);
+  const Ctor = core[ctorName];
   return new (Ctor as new () => CoreLLMProvider)();
 }
 
-function resolveProviderCtor(
-  core: Record<string, unknown>,
-  providerName: string,
-): unknown {
+/** Map a provider name to the core export that constructs it. Pure; no import. */
+function resolveProviderCtorName(providerName: string): string {
   switch ((providerName ?? '').toLowerCase()) {
     case 'anthropic':
     case 'claude':
-      return core.AnthropicProvider;
+      return 'AnthropicProvider';
     case 'openai':
     case 'gpt':
-      return core.OpenAIProvider;
+      return 'OpenAIProvider';
     case 'gemini':
     case 'google':
-      return core.GeminiProvider;
+      return 'GeminiProvider';
     case 'ollama':
-      return core.OllamaProvider;
+      return 'OllamaProvider';
     default:
       throw new Error(
         `CrewAgent: unsupported provider "${providerName}". Supported providers ` +
