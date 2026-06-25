@@ -164,6 +164,85 @@ describe('Workflow Tests', () => {
       await expect(workflow.execute('test', context)).rejects.toThrow();
     });
 
+    describe('retry error-handling strategy', () => {
+      it('retries a flaky agent and succeeds before exhausting attempts', async () => {
+        const config: WorkflowConfig = {
+          name: 'retry-test',
+          agents: [{ name: 'agent1', role: 'first' }],
+          errorHandling: 'retry',
+          retry: { maxAttempts: 3, backoff: 'exponential' },
+        };
+
+        // Fails twice, then succeeds on the third attempt.
+        mockAgent1.execute
+          .mockRejectedValueOnce(new Error('transient 1'))
+          .mockRejectedValueOnce(new Error('transient 2'))
+          .mockResolvedValue({
+            content: 'recovered',
+            metadata: { tokensUsed: 10, latencyMs: 1, iterations: 1 },
+            finishReason: 'stop',
+          });
+
+        const workflow = new SequentialWorkflow(config);
+        (workflow as any).agents = new Map([['agent1', mockAgent1]]);
+
+        const response = await workflow.execute('test', context);
+
+        expect(mockAgent1.execute).toHaveBeenCalledTimes(3);
+        expect(response.content).toBe('recovered');
+      });
+
+      it('gives up after maxAttempts and propagates the error', async () => {
+        const config: WorkflowConfig = {
+          name: 'retry-test',
+          agents: [{ name: 'agent1', role: 'first' }],
+          errorHandling: 'retry',
+          retry: { maxAttempts: 2 },
+        };
+
+        mockAgent1.execute.mockRejectedValue(new Error('always fails'));
+
+        const workflow = new SequentialWorkflow(config);
+        (workflow as any).agents = new Map([['agent1', mockAgent1]]);
+
+        await expect(workflow.execute('test', context)).rejects.toThrow(
+          /always fails/,
+        );
+        expect(mockAgent1.execute).toHaveBeenCalledTimes(2);
+      });
+
+      it('defaults to 3 attempts when retry config is omitted', async () => {
+        const config: WorkflowConfig = {
+          name: 'retry-test',
+          agents: [{ name: 'agent1', role: 'first' }],
+          errorHandling: 'retry',
+        };
+
+        mockAgent1.execute.mockRejectedValue(new Error('boom'));
+
+        const workflow = new SequentialWorkflow(config);
+        (workflow as any).agents = new Map([['agent1', mockAgent1]]);
+
+        await expect(workflow.execute('test', context)).rejects.toThrow();
+        expect(mockAgent1.execute).toHaveBeenCalledTimes(3);
+      });
+
+      it('does not retry under the default fail-fast strategy', async () => {
+        const config: WorkflowConfig = {
+          name: 'no-retry-test',
+          agents: [{ name: 'agent1', role: 'first' }],
+        };
+
+        mockAgent1.execute.mockRejectedValue(new Error('once'));
+
+        const workflow = new SequentialWorkflow(config);
+        (workflow as any).agents = new Map([['agent1', mockAgent1]]);
+
+        await expect(workflow.execute('test', context)).rejects.toThrow();
+        expect(mockAgent1.execute).toHaveBeenCalledTimes(1);
+      });
+    });
+
     it('should track latency', async () => {
       const config: WorkflowConfig = {
         name: 'sequential-test',
