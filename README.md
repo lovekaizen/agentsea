@@ -754,12 +754,13 @@ README); **WIP** = under active development, APIs and behavior may change.
       (webhook/Slack/Teams/Discord/PagerDuty/email), and tamper-evident,
       hash-chained audit logging with pluggable persistent storage
       (`FileAuditStore`).
+- [x] **Embeddings** — multi-provider support (OpenAI, Cohere, Voyage, HuggingFace),
+      chunking, caching, and Pinecone/Chroma/Qdrant/**pgvector/Weaviate/Milvus**
+      stores, plus local **ONNX** models via Transformers.js
+      (`@xenova/transformers`).
 
 ### 🧪 Beta
 
-- [~] **Embeddings** — multi-provider support (OpenAI, Cohere, Voyage, HuggingFace),
-  chunking, caching, and Pinecone/Chroma/Qdrant stores. Weaviate/Milvus/pgvector
-  and local ONNX are advertised in types but not yet implemented.
 - [~] **Surf** — vision-driven computer use and browser automation. Puppeteer +
   Docker/Linux/macOS/Windows backends exist but lack integration test coverage;
   there is no Playwright backend yet and some native input paths are fragile.
