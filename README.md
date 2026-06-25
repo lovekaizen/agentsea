@@ -748,6 +748,12 @@ README); **WIP** = under active development, APIs and behavior may change.
       nodemailer), webhook/Slack, and PagerDuty (Events API v2) alert channels;
       HuggingFace dataset import (datasets-server REST) and Hub export
       (`@huggingface/hub`).
+- [x] **Red Team** — adversarial attack generation, vulnerability scanning, and
+      jailbreak detection; safety benchmarks, compliance checking. Continuous
+      testing with cron-driven schedules (`cron-parser`), real alert delivery
+      (webhook/Slack/Teams/Discord/PagerDuty/email), and tamper-evident,
+      hash-chained audit logging with pluggable persistent storage
+      (`FileAuditStore`).
 
 ### 🧪 Beta
 
@@ -757,11 +763,6 @@ README); **WIP** = under active development, APIs and behavior may change.
 - [~] **Surf** — vision-driven computer use and browser automation. Puppeteer +
   Docker/Linux/macOS/Windows backends exist but lack integration test coverage;
   there is no Playwright backend yet and some native input paths are fragile.
-- [~] **Red Team** — adversarial attack generation, vulnerability scanning, and
-  jailbreak detection are implemented. Safety benchmarks, compliance checking,
-  audit logging, and continuous testing now ship functional MVP implementations
-  with tests (some advanced options — persistent audit storage, cron schedules,
-  alert delivery — are still pending).
 
 ### 🚧 Work in Progress
 

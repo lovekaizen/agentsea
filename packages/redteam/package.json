@@ -85,8 +85,12 @@
     "directory": "packages/redteam"
   },
   "dependencies": {
+    "cron-parser": "^5.0.4",
     "eventemitter3": "^5.0.1",
     "nanoid": "^5.0.9"
+  },
+  "optionalDependencies": {
+    "nodemailer": "^6.9.0"
   },
   "devDependencies": {
     "tsup": "^8.5.0",

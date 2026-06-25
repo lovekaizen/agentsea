@@ -19,6 +19,14 @@ import type {
   EvidencePackageSummary,
 } from '../types/audit.types.js';
 import type { Evidence } from '../types/compliance.types.js';
+import {
+  type AuditStore,
+  FileAuditStore,
+  createFileAuditStore,
+} from './storage.js';
+
+export { FileAuditStore, createFileAuditStore };
+export type { AuditStore };
 
 // Re-export types
 export type {
@@ -79,9 +87,23 @@ export class AuditLogger {
   private readonly enabled: boolean;
   private readonly trailId = nanoid();
   private readonly startTime = Date.now();
+  private readonly store?: AuditStore;
 
-  constructor(config: { enabled?: boolean } = {}) {
+  constructor(config: { enabled?: boolean; store?: AuditStore } = {}) {
     this.enabled = config.enabled ?? true;
+    this.store = config.store;
+  }
+
+  /**
+   * Hydrate the in-memory chain from the configured persistent store. Call this
+   * once after construction (e.g. on process start) to resume an existing,
+   * tamper-evident trail. Returns the number of entries loaded.
+   */
+  async loadFromStore(): Promise<number> {
+    if (!this.store) return 0;
+    const loaded = await this.store.loadAll();
+    this.entries = loaded;
+    return loaded.length;
   }
 
   /** Append a new entry, linking it to the previous one. Returns the stored entry. */
@@ -102,6 +124,8 @@ export class AuditLogger {
 
     if (this.enabled) {
       this.entries.push(entry);
+      // Persist after linking so the durable record matches the in-memory chain.
+      void this.store?.append(entry);
     }
     return entry;
   }
@@ -251,6 +275,7 @@ export class AuditLogger {
 
   clear(): void {
     this.entries = [];
+    void this.store?.clear();
   }
 }
 
@@ -332,7 +357,10 @@ export class EvidenceCollector {
   }
 }
 
-export function createAuditLogger(config?: { enabled?: boolean }): AuditLogger {
+export function createAuditLogger(config?: {
+  enabled?: boolean;
+  store?: AuditStore;
+}): AuditLogger {
   return new AuditLogger(config);
 }
 
