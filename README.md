@@ -758,12 +758,10 @@ README); **WIP** = under active development, APIs and behavior may change.
       chunking, caching, and Pinecone/Chroma/Qdrant/**pgvector/Weaviate/Milvus**
       stores, plus local **ONNX** models via Transformers.js
       (`@xenova/transformers`).
-
-### 🧪 Beta
-
-- [~] **Surf** — vision-driven computer use and browser automation. Puppeteer +
-  Docker/Linux/macOS/Windows backends exist but lack integration test coverage;
-  there is no Playwright backend yet and some native input paths are fragile.
+- [x] **Surf** — vision-driven computer use and browser automation with
+      **Puppeteer and Playwright** (chromium/firefox/webkit) backends plus
+      Docker/Linux/macOS/Windows. Backend action translation is unit-tested and
+      a guarded headless smoke test covers the real launch path.
 
 ### 🚧 Work in Progress
 
