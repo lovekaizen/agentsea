@@ -12,7 +12,7 @@ export class ParallelWorkflow extends Workflow {
     const promises = this.config.agents.map(async (agentConfig) => {
       try {
         const agent = this.getAgent(agentConfig.name);
-        const response = await agent.execute(input, context);
+        const response = await this.executeAgent(agent, input, context);
         return {
           agentName: agentConfig.name,
           response,

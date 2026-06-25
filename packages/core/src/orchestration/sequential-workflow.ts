@@ -15,7 +15,7 @@ export class SequentialWorkflow extends Workflow {
     for (const agentConfig of this.config.agents) {
       try {
         const agent = this.getAgent(agentConfig.name);
-        const response = await agent.execute(currentInput, context);
+        const response = await this.executeAgent(agent, currentInput, context);
 
         // Accumulate metrics
         totalTokens += response.metadata.tokensUsed;
