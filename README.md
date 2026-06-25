@@ -755,13 +755,15 @@ README); **WIP** = under active development, APIs and behavior may change.
   audit logging, and continuous testing now ship functional MVP implementations
   with tests (some advanced options — persistent audit storage, cron schedules,
   alert delivery — are still pending).
+- [~] **Crews** — multi-agent orchestration with role-based coordination and
+  delegation strategies (round-robin, best-match, auction, hierarchical,
+  consensus). Orchestration, workflows, strategies, and **real LLM execution by
+  default** (via the core-backed `CoreExecutor`; deterministic mock path is
+  opt-in with `mock: true`) are implemented. Live-provider end-to-end coverage
+  is still being expanded.
 
 ### 🚧 Work in Progress
 
-- [ ] **Crews** — multi-agent orchestration with role-based coordination and
-      delegation strategies (round-robin, best-match, auction, hierarchical,
-      consensus). Orchestration, workflows, and most strategies are implemented,
-      but agents do not yet execute against a real LLM out of the box.
 - [ ] Admin UI dashboard improvements
 - [ ] Additional MCP tools/servers
 - [ ] Enhanced computer-use agent capabilities
