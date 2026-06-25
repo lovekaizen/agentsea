@@ -1042,12 +1042,19 @@ importers:
       '@lov3kaizen/agentsea-core':
         specifier: '>=0.6.0'
         version: 1.0.1
+      cron-parser:
+        specifier: ^5.0.4
+        version: 5.6.1
       eventemitter3:
         specifier: ^5.0.1
         version: 5.0.1
       nanoid:
         specifier: ^5.0.9
         version: 5.1.6
+    optionalDependencies:
+      nodemailer:
+        specifier: ^6.9.0
+        version: 6.10.1
     devDependencies:
       tsup:
         specifier: ^8.5.0
@@ -7014,7 +7021,7 @@ packages:
       '@vitest/spy': 3.2.6
       estree-walker: 3.0.3
       magic-string: 0.30.21
-      vite: 6.4.3(@types/node@22.19.3)
+      vite: 6.4.3(@types/node@20.19.24)
     dev: true
 
   /@vitest/pretty-format@3.2.6:
@@ -8135,6 +8142,13 @@ packages:
   /corser@2.0.1:
     resolution: {integrity: sha512-utCYNzRSQIZNPIcGZdQc92UVJYAhtGAteCFg0yRaFm8f0P+CPtyGyHXJcGXnffjCybUCEx3FQ2G7U3/o9eIkVQ==}
     engines: {node: '>= 0.4.0'}
+    dev: false
+
+  /cron-parser@5.6.1:
+    resolution: {integrity: sha512-QBm4o1PwZiuY7KFbVvW7FLC8bozy7YWzv+Fz6KRS7sQghzcbDZCGxr/Bc5b6TQreAoSwuWVP491dIcK0THCX6A==}
+    engines: {node: '>=18'}
+    dependencies:
+      luxon: 3.7.2
     dev: false
 
   /croner@9.1.0:
@@ -11278,6 +11292,11 @@ packages:
       react: ^16.5.1 || ^17.0.0 || ^18.0.0
     dependencies:
       react: 18.3.1
+    dev: false
+
+  /luxon@3.7.2:
+    resolution: {integrity: sha512-vtEhXh/gNjI9Yg1u4jX/0YVPMvxzHuGgCm6tC5kZyb08yjGWGnqAjGJvcXbqQR2P3MyMEFnRbpcdFS6PBcLqew==}
+    engines: {node: '>=12'}
     dev: false
 
   /lz-string@1.5.0:
@@ -15307,7 +15326,7 @@ packages:
       std-env: 3.10.0
       tinybench: 2.9.0
       tinyexec: 0.3.2
-      tinyglobby: 0.2.15
+      tinyglobby: 0.2.17
       tinypool: 1.1.1
       tinyrainbow: 2.0.0
       vite: 6.4.3(@types/node@22.19.3)
