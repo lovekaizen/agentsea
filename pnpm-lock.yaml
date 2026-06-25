@@ -550,6 +550,21 @@ importers:
         specifier: ^3.2.6
         version: 3.2.6(@types/node@20.19.24)(jsdom@25.0.1)
 
+  packages/e2e:
+    devDependencies:
+      '@lov3kaizen/agentsea-core':
+        specifier: workspace:*
+        version: link:../core
+      '@lov3kaizen/agentsea-crews':
+        specifier: workspace:*
+        version: link:../crews
+      '@lov3kaizen/agentsea-types':
+        specifier: workspace:*
+        version: link:../types
+      vitest:
+        specifier: ^3.2.6
+        version: 3.2.6(@types/node@20.19.24)(jsdom@25.0.1)
+
   packages/embeddings:
     dependencies:
       '@lov3kaizen/agentsea-core':
