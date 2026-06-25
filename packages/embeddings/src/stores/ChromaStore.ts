@@ -212,8 +212,11 @@ export class ChromaStore extends BaseStore {
       }
     ).delete({ ids });
 
+    // Chroma's delete does not report how many ids actually existed.
     return {
       deletedCount: ids.length,
+      requestedCount: ids.length,
+      countExact: false,
       durationMs: performance.now() - startTime,
     };
   }
@@ -221,6 +224,9 @@ export class ChromaStore extends BaseStore {
   async deleteAll(_options?: DeleteOptions): Promise<DeleteResult> {
     await this.ensureInitialized();
     const startTime = performance.now();
+
+    // Read the count before clearing so we can report an exact number.
+    const before = await this.getStats().catch(() => undefined);
 
     // Delete and recreate collection
     await (
@@ -244,7 +250,9 @@ export class ChromaStore extends BaseStore {
     });
 
     return {
-      deletedCount: -1,
+      deletedCount: before?.vectorCount ?? 0,
+      requestedCount: before?.vectorCount,
+      countExact: before !== undefined,
       durationMs: performance.now() - startTime,
     };
   }

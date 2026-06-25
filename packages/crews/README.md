@@ -70,6 +70,32 @@ const result = await crew.kickoff();
 console.log(result.finalOutput);
 ```
 
+> **Execution model.** By default, crew agents execute against real LLMs via
+> `@lov3kaizen/agentsea-core` providers (a required peer dependency), so make
+> sure the relevant API key is set (e.g. `ANTHROPIC_API_KEY`). Supported
+> providers out of the box: `anthropic`, `openai`, `gemini`, `ollama`.
+>
+> - To plug in a different integration, pass an `execute` function on the crew
+>   config (or to `createCrewAgent`).
+> - For offline scaffolding and tests, set `mock: true` on the crew config to
+>   get deterministic mock responses without any network calls.
+>
+> ```typescript
+> // Offline / test mode
+> const crew = createCrew({ ...config, mock: true });
+>
+> // Custom execution backend
+> const crew2 = createCrew({
+>   ...config,
+>   execute: async (input, systemPrompt) => ({
+>     output: await myLlm(systemPrompt, input),
+>     tokensUsed: 0,
+>     latencyMs: 0,
+>     iterations: 1,
+>   }),
+> });
+> ```
+
 ### Using Templates
 
 ```typescript

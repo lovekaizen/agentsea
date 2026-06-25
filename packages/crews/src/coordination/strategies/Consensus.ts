@@ -256,10 +256,9 @@ export class ConsensusStrategy extends BaseDelegationStrategy {
     candidates: CrewAgent[],
   ): Promise<Vote[]> {
     const votes: Vote[] = [];
-    const candidateNames = candidates.map((c) => c.name);
 
     for (const voter of voters) {
-      const vote = await this.getVote(voter, task, candidateNames);
+      const vote = await this.getVote(voter, task, candidates);
       if (vote) {
         votes.push(vote);
       }
@@ -269,51 +268,50 @@ export class ConsensusStrategy extends BaseDelegationStrategy {
   }
 
   /**
-   * Get a vote from an agent
+   * Get a vote from an agent.
+   *
+   * Each voter ranks the candidates by how well their capabilities fit the
+   * task (the same `calculateTaskScore` signal the BestMatch/Auction strategies
+   * use), plus a small self-preference bias so an agent leans toward itself when
+   * candidates are otherwise comparable. This is fully deterministic — given the
+   * same agents and task it always produces the same votes — and explainable,
+   * which is what consensus needs. (A future enhancement could replace this with
+   * an actual LLM deliberation per voter; the tally/agreement logic is unchanged.)
    */
   private getVote(
     voter: CrewAgent,
     task: TaskConfig,
-    candidates: string[],
+    candidates: CrewAgent[],
   ): Promise<Vote | null> {
-    // For now, simulate voting based on capability matching
-    // In a real implementation, this could ask the LLM to vote
+    if (candidates.length === 0) return Promise.resolve(null);
 
-    // Calculate scores for each candidate
-    const scores: Array<{ name: string; score: number }> = [];
-    for (const candidateName of candidates) {
-      // Self-vote with slight bias
-      if (candidateName === voter.name) {
-        scores.push({ name: candidateName, score: 0.7 });
-      } else {
-        // Random factor for diversity
-        const randomFactor = 0.8 + Math.random() * 0.4;
-        scores.push({
-          name: candidateName,
-          score: Math.random() * randomFactor,
-        });
+    const SELF_PREFERENCE_BONUS = 0.15;
+
+    const scores = candidates.map((candidate) => {
+      let score = candidate.calculateTaskScore(task);
+      if (candidate.name === voter.name) {
+        score += SELF_PREFERENCE_BONUS;
       }
-    }
+      return { name: candidate.name, score };
+    });
 
-    // Sort by score
-    scores.sort((a, b) => b.score - a.score);
+    // Highest score wins; ties broken deterministically by name for stability.
+    scores.sort((a, b) => b.score - a.score || a.name.localeCompare(b.name));
 
-    // Vote for top candidate
     const selected = scores[0];
     if (!selected) return Promise.resolve(null);
 
-    // Calculate weight
-    let weight = 1;
-    if (this.weightedVoting) {
-      // Weight by capability score
-      weight = voter.calculateTaskScore(task) || 0.5;
-    }
+    // Weight: when weighted voting is on, a voter's influence scales with its
+    // own task fit (a more capable agent's opinion counts for more).
+    const weight = this.weightedVoting
+      ? voter.calculateTaskScore(task) || 0.5
+      : 1;
 
     return Promise.resolve({
       voter: voter.name,
       candidate: selected.name,
       weight,
-      reasoning: `Selected based on perceived suitability (score: ${selected.score.toFixed(2)})`,
+      reasoning: `Ranked "${selected.name}" highest by capability fit for the task (score: ${selected.score.toFixed(2)})`,
     });
   }
 

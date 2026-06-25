@@ -147,6 +147,27 @@ export interface CrewConfig {
   maxConcurrentTasks?: number;
   /** Custom context to pass to all agents */
   globalContext?: Record<string, unknown>;
+  /**
+   * Use deterministic mock execution for all agents instead of calling a real
+   * LLM. Useful for tests and offline scaffolding. Defaults to false, in which
+   * case agents execute against real `@lov3kaizen/agentsea-core` providers.
+   */
+  mock?: boolean;
+  /**
+   * Custom execute function applied to every agent in the crew. Takes
+   * precedence over the default core-backed executor. Each call receives the
+   * formatted task input and the agent's generated system prompt.
+   */
+  execute?: (
+    input: string,
+    systemPrompt: string,
+  ) => Promise<{
+    output: string;
+    tokensUsed: number;
+    latencyMs: number;
+    iterations: number;
+    toolCalls?: Array<{ tool: string; input: unknown; result: unknown }>;
+  }>;
 }
 
 /**

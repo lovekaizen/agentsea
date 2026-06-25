@@ -146,9 +146,17 @@ export class SQLiteCache extends BaseCache {
     `);
     updateStmt.run(Date.now(), key);
 
-    // Parse vector from blob
+    // Parse vector from blob. Honor the Buffer's byteOffset/byteLength: Node may
+    // back a small Buffer with a slice of a shared pool ArrayBuffer, so reading
+    // `vectorBuffer.buffer` directly would read the wrong (or too many) bytes.
     const vectorBuffer = row.vector as Buffer;
-    const vector = Array.from(new Float32Array(vectorBuffer.buffer));
+    const vector = Array.from(
+      new Float32Array(
+        vectorBuffer.buffer,
+        vectorBuffer.byteOffset,
+        vectorBuffer.byteLength / Float32Array.BYTES_PER_ELEMENT,
+      ),
+    );
 
     return {
       key: row.key as string,

@@ -111,26 +111,48 @@ export {
   type ScanTestExecutor,
 } from './scanning/index.js';
 
-// Safety benchmarks
-export { SafetyBenchmark } from './benchmarks/index.js';
-
 // Threat detection
 export {
   JailbreakDetector,
   createJailbreakDetector,
 } from './detection/index.js';
 
+// Safety benchmarks
+export {
+  SafetyBenchmark,
+  createSafetyBenchmark,
+  defaultSafetyScorer,
+  type RespondFn,
+  type ScorerFn,
+} from './benchmarks/index.js';
+
 // Compliance checking
-export { ComplianceChecker } from './compliance/index.js';
+export {
+  ComplianceChecker,
+  createComplianceChecker,
+  type RequirementEvaluation,
+  type ComplianceEvaluations,
+} from './compliance/index.js';
 
 // Audit logging
-export { AuditLogger, EvidenceCollector } from './audit/index.js';
+export {
+  AuditLogger,
+  EvidenceCollector,
+  createAuditLogger,
+  createEvidenceCollector,
+  type AuditEntryInput,
+} from './audit/index.js';
 
 // Continuous testing
 export {
   ContinuousTesting,
   Scheduler,
   AlertManager,
+  createContinuousTesting,
+  createScheduler,
+  createAlertManager,
+  nextRunAt,
+  type TestRunner,
 } from './continuous/index.js';
 
 // Integrations
@@ -144,5 +166,5 @@ export {
 // Types - export from types module
 export * from './types/index.js';
 
-// Version
-export const VERSION = '0.1.0';
+// Version (keep in sync with package.json)
+export const VERSION = '1.0.0';

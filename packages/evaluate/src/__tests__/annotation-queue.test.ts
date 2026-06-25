@@ -601,4 +601,54 @@ describe('AnnotationQueue', () => {
       );
     });
   });
+
+  describe('getStats', () => {
+    it('reports zero agreement when no item has 2+ annotations', () => {
+      const queue = new AnnotationQueue({ task, items });
+      queue.submitAnnotation(
+        'item-1',
+        'annotator-1',
+        { category: 'good' },
+        100,
+      );
+
+      const stats = queue.getStats();
+      expect(stats.totalItems).toBe(3);
+      expect(stats.averageAgreement).toBe(0);
+    });
+
+    it('computes full agreement when both annotators agree', () => {
+      const queue = new AnnotationQueue({ task, items });
+      queue.submitAnnotation(
+        'item-1',
+        'annotator-1',
+        { category: 'good' },
+        100,
+      );
+      queue.submitAnnotation(
+        'item-1',
+        'annotator-2',
+        { category: 'good' },
+        100,
+      );
+
+      const stats = queue.getStats();
+      expect(stats.averageAgreement).toBe(1);
+    });
+
+    it('computes partial agreement when annotators disagree', () => {
+      const queue = new AnnotationQueue({ task, items });
+      queue.submitAnnotation(
+        'item-1',
+        'annotator-1',
+        { category: 'good' },
+        100,
+      );
+      queue.submitAnnotation('item-1', 'annotator-2', { category: 'bad' }, 100);
+
+      const stats = queue.getStats();
+      // 2 annotators, max agreement on any single value is 1/2
+      expect(stats.averageAgreement).toBe(0.5);
+    });
+  });
 });

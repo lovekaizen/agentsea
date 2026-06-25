@@ -701,7 +701,11 @@ pnpm type-check
 
 ## ✅ Feature Status
 
-### ✅ Completed
+Maturity is tracked per area. **Stable** = implemented and covered by tests;
+**Beta** = usable and tested but with known gaps or rough edges (see each package
+README); **WIP** = under active development, APIs and behavior may change.
+
+### ✅ Stable
 
 - [x] Multi-provider support (Claude, GPT, Gemini) with 60+ models including GPT-5, GPT-4.1, o3, o4-mini
 - [x] Per-model type safety with compile-time validation of model-specific options
@@ -711,8 +715,6 @@ pnpm type-check
 - [x] Agentic coding (`sea code`) with 13 built-in coding tools
 - [x] MCP protocol integration
 - [x] ACP (Agentic Commerce Protocol) with 14 commerce operations
-- [x] Multi-agent crews with role-based coordination
-- [x] Delegation strategies (round-robin, best-match, auction, hierarchical, consensus)
 - [x] Conversation schema system with step-based flows
 - [x] Advanced memory stores (Buffer, Redis, PostgreSQL, SQLite, Pinecone)
 - [x] Memory structures (Episodic, Semantic, Working)
@@ -723,15 +725,8 @@ pnpm type-check
 - [x] Document ingestion pipeline with parsers and chunkers
 - [x] Guardrails for content safety, prompt injection, and PII detection
 - [x] Content filtering and validation
-- [x] LLM evaluation metrics and LLM-as-Judge
-- [x] Human feedback collection and preference learning (RLHF, DPO)
-- [x] Continuous evaluation monitoring
-- [x] Red teaming and adversarial testing with compliance checking
-- [x] Embeddings with multi-provider support (OpenAI, Cohere, Voyage, HuggingFace)
 - [x] Intelligent caching with semantic similarity, streaming replay, and multi-tier support
 - [x] Prompt management with version control, A/B testing, and environment promotion
-- [x] Computer-use agent (desktop automation with screen capture, mouse/keyboard control)
-- [x] Browser automation (Playwright, Puppeteer, native)
 - [x] Agent debugger with step-through execution, checkpoint replay, and what-if testing
 - [x] Conversation analytics with intent classification, sentiment, and topic clustering
 - [x] Built-in tools (13 coding tools + 8 general tools + custom support)
@@ -741,12 +736,32 @@ pnpm type-check
 - [x] React components for agent interfaces
 - [x] Multi-tenancy support
 - [x] Rate limiting and caching
-- [x] Comprehensive test suite
 - [x] TypeScript definitions with strict type safety
 - [x] CI/CD workflows with automated releases
 
-### 🚧 In Progress
+### 🧪 Beta
 
+- [~] **Evaluate** — LLM evaluation metrics, LLM-as-Judge, human feedback, and
+  preference learning (RLHF/DPO). Continuous monitoring works; HuggingFace
+  import/export and email/PagerDuty alert channels are still placeholders.
+- [~] **Embeddings** — multi-provider support (OpenAI, Cohere, Voyage, HuggingFace),
+  chunking, caching, and Pinecone/Chroma/Qdrant stores. Weaviate/Milvus/pgvector
+  and local ONNX are advertised in types but not yet implemented.
+- [~] **Surf** — vision-driven computer use and browser automation. Puppeteer +
+  Docker/Linux/macOS/Windows backends exist but lack integration test coverage;
+  there is no Playwright backend yet and some native input paths are fragile.
+- [~] **Red Team** — adversarial attack generation, vulnerability scanning, and
+  jailbreak detection are implemented. Safety benchmarks, compliance checking,
+  audit logging, and continuous testing now ship functional MVP implementations
+  with tests (some advanced options — persistent audit storage, cron schedules,
+  alert delivery — are still pending).
+
+### 🚧 Work in Progress
+
+- [ ] **Crews** — multi-agent orchestration with role-based coordination and
+      delegation strategies (round-robin, best-match, auction, hierarchical,
+      consensus). Orchestration, workflows, and most strategies are implemented,
+      but agents do not yet execute against a real LLM out of the box.
 - [ ] Admin UI dashboard improvements
 - [ ] Additional MCP tools/servers
 - [ ] Enhanced computer-use agent capabilities

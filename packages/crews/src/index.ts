@@ -46,6 +46,7 @@ export {
   type HelpRequest,
   type HelpResponse,
   type AgentExecutionResult,
+  createCoreExecutor,
 
   // AgentCapabilities
   AgentCapabilities,

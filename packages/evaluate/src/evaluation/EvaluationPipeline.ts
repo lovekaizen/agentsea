@@ -25,16 +25,25 @@ export class EvaluationPipeline {
   private metrics: MetricInterface[];
   private llmJudge?: JudgeInterface;
   private runner: EvalRunner;
+  private runnerOptions: {
+    parallelism: number;
+    timeout: number;
+    retries: number;
+  };
 
   constructor(config: EvaluationPipelineConfig) {
     this.metrics = config.metrics;
     this.llmJudge = config.llmJudge;
 
-    this.runner = new EvalRunner({
+    // Capture configured concurrency so per-call runners honor it too
+    // (evaluate() builds its own runner to attach per-call callbacks).
+    this.runnerOptions = {
       parallelism: config.parallelism ?? 5,
       timeout: config.timeout ?? 30000,
       retries: config.retries ?? 1,
-    });
+    };
+
+    this.runner = new EvalRunner(this.runnerOptions);
   }
 
   /**
@@ -48,8 +57,9 @@ export class EvaluationPipeline {
     const total = options.dataset.size;
     let completed = 0;
 
-    // Set up callbacks
+    // Set up callbacks (reuse the pipeline's configured concurrency settings)
     const runner = new EvalRunner({
+      ...this.runnerOptions,
       onItemComplete: (result) => {
         results.push(result);
         completed++;

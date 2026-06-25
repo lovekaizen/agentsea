@@ -1,8 +1,12 @@
 /**
  * Local Provider
  *
- * Embedding provider for local/custom models.
- * Supports ONNX Runtime and custom embedding functions.
+ * Embedding provider for local/custom models via a user-supplied embedding
+ * function (`embedFn`).
+ *
+ * NOTE: Loading ONNX models directly from `modelPath` is on the roadmap but not
+ * implemented yet. For now, load your model however you like and pass an
+ * `embedFn` that returns the vectors.
  */
 
 import { BaseProvider } from './BaseProvider.js';
@@ -49,10 +53,16 @@ export class LocalProvider extends BaseProvider {
   constructor(config: LocalProviderOptions) {
     super({ ...config, type: 'local' });
 
-    if (!config.embedFn && !config.modelPath) {
-      throw new Error(
-        'Either embedFn or modelPath is required for local provider',
-      );
+    if (!config.embedFn) {
+      if (config.modelPath) {
+        // modelPath implies ONNX loading, which isn't implemented yet. Fail
+        // here rather than constructing a provider that throws at embed time.
+        throw new Error(
+          'Loading local models from `modelPath` (ONNX) is not implemented ' +
+            'yet. Provide an `embedFn` that returns embeddings instead.',
+        );
+      }
+      throw new Error('`embedFn` is required for the local provider');
     }
 
     this.embedFn = config.embedFn ?? null;

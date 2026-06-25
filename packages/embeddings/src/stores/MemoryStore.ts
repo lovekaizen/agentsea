@@ -163,8 +163,11 @@ export class MemoryStore extends BaseStore {
       }
     }
 
+    // In-memory store knows exactly which ids existed and were removed.
     return Promise.resolve({
       deletedCount,
+      requestedCount: ids.length,
+      countExact: true,
       durationMs: performance.now() - startTime,
     });
   }
@@ -179,6 +182,8 @@ export class MemoryStore extends BaseStore {
       this.namespaces.clear();
       return Promise.resolve({
         deletedCount: count,
+        requestedCount: count,
+        countExact: true,
         durationMs: performance.now() - startTime,
       });
     }
@@ -187,6 +192,8 @@ export class MemoryStore extends BaseStore {
     if (!nsIds) {
       return Promise.resolve({
         deletedCount: 0,
+        requestedCount: 0,
+        countExact: true,
         durationMs: performance.now() - startTime,
       });
     }
@@ -199,6 +206,8 @@ export class MemoryStore extends BaseStore {
 
     return Promise.resolve({
       deletedCount: count,
+      requestedCount: count,
+      countExact: true,
       durationMs: performance.now() - startTime,
     });
   }

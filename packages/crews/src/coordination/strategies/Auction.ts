@@ -197,11 +197,12 @@ export class AuctionStrategy extends BaseDelegationStrategy {
         }, bids[0]);
 
       case 'cheapest':
-        // For now, use fastest as proxy for cheapest
+        // Prefer lowest estimated cost; fall back to estimated time when a bid
+        // doesn't report a cost (so behavior degrades gracefully).
         return bids.reduce((best, bid) => {
-          const bestTime = best.estimatedTime ?? Infinity;
-          const bidTime = bid.estimatedTime ?? Infinity;
-          return bidTime < bestTime ? bid : best;
+          const bestCost = best.estimatedCost ?? best.estimatedTime ?? Infinity;
+          const bidCost = bid.estimatedCost ?? bid.estimatedTime ?? Infinity;
+          return bidCost < bestCost ? bid : best;
         }, bids[0]);
 
       case 'confidence':

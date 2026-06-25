@@ -16,6 +16,40 @@ import type {
 import { Role } from '../core/Role';
 import type { ExecutionContext } from '../core/ExecutionContext';
 import { AgentCapabilities, type CapableAgent } from './AgentCapabilities';
+import { createCoreExecutor } from './CoreExecutor';
+
+/**
+ * Relative price weight for a model, used to estimate bid cost. These are
+ * coarse tiers (not exact pricing) so the auction can prefer cheaper models;
+ * for precise cost tracking use `@lov3kaizen/agentsea-costs`. Higher = pricier.
+ */
+function modelCostWeight(model: string): number {
+  const m = (model ?? '').toLowerCase();
+  // Premium frontier tiers
+  if (m.includes('opus') || m.includes('gpt-5') || m.includes('o3')) return 5;
+  // Mid tiers
+  if (
+    m.includes('sonnet') ||
+    m.includes('gpt-4.1') ||
+    (m.includes('gpt-4') && !m.includes('mini')) ||
+    m.includes('gemini-1.5-pro') ||
+    m.includes('gemini-2.5-pro')
+  ) {
+    return 3;
+  }
+  // Budget / small tiers
+  if (
+    m.includes('haiku') ||
+    m.includes('mini') ||
+    m.includes('flash') ||
+    m.includes('llama') ||
+    m.includes('mistral')
+  ) {
+    return 1;
+  }
+  // Unknown models: assume mid-tier
+  return 3;
+}
 
 /**
  * Task bid from an agent
@@ -25,6 +59,12 @@ export interface TaskBid {
   taskId: string;
   confidence: number;
   estimatedTime?: number;
+  /**
+   * Relative estimated cost of this agent handling the task. Derived from the
+   * agent's model price tier and the estimated effort. Lower is cheaper. Used
+   * by the auction `cheapest` selection criterion.
+   */
+  estimatedCost?: number;
   reasoning: string;
   capabilities: string[];
 }
@@ -72,6 +112,13 @@ export interface CrewAgentOptions {
     input: string,
     systemPrompt: string,
   ) => Promise<AgentExecutionResult>;
+  /**
+   * Use a deterministic mock execute instead of calling a real LLM. Useful for
+   * tests and offline scaffolding. Ignored when `execute` is provided.
+   * Only honored by the raw constructor; `createCrewAgent` maps this to
+   * "no executor" so the mock fallback path is used.
+   */
+  mock?: boolean;
 }
 
 /**
@@ -123,11 +170,15 @@ export class CrewAgent implements CapableAgent {
    */
   async execute(input: string): Promise<AgentExecutionResult> {
     if (!this.executeFunc) {
-      // Return mock result if no execute function provided
+      // Deterministic mock result when no execute function is wired. This path
+      // is only hit when an agent is constructed without an executor (e.g.
+      // `new CrewAgent({ config })` or `createCrewAgent({ config, mock: true })`).
+      // The public factory wires a real core-backed executor by default.
+      const tokensUsed = 100 + Math.min(input.length, 400);
       const mockResult = {
         output: `[Mock response from ${this.name}]: ${input.slice(0, 100)}...`,
-        tokensUsed: Math.floor(Math.random() * 500) + 100,
-        latencyMs: Math.floor(Math.random() * 2000) + 500,
+        tokensUsed,
+        latencyMs: 0,
         iterations: 1,
       };
       this.totalTokensUsed += mockResult.tokensUsed;
@@ -257,6 +308,9 @@ export class CrewAgent implements CapableAgent {
     // Estimate time based on task complexity
     const estimatedTime = this.estimateTaskTime(task);
 
+    // Estimate relative cost from the agent's model price tier and effort
+    const estimatedCost = this.estimateTaskCost(estimatedTime);
+
     // Generate reasoning
     const reasoning = this.generateBidReasoning(task, confidence, matchedCaps);
 
@@ -265,9 +319,20 @@ export class CrewAgent implements CapableAgent {
       taskId: task.id ?? 'unknown',
       confidence,
       estimatedTime,
+      estimatedCost,
       reasoning,
       capabilities: matchedCaps,
     });
+  }
+
+  /**
+   * Estimate a relative cost for handling a task. Combines the agent's model
+   * price tier with the estimated effort so the auction `cheapest` criterion
+   * can distinguish a cheap-but-slower model from an expensive-but-faster one.
+   * The unit is arbitrary and only meaningful relative to other bids.
+   */
+  private estimateTaskCost(estimatedTime: number): number {
+    return modelCostWeight(this.model) * Math.max(estimatedTime, 1);
   }
 
   /**
@@ -522,10 +587,22 @@ export interface CrewAgentStats {
 }
 
 /**
- * Factory function for creating crew agents
+ * Factory function for creating crew agents.
+ *
+ * Unlike the raw `CrewAgent` constructor, this wires a real LLM executor
+ * (backed by `@lov3kaizen/agentsea-core` providers) by default, so agents
+ * actually run instead of returning mock output. Pass `execute` to use a
+ * custom integration, or `mock: true` to opt into the deterministic mock path.
  */
 export function createCrewAgent(options: CrewAgentOptions): CrewAgent {
-  return new CrewAgent(options);
+  if (options.execute || options.mock) {
+    return new CrewAgent(options);
+  }
+
+  return new CrewAgent({
+    ...options,
+    execute: createCoreExecutor(options.config),
+  });
 }
 
 export default CrewAgent;
