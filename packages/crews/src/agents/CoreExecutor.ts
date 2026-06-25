@@ -12,24 +12,10 @@
  *     with `mock: true`) does not require provider SDKs or API keys.
  */
 
-import type { CrewAgentConfig } from '../types';
+import type { CrewAgentConfig, CoreLLMProvider } from '../types';
 import type { AgentExecutionResult } from './CrewAgent';
 
-/** Minimal shape of a core LLM provider that this module relies on. */
-interface CoreLLMProvider {
-  generateResponse(
-    messages: Array<{ role: string; content: string }>,
-    config: {
-      model: string;
-      systemPrompt?: string;
-      temperature?: number;
-      maxTokens?: number;
-    },
-  ): Promise<{
-    content: string;
-    usage: { inputTokens: number; outputTokens: number };
-  }>;
-}
+export type { CoreLLMProvider };
 
 /** Lazily import core and instantiate the provider for a given provider name. */
 async function loadProvider(providerName: string): Promise<CoreLLMProvider> {
@@ -85,12 +71,18 @@ function resolveProviderCtorName(providerName: string): string {
  */
 export function createCoreExecutor(
   config: CrewAgentConfig,
+  options: { provider?: CoreLLMProvider } = {},
 ): (input: string, systemPrompt: string) => Promise<AgentExecutionResult> {
   let providerPromise: Promise<CoreLLMProvider> | undefined;
 
   const getProvider = (): Promise<CoreLLMProvider> => {
     if (!providerPromise) {
-      providerPromise = loadProvider(config.provider);
+      // An injected provider takes precedence over lazily loading one from core
+      // by name. This enables DI and deterministic, network-free e2e tests
+      // while keeping the default (load-by-name) behavior unchanged.
+      providerPromise = options.provider
+        ? Promise.resolve(options.provider)
+        : loadProvider(config.provider);
     }
     return providerPromise;
   };

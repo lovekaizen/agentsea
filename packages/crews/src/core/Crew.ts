@@ -109,6 +109,7 @@ export class Crew {
         config: agentConfig,
         execute: this.config.execute,
         mock: this.config.mock,
+        provider: this.config.provider,
       });
       this.addAgent(agent);
     }

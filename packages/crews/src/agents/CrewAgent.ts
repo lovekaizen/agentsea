@@ -8,6 +8,7 @@
 import { nanoid } from 'nanoid';
 import type {
   CrewAgentConfig,
+  CoreLLMProvider,
   Capability,
   CapabilityMatch,
   TaskConfig,
@@ -119,6 +120,13 @@ export interface CrewAgentOptions {
    * "no executor" so the mock fallback path is used.
    */
   mock?: boolean;
+  /**
+   * Inject a pre-built core provider for the default executor (instead of
+   * lazily loading one from `@lov3kaizen/agentsea-core` by name). Only used by
+   * `createCrewAgent` when neither `execute` nor `mock` is set. Enables DI and
+   * deterministic, network-free end-to-end tests.
+   */
+  provider?: CoreLLMProvider;
 }
 
 /**
@@ -601,7 +609,7 @@ export function createCrewAgent(options: CrewAgentOptions): CrewAgent {
 
   return new CrewAgent({
     ...options,
-    execute: createCoreExecutor(options.config),
+    execute: createCoreExecutor(options.config, { provider: options.provider }),
   });
 }
 
