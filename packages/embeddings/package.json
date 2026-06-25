@@ -37,7 +37,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/chunking/index.ts src/caching/index.ts src/stores/index.ts src/providers/index.ts --format cjs,esm --dts --clean --external ioredis --external better-sqlite3 --external chromadb --external @pinecone-database/pinecone --external @qdrant/js-client-rest --external weaviate-ts-client --external cohere-ai --external ollama",
+    "build": "tsup src/index.ts src/chunking/index.ts src/caching/index.ts src/stores/index.ts src/providers/index.ts --format cjs,esm --dts --clean --external ioredis --external better-sqlite3 --external chromadb --external @pinecone-database/pinecone --external @qdrant/js-client-rest --external weaviate-ts-client --external cohere-ai --external ollama --external pg --external @zilliz/milvus2-sdk-node --external @xenova/transformers",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -94,7 +94,10 @@
     "@pinecone-database/pinecone": "^2.0.0",
     "weaviate-ts-client": "^2.0.0",
     "chromadb": "^1.7.0",
-    "@qdrant/js-client-rest": "^1.7.0"
+    "@qdrant/js-client-rest": "^1.7.0",
+    "pg": "^8.11.0",
+    "@zilliz/milvus2-sdk-node": "^2.4.0",
+    "@xenova/transformers": "^2.17.0"
   },
   "engines": {
     "node": ">=18.0.0"
