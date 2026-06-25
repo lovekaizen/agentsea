@@ -676,6 +676,7 @@ Full documentation available at [agentsea.dev](https://agentsea.dev)
 
 ### Operations
 
+- [Upgrading](./docs/UPGRADING.md) - Version policy, package updates, and breaking changes
 - [Observability](https://agentsea.dev/docs/observability)
 - [API Reference](https://agentsea.dev/api)
 
