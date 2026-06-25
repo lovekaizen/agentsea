@@ -8,6 +8,9 @@ import { WindowsBackend } from '../backends/native/windows-backend.js';
 import { PuppeteerBackend } from '../backends/browser/puppeteer-backend.js';
 import { PlaywrightBackend } from '../backends/browser/playwright-backend.js';
 import { DockerBackend } from '../backends/docker/docker-backend.js';
+import { KubernetesBackend } from '../backends/kubernetes/kubernetes-backend.js';
+import { VNCBackend } from '../backends/remote/vnc-backend.js';
+import { RDPBackend } from '../backends/remote/rdp-backend.js';
 
 /**
  * Helper to run a function with process.platform temporarily overridden.
@@ -102,34 +105,31 @@ describe('createBackend (type discrimination)', () => {
     expect(backend.name).toBe('docker-container');
   });
 
-  // NOTE: createBackend throws SYNCHRONOUSLY for the unimplemented/unknown
-  // branches (the throw happens before any Promise is constructed), so these
-  // are tested with a synchronous expect(...).toThrow rather than .rejects.
-  it('throws "not yet implemented" for the vnc backend', () => {
-    expect(() =>
-      createBackend({
-        type: 'vnc',
-        options: { host: 'localhost', port: 5900 },
-      }),
-    ).toThrow(/VNC backend not yet implemented/);
+  it('creates a VNCBackend for type "vnc"', async () => {
+    const backend = await createBackend({
+      type: 'vnc',
+      options: { host: 'localhost', port: 5900 },
+    });
+    expect(backend).toBeInstanceOf(VNCBackend);
+    expect(backend.name).toBe('vnc-remote');
   });
 
-  it('throws "not yet implemented" for the rdp backend', () => {
-    expect(() =>
-      createBackend({
-        type: 'rdp',
-        options: { host: 'localhost', username: 'u', password: 'p' },
-      }),
-    ).toThrow(/RDP backend not yet implemented/);
+  it('creates an RDPBackend for type "rdp"', async () => {
+    const backend = await createBackend({
+      type: 'rdp',
+      options: { host: 'localhost', username: 'u', password: 'p' },
+    });
+    expect(backend).toBeInstanceOf(RDPBackend);
+    expect(backend.name).toBe('rdp-remote');
   });
 
-  it('throws "not yet implemented" for the kubernetes backend', () => {
-    expect(() =>
-      createBackend({
-        type: 'kubernetes',
-        options: { namespace: 'default', image: 'x' },
-      }),
-    ).toThrow(/Kubernetes backend not yet implemented/);
+  it('creates a KubernetesBackend for type "kubernetes"', async () => {
+    const backend = await createBackend({
+      type: 'kubernetes',
+      options: { namespace: 'default', image: 'x' },
+    });
+    expect(backend).toBeInstanceOf(KubernetesBackend);
+    expect(backend.name).toBe('kubernetes-pod');
   });
 
   it('throws a clear error for an unknown backend type', () => {

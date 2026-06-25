@@ -758,10 +758,13 @@ README); **WIP** = under active development, APIs and behavior may change.
       chunking, caching, and Pinecone/Chroma/Qdrant/**pgvector/Weaviate/Milvus**
       stores, plus local **ONNX** models via Transformers.js
       (`@xenova/transformers`).
-- [x] **Surf** — vision-driven computer use and browser automation with
-      **Puppeteer and Playwright** (chromium/firefox/webkit) backends plus
-      Docker/Linux/macOS/Windows. Backend action translation is unit-tested and
-      a guarded headless smoke test covers the real launch path.
+- [x] **Surf** — vision-driven computer use and browser automation across
+      **Puppeteer/Playwright** (chromium/firefox/webkit), **Docker**,
+      **Kubernetes** (pod via `kubectl exec`), **VNC/RDP** (remote display), and
+      native Linux/macOS/Windows backends. Backend action translation is
+      unit-tested (injected exec/clients) and a guarded headless smoke test
+      covers the real browser launch path. VNC/RDP frame-capture and the RDP
+      transport are experimental — inject a custom client for production.
 
 ### 🚧 Work in Progress
 

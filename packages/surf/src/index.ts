@@ -42,6 +42,13 @@ export {
   PuppeteerBackend,
   PlaywrightBackend,
   DockerBackend,
+  KubernetesBackend,
+  createKubernetesBackend,
+  VNCBackend,
+  createVNCBackend,
+  RDPBackend,
+  createRDPBackend,
+  type RemoteDisplayClient,
   createBackend,
 } from './backends';
 
