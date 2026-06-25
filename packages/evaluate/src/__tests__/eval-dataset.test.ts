@@ -2,7 +2,7 @@
  * Tests for EvalDataset
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { EvalDataset, createEvalDataset } from '../evaluation/EvalDataset.js';
 import type { EvalDatasetItem } from '../types/index.js';
 
@@ -489,11 +489,28 @@ describe('EvalDataset', () => {
     });
 
     describe('fromHuggingFace', () => {
-      it('should return empty dataset with warning', async () => {
-        const dataset = await EvalDataset.fromHuggingFace('test-dataset');
+      // Detailed mapping/error behavior is covered in alerts-and-hf.test.ts.
+      // Here we just confirm the loader fetches from the datasets-server API
+      // and maps returned rows onto the named dataset.
+      it('loads rows from the datasets-server API', async () => {
+        const fetchMock = vi.fn().mockResolvedValue({
+          ok: true,
+          json: async () => ({
+            rows: [{ row: { input: 'Q1', output: 'A1' } }],
+          }),
+        });
+        vi.stubGlobal('fetch', fetchMock);
 
-        expect(dataset.size).toBe(0);
-        expect(dataset.name).toBe('test-dataset');
+        try {
+          const dataset = await EvalDataset.fromHuggingFace('test-dataset');
+
+          expect(dataset.name).toBe('test-dataset');
+          expect(dataset.size).toBe(1);
+          expect(dataset.getItems()[0].input).toBe('Q1');
+          expect(fetchMock).toHaveBeenCalledTimes(1);
+        } finally {
+          vi.unstubAllGlobals();
+        }
       });
     });
   });

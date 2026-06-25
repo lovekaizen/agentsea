@@ -17,6 +17,25 @@ import type {
   OpenAIFormatItem,
 } from '../types/index.js';
 import { PreferenceDataset } from './PreferenceDatasetBuilder.js';
+import { importOptional } from '../utils/optional-import.js';
+
+/**
+ * Minimal structural contract for the subset of `@huggingface/hub` used here,
+ * so the package type-checks without taking a hard dependency on the optional
+ * SDK.
+ */
+interface HuggingFaceHubLike {
+  createRepo(params: {
+    repo: { type: 'dataset'; name: string };
+    accessToken: string;
+    private?: boolean;
+  }): Promise<unknown>;
+  uploadFiles(params: {
+    repo: { type: 'dataset'; name: string };
+    accessToken: string;
+    files: Array<{ path: string; content: Blob }>;
+  }): Promise<unknown>;
+}
 
 /**
  * Dataset exporter
@@ -155,33 +174,100 @@ export class DatasetExporter {
   }
 
   /**
-   * Export to HuggingFace Hub (stub)
+   * Export a preference dataset to the HuggingFace Hub.
+   *
+   * The dataset is serialized to DPO-format JSONL and uploaded with
+   * `@huggingface/hub` (an optional dependency, imported lazily). A README
+   * dataset card is generated and uploaded alongside the data. Requires a
+   * write-scoped HF token (`formatOptions.token` or `options.token`).
    */
   async exportToHuggingFace(
     pairs: PreferencePair[],
     options: DatasetExportOptions,
   ): Promise<ExportResult> {
     const hfOptions = options.formatOptions as HFExportOptions | undefined;
+    const token = hfOptions?.token ?? options.token;
+    const name = hfOptions?.name ?? options.repoName;
 
-    if (!hfOptions?.token) {
+    if (!token) {
       throw new Error('HuggingFace token is required for Hub export');
     }
+    if (!name) {
+      throw new Error(
+        'A dataset name (`formatOptions.name` or `repoName`) is required for Hub export',
+      );
+    }
 
-    // This is a placeholder - actual implementation would use @huggingface/hub
-    console.warn(
-      'HuggingFace Hub export not fully implemented. Saving locally instead.',
-    );
+    // Lazily import the optional Hub SDK, typed against a minimal local contract
+    // so the package type-checks without @huggingface/hub installed.
+    let hub: HuggingFaceHubLike;
+    try {
+      hub = (await importOptional('@huggingface/hub')) as HuggingFaceHubLike;
+    } catch {
+      throw new Error(
+        'HuggingFace Hub export requires the "@huggingface/hub" package. ' +
+          'Install it to push datasets to the Hub.',
+      );
+    }
 
-    const localPath = options.path ?? `./${hfOptions.name ?? 'dataset'}.jsonl`;
-    const content = this.toJSONL(pairs, { formatOptions: { format: 'dpo' } });
-    await fs.writeFile(localPath, content, 'utf-8');
+    const repo = { type: 'dataset' as const, name };
+    const isPrivate = hfOptions?.private ?? options.private ?? false;
 
+    // Create the repo if it does not already exist (idempotent).
+    try {
+      await hub.createRepo({ repo, accessToken: token, private: isPrivate });
+    } catch (err) {
+      // A 409 (already exists) is fine; rethrow anything else.
+      if (!/already (created|exists)/i.test((err as Error).message)) {
+        throw err;
+      }
+    }
+
+    const jsonl = this.toJSONL(pairs, { formatOptions: { format: 'dpo' } });
+    const card = this.buildDatasetCard(name, pairs.length, hfOptions);
+
+    await hub.uploadFiles({
+      repo,
+      accessToken: token,
+      files: [
+        { path: 'data/train.jsonl', content: new Blob([jsonl]) },
+        { path: 'README.md', content: new Blob([card]) },
+      ],
+    });
+
+    const url = `https://huggingface.co/datasets/${name}`;
     return {
       format: 'huggingface',
-      path: localPath,
+      url,
       itemCount: pairs.length,
-      warnings: ['Exported locally. Use @huggingface/hub to push to Hub.'],
+      bytesWritten: Buffer.byteLength(jsonl, 'utf-8'),
     };
+  }
+
+  /**
+   * Build a minimal HuggingFace dataset card (README.md front matter + body).
+   */
+  private buildDatasetCard(
+    name: string,
+    count: number,
+    hfOptions?: HFExportOptions,
+  ): string {
+    const tags = hfOptions?.tags ?? ['preference', 'dpo', 'rlhf'];
+    const frontMatter = [
+      '---',
+      `license: ${hfOptions?.license ?? 'mit'}`,
+      'tags:',
+      ...tags.map((t) => `  - ${t}`),
+      '---',
+    ].join('\n');
+
+    const body =
+      hfOptions?.readme ??
+      `# ${name}\n\nPreference dataset (${count} pairs) exported by ` +
+        '`@lov3kaizen/agentsea-evaluate`. Each line is a DPO record with ' +
+        '`prompt`, `chosen`, and `rejected` fields.';
+
+    return `${frontMatter}\n\n${body}\n`;
   }
 
   /**
