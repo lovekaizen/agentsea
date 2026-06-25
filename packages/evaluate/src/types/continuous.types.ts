@@ -74,6 +74,20 @@ export interface AlertChannelConfig {
   to?: string[];
   apiKey?: string;
   channel?: string;
+  /** SMTP transport settings for the `email` channel (requires `nodemailer`). */
+  smtp?: {
+    host: string;
+    port?: number;
+    secure?: boolean;
+    auth?: { user: string; pass: string };
+  };
+  /** From address for the `email` channel. Defaults to the SMTP auth user. */
+  from?: string;
+  /**
+   * PagerDuty Events API v2 routing (integration) key for the `pagerduty`
+   * channel. Falls back to `apiKey` when not set.
+   */
+  routingKey?: string;
 }
 
 /**

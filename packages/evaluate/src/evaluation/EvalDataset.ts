@@ -246,28 +246,80 @@ export class EvalDataset implements EvalDatasetInterface {
   }
 
   /**
-   * Create from HuggingFace dataset (stub - would need actual HF integration)
+   * Load a dataset from the HuggingFace Hub using the public datasets-server
+   * REST API (https://datasets-server.huggingface.co). No SDK dependency is
+   * required — rows are fetched over HTTP and mapped onto eval items.
+   *
+   * Pass a HuggingFace token via `config.token`-bearing environment or the
+   * `HF_TOKEN` env var to read gated/private datasets.
    */
-  static fromHuggingFace(
+  static async fromHuggingFace(
     datasetName: string,
     config?: HFDatasetConfig,
   ): Promise<EvalDataset> {
-    // This is a placeholder - actual implementation would use @huggingface/hub
-    console.warn(
-      'HuggingFace integration not implemented. Please install @huggingface/hub and implement the loader.',
-    );
+    const split = config?.split ?? 'train';
+    const subset = config?.subset ?? 'default';
+    const limit = config?.limit ?? 100;
+    const inputField = config?.inputField ?? 'input';
+    const outputField = config?.outputField ?? 'output';
+    const contextField = config?.contextField;
 
-    return Promise.resolve(
-      new EvalDataset({
-        name: datasetName,
-        items: [],
-        metadata: {
-          source: 'huggingface',
-          datasetName,
-          config,
-        },
-      }),
-    );
+    const headers: Record<string, string> = {};
+    const token =
+      typeof process !== 'undefined' ? process.env?.HF_TOKEN : undefined;
+    if (token) headers.Authorization = `Bearer ${token}`;
+
+    const items: EvalDatasetItem[] = [];
+    const pageSize = Math.min(limit, 100); // datasets-server caps length at 100
+
+    for (let offset = 0; offset < limit; offset += pageSize) {
+      const length = Math.min(pageSize, limit - offset);
+      const url =
+        `https://datasets-server.huggingface.co/rows?dataset=${encodeURIComponent(datasetName)}` +
+        `&config=${encodeURIComponent(subset)}&split=${encodeURIComponent(split)}` +
+        `&offset=${offset}&length=${length}`;
+
+      const res = await fetch(url, { headers });
+      if (!res.ok) {
+        throw new Error(
+          `HuggingFace datasets-server request failed: ${res.status} ${res.statusText}`,
+        );
+      }
+
+      const body = (await res.json()) as {
+        rows?: Array<{ row: Record<string, unknown> }>;
+      };
+      const rows = body.rows ?? [];
+      if (rows.length === 0) break;
+
+      for (const { row } of rows) {
+        const input = row[inputField];
+        if (input === undefined) continue;
+        const context = contextField ? row[contextField] : undefined;
+        items.push({
+          id: nanoid(),
+          input: String(input),
+          expectedOutput:
+            row[outputField] !== undefined
+              ? String(row[outputField])
+              : undefined,
+          context: Array.isArray(context)
+            ? context.map(String)
+            : context !== undefined
+              ? [String(context)]
+              : undefined,
+          metadata: { source: 'huggingface', row },
+        });
+      }
+
+      if (rows.length < length) break; // reached the end of the split
+    }
+
+    return new EvalDataset({
+      name: datasetName,
+      items,
+      metadata: { source: 'huggingface', datasetName, config },
+    });
   }
 
   /**

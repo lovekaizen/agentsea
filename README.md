@@ -743,12 +743,14 @@ README); **WIP** = under active development, APIs and behavior may change.
       execution by default via the core-backed `CoreExecutor` (mock path opt-in
       with `mock: true`). The default execution path is covered end-to-end in the
       `e2e` package via an injectable provider seam.
+- [x] **Evaluate** — LLM evaluation metrics, LLM-as-Judge, human feedback, and
+      preference learning (RLHF/DPO). Continuous monitoring with email (SMTP via
+      nodemailer), webhook/Slack, and PagerDuty (Events API v2) alert channels;
+      HuggingFace dataset import (datasets-server REST) and Hub export
+      (`@huggingface/hub`).
 
 ### 🧪 Beta
 
-- [~] **Evaluate** — LLM evaluation metrics, LLM-as-Judge, human feedback, and
-  preference learning (RLHF/DPO). Continuous monitoring works; HuggingFace
-  import/export and email/PagerDuty alert channels are still placeholders.
 - [~] **Embeddings** — multi-provider support (OpenAI, Cohere, Voyage, HuggingFace),
   chunking, caching, and Pinecone/Chroma/Qdrant stores. Weaviate/Milvus/pgvector
   and local ONNX are advertised in types but not yet implemented.

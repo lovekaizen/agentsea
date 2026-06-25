@@ -42,7 +42,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/feedback/index.ts src/evaluation/index.ts src/datasets/index.ts src/annotation/index.ts src/continuous/index.ts --format cjs,esm --dts --clean --external better-sqlite3 --external @huggingface/hub",
+    "build": "tsup src/index.ts src/feedback/index.ts src/evaluation/index.ts src/datasets/index.ts src/annotation/index.ts src/continuous/index.ts --format cjs,esm --dts --clean --external better-sqlite3 --external @huggingface/hub --external nodemailer",
     "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
     "test": "vitest run",
     "test:watch": "vitest",
@@ -94,7 +94,8 @@
   },
   "optionalDependencies": {
     "better-sqlite3": "^9.2.0",
-    "@huggingface/hub": "^0.14.0"
+    "@huggingface/hub": "^0.14.0",
+    "nodemailer": "^6.9.0"
   },
   "engines": {
     "node": ">=18.0.0"
