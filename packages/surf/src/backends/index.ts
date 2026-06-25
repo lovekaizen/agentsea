@@ -13,8 +13,8 @@ export {
   createNativeBackend,
 } from './native';
 
-// Browser backend
-export { PuppeteerBackend } from './browser';
+// Browser backends
+export { PuppeteerBackend, PlaywrightBackend } from './browser';
 
 // Docker backend
 export { DockerBackend } from './docker';
@@ -29,7 +29,7 @@ import type {
 } from '../types';
 
 import { createNativeBackend } from './native';
-import { PuppeteerBackend } from './browser';
+import { PuppeteerBackend, PlaywrightBackend } from './browser';
 import { DockerBackend } from './docker';
 
 /**
@@ -43,7 +43,11 @@ export function createBackend(config: BackendConfig): Promise<DesktopBackend> {
       );
 
     case 'browser':
-      return Promise.resolve(new PuppeteerBackend(config.options));
+      return Promise.resolve(
+        config.options?.engine === 'playwright'
+          ? new PlaywrightBackend(config.options)
+          : new PuppeteerBackend(config.options),
+      );
 
     case 'docker':
       return Promise.resolve(new DockerBackend(config.options));

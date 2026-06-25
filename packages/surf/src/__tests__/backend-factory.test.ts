@@ -6,6 +6,7 @@ import { MacOSBackend } from '../backends/native/macos-backend.js';
 import { LinuxBackend } from '../backends/native/linux-backend.js';
 import { WindowsBackend } from '../backends/native/windows-backend.js';
 import { PuppeteerBackend } from '../backends/browser/puppeteer-backend.js';
+import { PlaywrightBackend } from '../backends/browser/playwright-backend.js';
 import { DockerBackend } from '../backends/docker/docker-backend.js';
 
 /**
@@ -74,13 +75,22 @@ describe('createBackend (type discrimination)', () => {
     expect(backend).toBeInstanceOf(MacOSBackend);
   });
 
-  it('creates a PuppeteerBackend for type "browser"', async () => {
+  it('creates a PuppeteerBackend for type "browser" (default engine)', async () => {
     const backend = await createBackend({
       type: 'browser',
       options: { headless: true },
     });
     expect(backend).toBeInstanceOf(PuppeteerBackend);
     expect(backend.name).toBe('puppeteer-browser');
+  });
+
+  it('creates a PlaywrightBackend when engine is "playwright"', async () => {
+    const backend = await createBackend({
+      type: 'browser',
+      options: { headless: true, engine: 'playwright' },
+    });
+    expect(backend).toBeInstanceOf(PlaywrightBackend);
+    expect(backend.name).toBe('playwright-browser');
   });
 
   it('creates a DockerBackend for type "docker"', async () => {

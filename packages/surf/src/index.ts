@@ -40,6 +40,7 @@ export {
   WindowsBackend,
   createNativeBackend,
   PuppeteerBackend,
+  PlaywrightBackend,
   DockerBackend,
   createBackend,
 } from './backends';
