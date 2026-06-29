@@ -37,6 +37,8 @@
     "prepare": "husky",
     "changeset": "changeset",
     "version-packages": "changeset version",
+    "version-lockstep": "node scripts/release-version.mjs",
+    "version-lockstep:dry": "node scripts/release-version.mjs --dry-run",
     "release": "pnpm build && changeset publish"
   },
   "devDependencies": {
