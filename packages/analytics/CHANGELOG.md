@@ -1,5 +1,7 @@
 # @lov3kaizen/agentsea-analytics
 
+## 1.1.1
+
 ## 0.6.0
 
 ### Minor Changes

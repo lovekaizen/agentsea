@@ -1,5 +1,9 @@
 # @lov3kaizen/agentsea-admin-ui
 
+## 1.1.1
+
+- Bump for monorepo version consistency.
+
 ## 0.6.0
 
 ### Minor Changes

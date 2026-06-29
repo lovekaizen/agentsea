@@ -1,5 +1,13 @@
 # @lov3kaizen/agentsea-cache
 
+## 1.1.1
+
+### Patch Changes
+
+- Updated dependencies [2660640]
+  - @lov3kaizen/agentsea-embeddings@1.1.1
+  - @lov3kaizen/agentsea-core@1.1.1
+
 ## 1.0.0
 
 ### Minor Changes

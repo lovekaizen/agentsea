@@ -1,5 +1,11 @@
 # @lov3kaizen/agentsea-redteam
 
+## 1.1.1
+
+### Patch Changes
+
+- @lov3kaizen/agentsea-core@1.1.1
+
 ## 1.0.0
 
 ### Minor Changes
