@@ -37,7 +37,7 @@ export function calculateImportanceWithRecency(
   const recencyFactor = Math.exp(-age / halfLifeMs);
   const recencyBoost = 0.5 + 0.5 * recencyFactor;
 
-  return Promise.resolve(Math.min(memory.importance * recencyBoost, 1));
+  return Math.min(memory.importance * recencyBoost, 1);
 }
 
 /**
@@ -50,7 +50,7 @@ export function calculateImportanceWithAccess(
   const accessFactor = Math.min(memory.accessCount / 10, 1);
   const accessBoost = 1 + accessFactor * maxAccessBoost;
 
-  return Promise.resolve(Math.min(memory.importance * accessBoost, 1));
+  return Math.min(memory.importance * accessBoost, 1);
 }
 
 /**
@@ -79,7 +79,7 @@ export function calculateImportanceWithContext(
     contextMultiplier *= 1.3;
   }
 
-  return Promise.resolve(Math.min(memory.importance * contextMultiplier, 1));
+  return Math.min(memory.importance * contextMultiplier, 1);
 }
 
 /**
@@ -130,12 +130,10 @@ export function calculateCombinedImportance(
     accessScore * weights.access +
     contextScore * weights.context;
 
-  return Promise.resolve(
-    Math.min(
-      combined /
-        (weights.base + weights.recency + weights.access + weights.context),
-      1,
-    ),
+  return Math.min(
+    combined /
+      (weights.base + weights.recency + weights.access + weights.context),
+    1,
   );
 }
 
@@ -183,7 +181,7 @@ export function createImportanceCalculator(options: {
       importance *= 0.9;
     }
 
-    return Promise.resolve(Math.min(Math.max(importance, 0), 1));
+    return Math.min(Math.max(importance, 0), 1);
   };
 }
 
@@ -207,7 +205,7 @@ export function filterByImportance(
   memories: MemoryEntry[],
   threshold: number,
 ): MemoryEntry[] {
-  return Promise.resolve(memories.filter((m) => m.importance >= threshold));
+  return memories.filter((m) => m.importance >= threshold);
 }
 
 /**
@@ -218,5 +216,5 @@ export function sortByImportance(
   descending: boolean = true,
 ): MemoryEntry[] {
   const sorted = [...memories].sort((a, b) => a.importance - b.importance);
-  return Promise.resolve(descending ? sorted.reverse() : sorted);
+  return descending ? sorted.reverse() : sorted;
 }

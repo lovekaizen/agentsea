@@ -37,8 +37,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/chunking/index.ts src/caching/index.ts src/stores/index.ts src/providers/index.ts --format cjs,esm --dts --clean --external ioredis --external better-sqlite3 --external chromadb --external @pinecone-database/pinecone --external @qdrant/js-client-rest --external weaviate-ts-client --external cohere-ai --external ollama --external pg --external @zilliz/milvus2-sdk-node --external @xenova/transformers",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -70,12 +70,12 @@
   },
   "dependencies": {
     "eventemitter3": "^5.0.0",
-    "lru-cache": "^10.0.0",
-    "nanoid": "^5.0.0"
+    "lru-cache": "^10.0.0"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.0",
     "@types/node": "^20.0.0",
+    "nanoid": "^5.0.0",
     "tsup": "^8.0.0",
     "typescript": "^5.3.0",
     "vitest": "^3.2.6"

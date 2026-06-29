@@ -603,4 +603,136 @@ describe('Crew', () => {
       expect(crew.getStatus().state).toBe('aborted');
     });
   });
+
+  describe('concurrent task execution', () => {
+    // Builds a crew whose single agent records how many task executions run at
+    // the same time, so tests can assert sequential vs. parallel scheduling.
+    function createTrackingCrew(
+      taskCount: number,
+      crewOverrides: Partial<CrewConfig> = {},
+    ): { crew: Crew; tracker: { maxActive: number; completed: number } } {
+      const tracker = { active: 0, maxActive: 0, completed: 0 };
+
+      const agent = new CrewAgent({
+        config: createMockAgentConfig({ name: 'Worker' }),
+        execute: async () => {
+          tracker.active += 1;
+          tracker.maxActive = Math.max(tracker.maxActive, tracker.active);
+          await new Promise((resolve) => setTimeout(resolve, 40));
+          tracker.active -= 1;
+          tracker.completed += 1;
+          return {
+            output: 'done',
+            tokensUsed: 10,
+            latencyMs: 40,
+            iterations: 1,
+          };
+        },
+      });
+
+      const crew = new Crew({
+        ...createMockCrewConfig(),
+        agents: [],
+        ...crewOverrides,
+      });
+      crew.addAgent(agent);
+
+      // Independent tasks (no dependencies) so all are ready simultaneously.
+      for (let i = 0; i < taskCount; i += 1) {
+        crew.addTask({
+          description: `Task ${i + 1}`,
+          expectedOutput: 'Output',
+          requiredCapabilities: ['coding'],
+        });
+      }
+
+      return { crew, tracker };
+    }
+
+    it('runs tasks sequentially by default (maxActive === 1)', async () => {
+      const { crew, tracker } = createTrackingCrew(4);
+
+      const result = await crew.kickoff();
+
+      expect(result.success).toBe(true);
+      expect(tracker.completed).toBe(4);
+      expect(tracker.maxActive).toBe(1);
+    });
+
+    it('runs tasks concurrently when maxConcurrentTasks > 1 is passed to kickoff', async () => {
+      const { crew, tracker } = createTrackingCrew(4);
+
+      const result = await crew.kickoff({ maxConcurrentTasks: 4 });
+
+      expect(result.success).toBe(true);
+      expect(tracker.completed).toBe(4);
+      expect(tracker.maxActive).toBeGreaterThan(1);
+    });
+
+    it('honors the maxConcurrentTasks crew config', async () => {
+      const { crew, tracker } = createTrackingCrew(4, {
+        maxConcurrentTasks: 2,
+      });
+
+      const result = await crew.kickoff();
+
+      expect(result.success).toBe(true);
+      expect(tracker.completed).toBe(4);
+      expect(tracker.maxActive).toBe(2);
+    });
+
+    it('lets a per-call maxConcurrentTasks override the crew config', async () => {
+      const { crew, tracker } = createTrackingCrew(4, {
+        maxConcurrentTasks: 1,
+      });
+
+      const result = await crew.kickoff({ maxConcurrentTasks: 4 });
+
+      expect(result.success).toBe(true);
+      expect(tracker.maxActive).toBeGreaterThan(1);
+    });
+
+    it('still emits assigned + completed events for every task when concurrent', async () => {
+      const { crew } = createTrackingCrew(3);
+
+      const events: string[] = [];
+      for await (const event of crew.kickoffStream({ maxConcurrentTasks: 3 })) {
+        events.push(event.type);
+      }
+
+      expect(events.filter((t) => t === 'task:assigned')).toHaveLength(3);
+      expect(events.filter((t) => t === 'task:completed')).toHaveLength(3);
+    });
+
+    it('surfaces a task failure as a fatal crew error in concurrent mode', async () => {
+      const failingAgent = new CrewAgent({
+        config: createMockAgentConfig({ name: 'Flaky' }),
+        execute: async () => {
+          throw new Error('boom');
+        },
+      });
+
+      const crew = new Crew({
+        ...createMockCrewConfig(),
+        agents: [],
+      });
+      crew.addAgent(failingAgent);
+      crew.addTask({
+        description: 'Doomed task',
+        expectedOutput: 'Output',
+        requiredCapabilities: ['coding'],
+      });
+      crew.addTask({
+        description: 'Another doomed task',
+        expectedOutput: 'Output',
+        requiredCapabilities: ['coding'],
+      });
+
+      const result = await crew.kickoff({ maxConcurrentTasks: 2 });
+
+      expect(result.success).toBe(false);
+      expect(crew.getStatus().state).toBe('failed');
+      expect(result.events.some((e) => e.type === 'crew:error')).toBe(true);
+    });
+  });
 });

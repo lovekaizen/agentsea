@@ -27,8 +27,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/nestjs/index.ts src/templates/index.ts --format cjs,esm --clean --external reflect-metadata --external @nestjs/common --external @nestjs/core",
-    "dev": "tsup src/index.ts src/nestjs/index.ts src/templates/index.ts --format cjs,esm --dts --watch --external reflect-metadata --external @nestjs/common --external @nestjs/core",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:cov": "vitest run --coverage",
@@ -36,12 +36,12 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "eventemitter3": "^5.0.0",
-    "nanoid": "^5.0.0"
+    "eventemitter3": "^5.0.0"
   },
   "devDependencies": {
     "@types/node": "^20.11.0",
     "@vitest/coverage-v8": "^3.2.6",
+    "nanoid": "^5.0.0",
     "tsup": "^8.0.1",
     "typescript": "^5.3.3",
     "vitest": "^3.2.6"

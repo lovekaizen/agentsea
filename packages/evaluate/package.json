@@ -42,8 +42,8 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/feedback/index.ts src/evaluation/index.ts src/datasets/index.ts src/annotation/index.ts src/continuous/index.ts --format cjs,esm --dts --clean --external better-sqlite3 --external @huggingface/hub --external nodemailer",
-    "dev": "tsup src/index.ts --format cjs,esm --dts --watch",
+    "build": "tsup",
+    "dev": "tsup --watch",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage",
@@ -74,12 +74,12 @@
   },
   "dependencies": {
     "eventemitter3": "^5.0.0",
-    "nanoid": "^5.0.0",
     "zod": "^3.25.76"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.6.0",
     "@types/node": "^20.0.0",
+    "nanoid": "^5.0.0",
     "tsup": "^8.0.0",
     "typescript": "^5.3.0",
     "vitest": "^3.2.6"
