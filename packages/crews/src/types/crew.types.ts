@@ -357,8 +357,22 @@ export interface CrewExecutionOptions {
   input?: string;
   /** Override delegation strategy */
   strategy?: DelegationStrategyType;
+  /**
+   * Override delegation strategy (alias of {@link CrewExecutionOptions.strategy}
+   * used internally by the executor). Either field is honored.
+   */
+  delegationStrategy?: DelegationStrategyType;
+  /** Additional context values seeded into the execution context */
+  context?: Record<string, unknown>;
   /** Timeout override */
   timeoutMs?: number;
+  /**
+   * Maximum number of ready tasks to execute concurrently within a single
+   * scheduling iteration. Defaults to the crew's `maxConcurrentTasks` config,
+   * or `1` (fully sequential) when neither is set. Values `> 1` run independent
+   * tasks in parallel, trading deterministic event ordering for lower latency.
+   */
+  maxConcurrentTasks?: number;
   /** Whether to stream events */
   stream?: boolean;
   /** Checkpoint to resume from */

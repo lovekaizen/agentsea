@@ -5,7 +5,6 @@
     "node": ">=20.0.0"
   },
   "description": "Advanced memory management system for AI agents with semantic retrieval, hierarchical structures, and multi-agent support",
-  "type": "module",
   "main": "./dist/index.js",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
@@ -86,7 +85,7 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsup src/index.ts src/stores/index.ts src/retrieval/index.ts src/structures/index.ts src/processing/index.ts src/sharing/index.ts src/debug/index.ts --format cjs,esm --dts --clean --external better-sqlite3 --external pg --external ioredis --external @pinecone-database/pinecone",
+    "build": "tsup",
     "dev": "tsup --watch",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -96,7 +95,6 @@
   },
   "dependencies": {
     "eventemitter3": "^5.0.0",
-    "nanoid": "^5.0.0",
     "lru-cache": "^10.0.0"
   },
   "peerDependencies": {
@@ -121,6 +119,7 @@
     "@types/better-sqlite3": "^7.6.8",
     "@types/node": "^20.10.0",
     "@types/pg": "^8.10.0",
+    "nanoid": "^5.0.0",
     "tsup": "^8.0.0",
     "typescript": "^5.3.0",
     "vitest": "^3.2.6"

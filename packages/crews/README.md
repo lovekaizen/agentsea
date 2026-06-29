@@ -180,6 +180,36 @@ const crew = createCrew({
 });
 ```
 
+### Concurrency
+
+By default a crew runs ready tasks **sequentially**, which keeps event ordering
+deterministic. For independent tasks you can opt into a bounded worker pool so
+they execute in parallel — set it on the crew config or per `kickoff()` call:
+
+```typescript
+// Crew-wide default
+const crew = new Crew({
+  name: 'Research Crew',
+  agents: [...],
+  delegationStrategy: 'best-match',
+  maxConcurrentTasks: 4, // up to 4 ready tasks run at once
+});
+
+// Or override per run (takes precedence over the config value)
+const result = await crew.kickoff({ maxConcurrentTasks: 4 });
+```
+
+Notes:
+
+- The default is `1` (fully sequential) — behavior is unchanged unless you opt in.
+- Only tasks that are _ready_ in the same scheduling iteration run together, so
+  dependency ordering is still respected.
+- With concurrency `> 1`, `task:assigned` / `task:completed` events from
+  different tasks interleave as workers settle (each task still emits its own
+  events in order). If a task fails after exhausting retries, no further tasks
+  are launched, in-flight tasks are allowed to settle, and the crew ends with the
+  same fatal `crew:error` as the sequential path.
+
 ### Memory Systems
 
 Share state and knowledge across agents:

@@ -48,6 +48,13 @@ export interface CrewExecutionOptions {
   delegationStrategy?: DelegationStrategyType;
   /** Timeout for the entire execution (ms) */
   timeoutMs?: number;
+  /**
+   * Maximum number of ready tasks to execute concurrently within a single
+   * scheduling iteration. Defaults to the crew's `maxConcurrentTasks` config,
+   * or `1` (fully sequential) when neither is set. Values `> 1` run independent
+   * tasks in parallel, trading deterministic event ordering for lower latency.
+   */
+  maxConcurrentTasks?: number;
   /** Enable verbose logging */
   verbose?: boolean;
 }
@@ -282,39 +289,55 @@ export class Crew {
           continue;
         }
 
-        // Process tasks
-        for (const task of readyTasks) {
-          // Check if still running
-          if (this.state !== 'running') break;
+        // Process ready tasks. Sequential by default to preserve deterministic
+        // event ordering; concurrent when opted in via options.maxConcurrentTasks
+        // or the crew's maxConcurrentTasks config.
+        const concurrency = Math.max(
+          1,
+          options.maxConcurrentTasks ?? this.config.maxConcurrentTasks ?? 1,
+        );
 
-          // Delegate task
-          const delegationResult = await this.delegateTask(task, options);
+        if (concurrency === 1) {
+          for (const task of readyTasks) {
+            // Check if still running
+            if (this.state !== 'running') break;
 
-          // Yield delegation event
-          yield this.createEvent<TaskAssignedEvent>({
-            type: 'task:assigned',
-            taskId: task.id,
-            agentName: delegationResult.selectedAgent,
-            reason: delegationResult.reason,
-            strategy: this.config.delegationStrategy,
-          });
+            // Delegate task
+            const delegationResult = await this.delegateTask(task, options);
 
-          // Execute task
-          const taskResult = await this.executeTask(task, delegationResult);
+            // Yield delegation event
+            yield this.createEvent<TaskAssignedEvent>({
+              type: 'task:assigned',
+              taskId: task.id,
+              agentName: delegationResult.selectedAgent,
+              reason: delegationResult.reason,
+              strategy: this.config.delegationStrategy,
+            });
 
-          // Yield task result events
-          yield this.createEvent<TaskCompletedEvent>({
-            type: 'task:completed',
-            taskId: task.id,
-            result: taskResult,
-            agentName: delegationResult.selectedAgent,
-            durationMs: taskResult.latencyMs ?? 0,
-          });
+            // Execute task
+            const taskResult = await this.executeTask(task, delegationResult);
 
-          // Yield any queued events
-          while (eventQueue.length > 0) {
-            yield eventQueue.shift()!;
+            // Yield task result events
+            yield this.createEvent<TaskCompletedEvent>({
+              type: 'task:completed',
+              taskId: task.id,
+              result: taskResult,
+              agentName: delegationResult.selectedAgent,
+              durationMs: taskResult.latencyMs ?? 0,
+            });
+
+            // Yield any queued events
+            while (eventQueue.length > 0) {
+              yield eventQueue.shift()!;
+            }
           }
+        } else {
+          yield* this.processReadyTasksConcurrently(
+            readyTasks,
+            options,
+            eventQueue,
+            concurrency,
+          );
         }
 
         // Handle paused state (state can change asynchronously via abort/pause)
@@ -365,6 +388,107 @@ export class Crew {
       results: Array.from(this.results.values()),
     });
     this.addTimelineEntry('crew_completed', this.name);
+  }
+
+  /**
+   * Execute a batch of ready tasks concurrently with a bounded worker pool.
+   *
+   * Each task still emits its `task:assigned` and `task:completed` events in
+   * order relative to itself, but events across tasks are interleaved as the
+   * workers settle. At most `concurrency` tasks run at once. If any task throws
+   * (after exhausting retries), no further tasks are started, in-flight tasks
+   * are allowed to settle, and the first error is rethrown so the caller's
+   * error handling (crew:error) behaves identically to the sequential path.
+   */
+  private async *processReadyTasksConcurrently(
+    readyTasks: Task[],
+    options: CrewExecutionOptions,
+    eventQueue: CrewEvent[],
+    concurrency: number,
+  ): AsyncGenerator<CrewEvent> {
+    let nextIndex = 0;
+    let firstError: unknown;
+    const buffer: CrewEvent[] = [];
+    const inFlight = new Set<Promise<void>>();
+
+    const launch = (task: Task): void => {
+      const worker: Promise<void> = (async () => {
+        const delegationResult = await this.delegateTask(task, options);
+
+        buffer.push(
+          this.createEvent<TaskAssignedEvent>({
+            type: 'task:assigned',
+            taskId: task.id,
+            agentName: delegationResult.selectedAgent,
+            reason: delegationResult.reason,
+            strategy: this.config.delegationStrategy,
+          }),
+        );
+
+        const taskResult = await this.executeTask(task, delegationResult);
+
+        buffer.push(
+          this.createEvent<TaskCompletedEvent>({
+            type: 'task:completed',
+            taskId: task.id,
+            result: taskResult,
+            agentName: delegationResult.selectedAgent,
+            durationMs: taskResult.latencyMs ?? 0,
+          }),
+        );
+      })()
+        .catch((error: unknown) => {
+          // Preserve the first failure; mirror sequential behaviour where the
+          // throw propagates out and is surfaced as a fatal crew:error.
+          if (firstError === undefined) {
+            firstError = error;
+          }
+        })
+        .finally(() => {
+          inFlight.delete(worker);
+        });
+
+      inFlight.add(worker);
+    };
+
+    const fill = (): void => {
+      while (
+        inFlight.size < concurrency &&
+        nextIndex < readyTasks.length &&
+        this.state === 'running' &&
+        firstError === undefined
+      ) {
+        launch(readyTasks[nextIndex++]);
+      }
+    };
+
+    fill();
+
+    while (inFlight.size > 0) {
+      await Promise.race(inFlight);
+
+      // Drain task-lifecycle events first, then any context-emitted events.
+      while (buffer.length > 0) {
+        yield buffer.shift()!;
+      }
+      while (eventQueue.length > 0) {
+        yield eventQueue.shift()!;
+      }
+
+      fill();
+    }
+
+    // Final drain in case the last settled worker queued trailing events.
+    while (buffer.length > 0) {
+      yield buffer.shift()!;
+    }
+    while (eventQueue.length > 0) {
+      yield eventQueue.shift()!;
+    }
+
+    if (firstError !== undefined) {
+      throw firstError;
+    }
   }
 
   /**
