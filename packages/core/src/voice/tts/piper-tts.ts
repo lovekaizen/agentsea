@@ -1,12 +1,13 @@
-import { exec } from 'child_process';
-import { writeFileSync, readFileSync, unlinkSync, existsSync } from 'fs';
+import { execFile, spawn } from 'child_process';
+import { readFileSync, unlinkSync, existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
 import { promisify } from 'util';
 
 import { TTSProvider, TTSConfig, TTSResult } from '../../types/voice';
 
-const execAsync = promisify(exec);
+// execFile (no shell) so config/paths can't be interpreted as shell syntax.
+const execFileAsync = promisify(execFile);
 
 /**
  * Piper TTS configuration
@@ -41,27 +42,41 @@ export class PiperTTSProvider implements TTSProvider {
    * Synthesize text to speech
    */
   async synthesize(text: string, config?: TTSConfig): Promise<TTSResult> {
-    try {
-      // Create temporary output file
-      const outputPath = join(tmpdir(), `speech-${Date.now()}.wav`);
+    // Create temporary output file
+    const outputPath = join(tmpdir(), `speech-${Date.now()}.wav`);
 
-      // Build piper command
+    try {
+      // Build piper argv (no shell interpolation)
       const model = this.modelPath || config?.model;
       if (!model) {
         throw new Error('Model path is required for Piper TTS');
       }
 
       const modelConfig = this.configPath || model.replace('.onnx', '.json');
+      const args = [
+        '--model',
+        model,
+        '--config',
+        modelConfig,
+        '--output_file',
+        outputPath,
+      ];
 
-      // Write text to temp file (piper reads from stdin or file)
-      const textPath = join(tmpdir(), `text-${Date.now()}.txt`);
-      writeFileSync(textPath, text, 'utf-8');
-
-      const command = `${this.piperPath} --model ${model} --config ${modelConfig} --output_file ${outputPath} < ${textPath}`;
-
-      // Execute piper
-      await execAsync(command, {
-        maxBuffer: 50 * 1024 * 1024, // 50MB buffer
+      // Execute piper, feeding the text on stdin (piper reads from stdin).
+      await new Promise<void>((resolve, reject) => {
+        const child = spawn(this.piperPath, args, {
+          stdio: ['pipe', 'ignore', 'pipe'],
+        });
+        let stderr = '';
+        child.stderr?.on('data', (chunk) => {
+          stderr += String(chunk);
+        });
+        child.on('error', reject);
+        child.on('close', (code) => {
+          if (code === 0) resolve();
+          else reject(new Error(`piper exited with code ${code}: ${stderr}`));
+        });
+        child.stdin?.end(text);
       });
 
       // Read output file
@@ -70,10 +85,6 @@ export class PiperTTSProvider implements TTSProvider {
       }
 
       const audio = readFileSync(outputPath);
-
-      // Clean up
-      unlinkSync(outputPath);
-      unlinkSync(textPath);
 
       return {
         audio,
@@ -86,6 +97,11 @@ export class PiperTTSProvider implements TTSProvider {
           error instanceof Error ? error.message : String(error)
         }`,
       );
+    } finally {
+      // Always clean up the temp output file, even on failure.
+      if (existsSync(outputPath)) {
+        unlinkSync(outputPath);
+      }
     }
   }
 
@@ -101,7 +117,7 @@ export class PiperTTSProvider implements TTSProvider {
    */
   async isInstalled(): Promise<boolean> {
     try {
-      await execAsync(`${this.piperPath} --version`);
+      await execFileAsync(this.piperPath, ['--version']);
       return true;
     } catch {
       return false;

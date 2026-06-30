@@ -360,6 +360,11 @@ export class PostgresStore implements MemoryStoreInterface {
 
     if (options.filter) {
       for (const [key, value] of Object.entries(options.filter)) {
+        // Filter keys are interpolated into the JSON accessor, so they cannot
+        // be bound as parameters — validate to prevent SQL injection.
+        if (!/^[A-Za-z0-9_]+$/.test(key)) {
+          throw new Error(`Invalid metadata filter key: ${key}`);
+        }
         if (value !== undefined) {
           if (Array.isArray(value)) {
             conditions.push(`metadata->>'${key}' = ANY($${paramIndex})`);

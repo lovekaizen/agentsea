@@ -11,9 +11,13 @@ const ctx = {} as any;
 describe('codeEditTool', () => {
   let tmpDir: string;
   let testFile: string;
+  let prevRoot: string | undefined;
 
   beforeEach(async () => {
     tmpDir = await fs.mkdtemp(join(os.tmpdir(), 'code-edit-test-'));
+    // Confine the path guard to the test's temp dir for this run.
+    prevRoot = process.env.AGENTSEA_FILE_ROOT;
+    process.env.AGENTSEA_FILE_ROOT = tmpDir;
     testFile = join(tmpDir, 'test.ts');
     await fs.writeFile(
       testFile,
@@ -23,6 +27,8 @@ describe('codeEditTool', () => {
   });
 
   afterEach(async () => {
+    if (prevRoot === undefined) delete process.env.AGENTSEA_FILE_ROOT;
+    else process.env.AGENTSEA_FILE_ROOT = prevRoot;
     await fs.rm(tmpDir, { recursive: true, force: true });
   });
 
