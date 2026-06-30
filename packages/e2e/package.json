@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-e2e",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "private": true,
   "description": "Cross-package end-to-end tests wiring AgentSea packages together as a user would.",
   "type": "module",

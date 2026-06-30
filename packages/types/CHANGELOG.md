@@ -1,5 +1,9 @@
 # @lov3kaizen/agentsea-types
 
+## 1.2.0
+
+- Bump for monorepo version consistency.
+
 ## 1.1.1
 
 ## 0.6.0

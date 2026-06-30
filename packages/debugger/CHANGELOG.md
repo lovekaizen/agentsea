@@ -1,5 +1,9 @@
 # @lov3kaizen/agentsea-debugger
 
+## 1.2.0
+
+- Bump for monorepo version consistency.
+
 ## 1.1.1
 
 ### Patch Changes
