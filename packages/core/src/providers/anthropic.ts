@@ -212,20 +212,47 @@ export class AnthropicProvider implements LLMProvider {
         continue;
       }
 
-      // Handle tool results
+      // Handle tool results.
+      //
+      // Anthropic requires every `tool_result` to live in a USER message and
+      // to reference a `tool_use` block in the PRECEDING assistant message.
+      // The generic Message stream only carries the tool's id/name/result, so
+      // we (a) backfill a matching `tool_use` block onto the preceding
+      // assistant message and (b) append the `tool_result` to a following user
+      // message (grouping consecutive results). The original tool input is not
+      // preserved in the generic format, so it is replayed as `{}`.
       if (message.role === 'tool') {
-        // Find the last assistant message and add tool result to it
-        const lastMessage = converted[converted.length - 1];
-        if (lastMessage && lastMessage.role === 'assistant') {
-          const content = lastMessage.content;
-          if (Array.isArray(content)) {
-            content.push({
-              type: 'tool_result',
-              tool_use_id: message.toolCallId || '',
-              content: message.content,
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            } as any);
+        const toolUseId = message.toolCallId || '';
+        const resultBlock = this.toolResultBlock(toolUseId, message.content);
+        const prev = converted[converted.length - 1];
+
+        if (
+          prev &&
+          prev.role === 'user' &&
+          Array.isArray(prev.content) &&
+          prev.content.some((b) => b.type === 'tool_result')
+        ) {
+          // Consecutive tool results: reuse the user message, and backfill the
+          // tool_use onto the assistant message that precedes it.
+          const assistant = converted[converted.length - 2];
+          if (assistant && assistant.role === 'assistant') {
+            assistant.content = this.ensureToolUse(
+              assistant.content,
+              toolUseId,
+              message.name,
+            );
           }
+          prev.content.push(resultBlock);
+        } else if (prev && prev.role === 'assistant') {
+          prev.content = this.ensureToolUse(
+            prev.content,
+            toolUseId,
+            message.name,
+          );
+          converted.push({ role: 'user', content: [resultBlock] });
+        } else {
+          // No preceding assistant tool_use to attach to — emit best-effort.
+          converted.push({ role: 'user', content: [resultBlock] });
         }
         continue;
       }
@@ -238,5 +265,34 @@ export class AnthropicProvider implements LLMProvider {
     }
 
     return converted;
+  }
+
+  /**
+   * Ensure an assistant message's content is a block array that includes a
+   * `tool_use` block with the given id, backfilling one if missing.
+   */
+  private ensureToolUse(
+    content: Anthropic.MessageParam['content'],
+    id: string,
+    name?: string,
+  ): Anthropic.ContentBlockParam[] {
+    const blocks: Anthropic.ContentBlockParam[] =
+      typeof content === 'string'
+        ? content
+          ? [{ type: 'text', text: content }]
+          : []
+        : [...content];
+
+    if (!blocks.some((b) => b.type === 'tool_use' && b.id === id)) {
+      blocks.push({ type: 'tool_use', id, name: name || 'tool', input: {} });
+    }
+    return blocks;
+  }
+
+  private toolResultBlock(
+    toolUseId: string,
+    content: string,
+  ): Anthropic.ToolResultBlockParam {
+    return { type: 'tool_result', tool_use_id: toolUseId, content };
   }
 }

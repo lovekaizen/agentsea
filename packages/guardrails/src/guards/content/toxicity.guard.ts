@@ -192,7 +192,10 @@ GuardRegistry.register({
     defaultConfig: {
       enabled: true,
       onFailure: 'block',
-      threshold: 0.7,
+      // Keep the global block threshold at/below the lowest per-category
+      // detection threshold (self-harm 0.5) so a detected category is never
+      // silently downgraded to "allow" by withConfidence().
+      threshold: 0.5,
       sensitivity: 'medium',
     },
   },

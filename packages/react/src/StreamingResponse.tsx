@@ -27,8 +27,19 @@ export const StreamingResponse: React.FC<StreamingResponseProps> = ({
   const [isComplete, setIsComplete] = React.useState(false);
   const [currentIteration, setCurrentIteration] = React.useState(0);
 
+  // Keep the latest onComplete without making it (or `content`) an effect
+  // dependency — otherwise the stream would be torn down and re-subscribed on
+  // every chunk, replaying the async iterator from the start.
+  const onCompleteRef = React.useRef(onComplete);
+  React.useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
   React.useEffect(() => {
     let isMounted = true;
+    // Track accumulated content locally so `done` reports the final value
+    // instead of a stale closure over the `content` state.
+    let accumulated = '';
     const consumeStream = async () => {
       try {
         for await (const event of stream) {
@@ -40,17 +51,16 @@ export const StreamingResponse: React.FC<StreamingResponseProps> = ({
               break;
             case 'content':
               if (event.delta) {
-                setContent((prev) => prev + (event.content || ''));
+                accumulated += event.content || '';
               } else {
-                setContent(event.content || '');
+                accumulated = event.content || '';
               }
+              setContent(accumulated);
               break;
             case 'done':
               setMetadata(event.metadata);
               setIsComplete(true);
-              if (onComplete) {
-                onComplete(content);
-              }
+              onCompleteRef.current?.(accumulated);
               break;
             case 'error':
               console.error('Stream error:', event.error);
@@ -67,7 +77,7 @@ export const StreamingResponse: React.FC<StreamingResponseProps> = ({
     return () => {
       isMounted = false;
     };
-  }, [stream, onComplete, content]);
+  }, [stream]);
 
   return (
     <div

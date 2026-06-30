@@ -142,8 +142,11 @@ export class BiasGuard extends BaseGuard<void, BiasDetails> {
         }
       }
 
-      // Calculate score
-      const score = Math.min(1, matchCount * 0.4);
+      // Calculate score. A confirmed match is a real detection, so a single
+      // match must reach the default block threshold (0.5) on its own —
+      // otherwise withConfidence() would silently downgrade it to "allow".
+      const score =
+        matchCount > 0 ? Math.min(1, 0.5 + (matchCount - 1) * 0.25) : 0;
       scores[category] = score;
 
       if (matchCount > 0) {

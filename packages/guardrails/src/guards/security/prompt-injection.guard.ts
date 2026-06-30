@@ -233,8 +233,14 @@ export class PromptInjectionGuard extends BaseGuard<
       }
     }
 
-    // Calculate risk score
-    const patternScore = Math.min(1, injectionTypes.length * 0.25);
+    // Calculate risk score. A confirmed pattern match is a high-confidence
+    // signal, so any single match must reach the default block threshold (0.5)
+    // on its own — otherwise withConfidence() would silently downgrade a real
+    // injection to "allow". Additional matches push the score toward 1.
+    const patternScore =
+      injectionTypes.length > 0
+        ? Math.min(1, 0.5 + (injectionTypes.length - 1) * 0.25)
+        : 0;
     const heuristicScore = Math.min(0.5, heuristics.length * 0.15);
     const riskScore = Math.min(1, patternScore + heuristicScore);
 
