@@ -1,6 +1,5 @@
-export {
-  ConversationSchema,
-  ConversationSchemaBuilder,
+export { ConversationSchema, ConversationSchemaBuilder } from './schema';
+export type {
   ConversationStep,
   ConversationState,
   ConversationTurn,

@@ -16,7 +16,12 @@ import type {
  */
 interface RedisClient {
   get(key: string): Promise<string | null>;
-  set(key: string, value: string, options?: { EX?: number }): Promise<unknown>;
+  // ioredis-style variadic set, e.g. set(key, value, 'EX', seconds).
+  set(
+    key: string,
+    value: string,
+    ...args: (string | number)[]
+  ): Promise<unknown>;
   del(...keys: string[]): Promise<number>;
   exists(...keys: string[]): Promise<number>;
   keys(pattern: string): Promise<string[]>;
@@ -128,14 +133,20 @@ export class RedisCache extends BaseCache {
     const client = await this.ensureConnected();
     const data = JSON.stringify(entry);
 
-    const options: { EX?: number } = {};
+    let ttl = 0;
     if (entry.ttl > 0) {
-      options.EX = entry.ttl;
+      ttl = entry.ttl;
     } else if (this.config.defaultTTL && this.config.defaultTTL > 0) {
-      options.EX = this.config.defaultTTL;
+      ttl = this.config.defaultTTL;
     }
 
-    await client.set(this.prefixKey(key), data, options);
+    // ioredis expects expiry as positional args, not a node-redis options
+    // object: set(key, value, 'EX', seconds).
+    if (ttl > 0) {
+      await client.set(this.prefixKey(key), data, 'EX', ttl);
+    } else {
+      await client.set(this.prefixKey(key), data);
+    }
     this.stats.entries++;
   }
 

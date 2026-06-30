@@ -4,6 +4,7 @@ import { join } from 'path';
 import { z } from 'zod';
 
 import { Tool } from '../../types';
+import { resolveWithinRoot } from './path-guard';
 
 /**
  * File read tool for reading file contents
@@ -23,11 +24,12 @@ export const fileReadTool: Tool = {
     encoding: 'utf8' | 'binary' | 'base64';
   }) => {
     try {
+      const safePath = resolveWithinRoot(params.path);
       const content = await fs.readFile(
-        params.path,
+        safePath,
         params.encoding as BufferEncoding,
       );
-      const stats = await fs.stat(params.path);
+      const stats = await fs.stat(safePath);
 
       return {
         content,
@@ -69,25 +71,26 @@ export const fileWriteTool: Tool = {
     append: boolean;
   }) => {
     try {
+      const safePath = resolveWithinRoot(params.path);
       if (params.append) {
         await fs.appendFile(
-          params.path,
+          safePath,
           params.content,
           params.encoding as BufferEncoding,
         );
       } else {
         await fs.writeFile(
-          params.path,
+          safePath,
           params.content,
           params.encoding as BufferEncoding,
         );
       }
 
-      const stats = await fs.stat(params.path);
+      const stats = await fs.stat(safePath);
 
       return {
         success: true,
-        path: params.path,
+        path: safePath,
         size: stats.size,
         modified: stats.mtime,
       };
@@ -115,11 +118,12 @@ export const fileListTool: Tool = {
   }),
   execute: async (params: { path: string; recursive: boolean }) => {
     try {
-      const items = await fs.readdir(params.path, { withFileTypes: true });
+      const safePath = resolveWithinRoot(params.path);
+      const items = await fs.readdir(safePath, { withFileTypes: true });
       const results = [];
 
       for (const item of items) {
-        const fullPath = join(params.path, item.name);
+        const fullPath = join(safePath, item.name);
         const stats = await fs.stat(fullPath);
 
         results.push({

@@ -3,6 +3,7 @@ import { promises as fs } from 'fs';
 import { z } from 'zod';
 
 import { Tool } from '../../types';
+import { resolveWithinRoot } from './path-guard';
 
 /**
  * Code edit tool using exact string search-and-replace.
@@ -43,15 +44,16 @@ export const codeEditTool: Tool = {
     expectedReplacements: number;
   }) => {
     try {
-      const content = await fs.readFile(params.path, 'utf8');
+      const safePath = resolveWithinRoot(params.path);
+      const content = await fs.readFile(safePath, 'utf8');
 
       // Handle insert-at-beginning case
       if (params.oldString === '') {
         const newContent = params.newString + content;
-        await fs.writeFile(params.path, newContent, 'utf8');
+        await fs.writeFile(safePath, newContent, 'utf8');
         return {
           success: true,
-          path: params.path,
+          path: safePath,
           replacements: 1,
           message: 'Content inserted at beginning of file',
         };
@@ -85,11 +87,11 @@ export const codeEditTool: Tool = {
 
       // Perform replacement
       const newContent = content.split(params.oldString).join(params.newString);
-      await fs.writeFile(params.path, newContent, 'utf8');
+      await fs.writeFile(safePath, newContent, 'utf8');
 
       return {
         success: true,
-        path: params.path,
+        path: safePath,
         replacements: count,
         message: `Replaced ${count} occurrence(s)`,
       };

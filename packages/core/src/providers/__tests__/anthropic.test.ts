@@ -386,5 +386,50 @@ describe('AnthropicProvider', () => {
       const callArgs = mockClient.messages.create.mock.calls[0][0];
       expect(callArgs.messages).toHaveLength(3);
     });
+
+    it('emits tool results as a user message with a backfilled tool_use', async () => {
+      const messages: Message[] = [
+        { role: 'user', content: 'What is 2+2?' },
+        { role: 'assistant', content: 'Let me calculate.' },
+        {
+          role: 'tool',
+          content: '4',
+          name: 'calculator',
+          toolCallId: 'call-1',
+        },
+      ];
+
+      const mockResponse = {
+        content: [{ type: 'text', text: 'The answer is 4' }],
+        stop_reason: 'end_turn',
+        usage: { input_tokens: 10, output_tokens: 20 },
+      };
+      mockClient.messages.create.mockResolvedValue(mockResponse);
+
+      await provider.generateResponse(messages, {
+        model: 'claude-sonnet-4-6',
+      });
+
+      const callArgs = mockClient.messages.create.mock.calls[0][0];
+      // user, assistant (with tool_use), user (with tool_result)
+      expect(callArgs.messages).toHaveLength(3);
+
+      const assistant = callArgs.messages[1];
+      expect(assistant.role).toBe('assistant');
+      expect(Array.isArray(assistant.content)).toBe(true);
+      expect(
+        assistant.content.some(
+          (b: { type: string; id?: string }) =>
+            b.type === 'tool_use' && b.id === 'call-1',
+        ),
+      ).toBe(true);
+
+      const toolMsg = callArgs.messages[2];
+      expect(toolMsg.role).toBe('user');
+      const resultBlock = toolMsg.content[0];
+      expect(resultBlock.type).toBe('tool_result');
+      expect(resultBlock.tool_use_id).toBe('call-1');
+      expect(resultBlock.content).toBe('4');
+    });
   });
 });

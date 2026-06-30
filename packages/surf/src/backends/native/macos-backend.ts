@@ -3,7 +3,7 @@
  * Uses screencapture for screenshots and AppleScript/cliclick for input
  */
 
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { promisify } from 'util';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -25,7 +25,16 @@ import {
   NativeBackendOptions,
 } from '../../types';
 
-const execAsync = promisify(exec);
+const execFileAsync = promisify(execFile);
+
+/**
+ * Run an AppleScript via `osascript`, passing the script as a single argv
+ * argument (no shell). This prevents shell command injection from any dynamic
+ * content interpolated into `script` (typed text, coordinates, key names).
+ */
+function runAppleScript(script: string): Promise<{ stdout: string }> {
+  return execFileAsync('osascript', ['-e', script]);
+}
 
 /**
  * macOS native backend implementation
@@ -55,9 +64,7 @@ export class MacOSBackend extends BaseBackend {
 
     // Check if we have accessibility permissions
     try {
-      await execAsync(
-        'osascript -e "tell application \\"System Events\\" to get name"',
-      );
+      await runAppleScript('tell application "System Events" to get name');
     } catch {
       console.warn(
         'Warning: Accessibility permissions may not be granted. Some features may not work.',
@@ -89,9 +96,10 @@ export class MacOSBackend extends BaseBackend {
 
     try {
       // Use system_profiler to get display info
-      const { stdout } = await execAsync(
-        'system_profiler SPDisplaysDataType -json',
-      );
+      const { stdout } = await execFileAsync('system_profiler', [
+        'SPDisplaysDataType',
+        '-json',
+      ]);
       const data = JSON.parse(stdout);
       const displays = data.SPDisplaysDataType?.[0]?.spdisplays_ndrvs || [];
 
@@ -106,9 +114,9 @@ export class MacOSBackend extends BaseBackend {
       }
 
       // Fallback: use AppleScript
-      const { stdout: asOutput } = await execAsync(`
-        osascript -e 'tell application "Finder" to get bounds of window of desktop'
-      `);
+      const { stdout: asOutput } = await runAppleScript(
+        'tell application "Finder" to get bounds of window of desktop',
+      );
       const bounds = asOutput.trim().split(', ').map(Number);
       return {
         width: bounds[2] || 1920,
@@ -130,26 +138,23 @@ export class MacOSBackend extends BaseBackend {
     const filepath = path.join(this.tempDir, filename);
 
     try {
-      let cmd = `screencapture -x`;
+      const args = ['-x'];
 
       // Add display selection
       if (this.displayIndex > 0) {
-        cmd += ` -D ${this.displayIndex + 1}`;
+        args.push('-D', String(this.displayIndex + 1));
       }
 
       // Add region if specified
       if (options?.region) {
         const { x, y, width, height } = options.region;
-        cmd += ` -R ${x},${y},${width},${height}`;
+        args.push('-R', `${x},${y},${width},${height}`);
       }
 
-      // Add format
-      cmd += ` -t ${format}`;
+      // Add format and output file
+      args.push('-t', format, filepath);
 
-      // Add output file
-      cmd += ` "${filepath}"`;
-
-      await execAsync(cmd);
+      await execFileAsync('screencapture', args);
 
       // Read the file
       const imageBuffer = fs.readFileSync(filepath);
@@ -226,7 +231,7 @@ export class MacOSBackend extends BaseBackend {
         `;
       }
 
-      await execAsync(`osascript -e '${script.replace(/'/g, "\\'")}'`);
+      await runAppleScript(script);
 
       // Handle hold duration
       if (options?.holdMs && options.holdMs > 0) {
@@ -259,7 +264,7 @@ export class MacOSBackend extends BaseBackend {
         end tell
       `;
 
-      await execAsync(`osascript -e '${script}'`);
+      await runAppleScript(script);
 
       return this.createSuccessResult('doubleClick', startTime);
     } catch (error) {
@@ -301,7 +306,7 @@ export class MacOSBackend extends BaseBackend {
         end tell
       `;
 
-      await execAsync(`osascript -e '${script}'`);
+      await runAppleScript(script);
 
       return this.createSuccessResult('typeText', startTime);
     } catch (error) {
@@ -354,7 +359,7 @@ export class MacOSBackend extends BaseBackend {
       `;
 
       try {
-        await execAsync(`osascript -e '${script}'`);
+        await runAppleScript(script);
       } catch {
         // Fallback: use key-based scrolling
         const scrollKey =
@@ -397,7 +402,7 @@ export class MacOSBackend extends BaseBackend {
         end tell
       `;
 
-      await execAsync(`osascript -e '${script}'`);
+      await runAppleScript(script);
 
       return this.createSuccessResult('drag', startTime);
     } catch (error) {
@@ -438,7 +443,7 @@ export class MacOSBackend extends BaseBackend {
         `;
       }
 
-      await execAsync(`osascript -e '${script}'`);
+      await runAppleScript(script);
 
       return this.createSuccessResult('keyPress', startTime);
     } catch (error) {
@@ -466,12 +471,14 @@ Quartz.CGEventPost(Quartz.kCGHIDEventTap, Quartz.CGEventCreateMouseEvent(None, Q
       `;
 
       try {
-        await execAsync(`osascript -e '${script}'`);
+        await runAppleScript(script);
       } catch {
         // Fallback using cliclick if available
-        await execAsync(`cliclick m:${point.x},${point.y}`).catch(() => {
-          // If cliclick not available, use pure AppleScript approach
-        });
+        await execFileAsync('cliclick', [`m:${point.x},${point.y}`]).catch(
+          () => {
+            // If cliclick not available, use pure AppleScript approach
+          },
+        );
       }
 
       return this.createSuccessResult('moveCursor', startTime);

@@ -9,12 +9,18 @@ const DEFAULT_TIMEOUT_MS = 30_000;
 const MAX_TIMEOUT_MS = 120_000;
 
 /**
- * Patterns that indicate dangerous or destructive commands.
- * Each entry is a regex tested against the full command string.
+ * Best-effort blocklist of obviously destructive commands.
+ *
+ * SECURITY: this is defense-in-depth, NOT a security boundary. This tool runs
+ * arbitrary shell commands through `execSync`, and a blocklist cannot reliably
+ * contain that — it is trivially bypassed (env vars, aliases, base64-decoded
+ * payloads, alternate paths like `/home`, etc.). Only expose this tool to
+ * trusted callers, and run the host in a sandbox (container/VM, non-root user,
+ * restricted filesystem) if the command source is not fully trusted.
  */
 const DANGEROUS_PATTERNS: RegExp[] = [
-  /\brm\s+-[^\s]*r[^\s]*f[^\s]*\s+\/\s*$/, // rm -rf /
-  /\brm\s+-[^\s]*f[^\s]*r[^\s]*\s+\/\s*$/, // rm -fr /
+  /\brm\s+-[^\s]*r[^\s]*f[^\s]*\s+\/(\s|\*|$)/, // rm -rf / , / * , /...
+  /\brm\s+-[^\s]*f[^\s]*r[^\s]*\s+\/(\s|\*|$)/, // rm -fr / , / * , /...
   /\bmkfs\b/, // mkfs (format disk)
   /:(){ :\|:& };:/, // fork bomb
   /\bdd\b.*\bof=\/dev\//, // dd to device
@@ -29,7 +35,9 @@ const DANGEROUS_PATTERNS: RegExp[] = [
 export const shellExecuteTool: Tool = {
   name: 'shell_execute',
   description:
-    'Execute a shell command and return stdout/stderr. Commands are checked against a safety blocklist. ' +
+    'Execute a shell command and return stdout/stderr. A best-effort blocklist rejects a few obviously ' +
+    'destructive commands, but this is NOT a security boundary — only enable this tool for trusted callers ' +
+    'and prefer a sandboxed host. ' +
     'Non-zero exit codes return results (not errors) since tools like grep exit 1 on no matches.',
   parameters: z.object({
     command: z.string().describe('The shell command to execute'),

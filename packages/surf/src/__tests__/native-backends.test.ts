@@ -1,10 +1,12 @@
 /**
  * Unit tests for the native OS backends (macOS / Linux / Windows).
  *
- * Strategy: the backends issue all shell work through `promisify(exec)` from
- * `child_process`. We mock `child_process.exec` with a callback-style stub so
- * `promisify` wraps it normally, capture every command string, and assert the
- * exact shell / AppleScript / xdotool / PowerShell invocation each method
+ * Strategy: the Linux/Windows backends issue shell work through
+ * `promisify(exec)`, while the macOS backend uses `promisify(execFile)` (no
+ * shell) for safety. We mock both `child_process.exec` and `execFile` with
+ * callback-style stubs so `promisify` wraps them normally, capture every
+ * command string (execFile calls are reconstructed as `file arg1 arg2 …`), and
+ * assert the exact AppleScript / xdotool / PowerShell invocation each method
  * generates. `fs` is mocked so screenshot reads of a fake PNG succeed without
  * touching disk. `process.platform` is overridden per-suite so `connect()`
  * passes on a CI host of any OS.
@@ -41,7 +43,26 @@ vi.mock('child_process', () => {
     }
     return {};
   });
-  return { exec };
+  // The macOS backend issues work through `execFile(file, args)` (no shell).
+  // Reconstruct an equivalent command string so the same `execCalls`
+  // assertions continue to capture it.
+  const execFile = vi.fn(
+    (file: string, arg2?: unknown, arg3?: unknown, arg4?: unknown): unknown => {
+      const args = Array.isArray(arg2) ? (arg2 as string[]) : [];
+      const cmd = [file, ...args].join(' ');
+      execCalls.push(cmd);
+      // Signature: execFile(file, [args], [options], callback). promisify
+      // always passes the callback last.
+      const cb = [arg4, arg3, arg2].find((a) => typeof a === 'function') as
+        | ((err: unknown, res: { stdout: string; stderr: string }) => void)
+        | undefined;
+      if (cb) {
+        cb(null, { stdout: execStdout(cmd), stderr: '' });
+      }
+      return {};
+    },
+  );
+  return { exec, execFile };
 });
 
 vi.mock('fs', () => {
@@ -191,16 +212,13 @@ describe('MacOSBackend', () => {
   });
 
   it('returns an error result when osascript fails', async () => {
-    execStdout = () => {
-      throw new Error('boom');
-    };
-    // Make exec throw for this call by overriding the mock behavior.
+    // The macOS click path runs via execFile; make that call reject once.
     const cp = await import('child_process');
-    (cp.exec as unknown as Mock).mockImplementationOnce(
-      (_cmd: string, _a: unknown, cb: unknown) => {
+    (cp.execFile as unknown as Mock).mockImplementationOnce(
+      (_file: string, _args: unknown, cb: unknown) => {
         const fn =
-          typeof _a === 'function'
-            ? (_a as (e: unknown) => void)
+          typeof _args === 'function'
+            ? (_args as (e: unknown) => void)
             : (cb as (e: unknown) => void);
         fn(new Error('osascript failed'));
         return {};

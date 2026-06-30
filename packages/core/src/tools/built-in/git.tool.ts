@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 
 import { z } from 'zod';
 
@@ -6,8 +6,13 @@ import { Tool } from '../../types';
 
 const GIT_TIMEOUT_MS = 30_000;
 
-function gitExec(args: string, cwd?: string): string {
-  return execSync(`git ${args}`, {
+/**
+ * Run git with an explicit argv array via execFileSync — no shell is spawned,
+ * so caller-supplied paths/branch names/messages can never be interpreted as
+ * shell metacharacters or additional commands.
+ */
+function gitExec(args: string[], cwd?: string): string {
+  return execFileSync('git', args, {
     cwd: cwd || process.cwd(),
     timeout: GIT_TIMEOUT_MS,
     encoding: 'utf8',
@@ -27,8 +32,8 @@ export const gitStatusTool: Tool = {
   }),
   execute: (params: { cwd?: string }) => {
     try {
-      const output = gitExec('status --porcelain', params.cwd);
-      const branch = gitExec('branch --show-current', params.cwd);
+      const output = gitExec(['status', '--porcelain'], params.cwd);
+      const branch = gitExec(['branch', '--show-current'], params.cwd);
 
       const staged: string[] = [];
       const unstaged: string[] = [];
@@ -84,9 +89,9 @@ export const gitDiffTool: Tool = {
   }),
   execute: (params: { staged: boolean; path?: string; cwd?: string }) => {
     try {
-      let args = 'diff';
-      if (params.staged) args += ' --cached';
-      if (params.path) args += ` -- ${params.path}`;
+      const args = ['diff'];
+      if (params.staged) args.push('--cached');
+      if (params.path) args.push('--', params.path);
 
       const output = gitExec(args, params.cwd);
 
@@ -115,8 +120,7 @@ export const gitAddTool: Tool = {
   }),
   execute: (params: { paths: string[]; cwd?: string }) => {
     try {
-      const escapedPaths = params.paths.map((p) => `"${p}"`).join(' ');
-      gitExec(`add ${escapedPaths}`, params.cwd);
+      gitExec(['add', '--', ...params.paths], params.cwd);
 
       return Promise.resolve({
         success: true,
@@ -143,9 +147,7 @@ export const gitCommitTool: Tool = {
   }),
   execute: (params: { message: string; cwd?: string }) => {
     try {
-      // Escape the message for shell safety
-      const safeMessage = params.message.replace(/'/g, "'\\''");
-      const output = gitExec(`commit -m '${safeMessage}'`, params.cwd);
+      const output = gitExec(['commit', '-m', params.message], params.cwd);
 
       return Promise.resolve({
         success: true,
@@ -191,13 +193,13 @@ export const gitLogTool: Tool = {
     cwd?: string;
   }) => {
     try {
-      let args = `log -${params.maxCount}`;
+      const args = ['log', `-${params.maxCount}`];
       if (params.oneline) {
-        args += ' --oneline';
+        args.push('--oneline');
       } else {
-        args += ' --format=%H%n%an%n%ae%n%ai%n%s%n---';
+        args.push('--format=%H%n%an%n%ae%n%ai%n%s%n---');
       }
-      if (params.path) args += ` -- ${params.path}`;
+      if (params.path) args.push('--', params.path);
 
       const output = gitExec(args, params.cwd);
 
@@ -250,8 +252,8 @@ export const gitBranchTool: Tool = {
     try {
       switch (params.action) {
         case 'list': {
-          const output = gitExec('branch -a', params.cwd);
-          const current = gitExec('branch --show-current', params.cwd);
+          const output = gitExec(['branch', '-a'], params.cwd);
+          const current = gitExec(['branch', '--show-current'], params.cwd);
           const branches = output
             .split('\n')
             .filter(Boolean)
@@ -262,14 +264,21 @@ export const gitBranchTool: Tool = {
           if (!params.name) {
             throw new Error('Branch name is required for create action');
           }
-          gitExec(`branch ${params.name}`, params.cwd);
+          // Reject leading '-' so a branch name can't be parsed as a git option.
+          if (params.name.startsWith('-')) {
+            throw new Error('Invalid branch name');
+          }
+          gitExec(['branch', params.name], params.cwd);
           return Promise.resolve({ success: true, created: params.name });
         }
         case 'switch': {
           if (!params.name) {
             throw new Error('Branch name is required for switch action');
           }
-          gitExec(`checkout ${params.name}`, params.cwd);
+          if (params.name.startsWith('-')) {
+            throw new Error('Invalid branch name');
+          }
+          gitExec(['checkout', params.name], params.cwd);
           return Promise.resolve({ success: true, switched: params.name });
         }
       }

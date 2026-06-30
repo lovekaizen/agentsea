@@ -1,4 +1,4 @@
-import { exec } from 'child_process';
+import { execFile } from 'child_process';
 import { writeFileSync, unlinkSync, existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { join } from 'path';
@@ -6,7 +6,8 @@ import { promisify } from 'util';
 
 import { STTProvider, STTConfig, STTResult } from '../../types/voice';
 
-const execAsync = promisify(exec);
+// execFile (no shell) so config/paths can't be interpreted as shell syntax.
+const execFileAsync = promisify(execFile);
 
 /**
  * Local Whisper configuration
@@ -61,24 +62,33 @@ export class LocalWhisperProvider implements STTProvider {
         throw new Error(`Audio file not found: ${audioPath}`);
       }
 
-      // Build whisper command
+      // Build whisper argv (no shell interpolation)
       const model = config?.model || 'base';
-      const language = config?.language ? `--language ${config.language}` : '';
+      const languageArgs = config?.language
+        ? ['--language', config.language]
+        : [];
       const outputFormat = config?.responseFormat || 'txt';
 
-      let command: string;
+      let args: string[];
 
       // Try whisper.cpp first (if available)
       if (this.whisperPath.includes('whisper.cpp')) {
         const modelFile = this.modelPath || `ggml-${model}.bin`;
-        command = `${this.whisperPath} -m ${modelFile} ${language} -otxt "${audioPath}"`;
+        args = ['-m', modelFile, ...languageArgs, '-otxt', audioPath];
       } else {
         // Use Python whisper
-        command = `${this.whisperPath} "${audioPath}" --model ${model} ${language} --output_format ${outputFormat}`;
+        args = [
+          audioPath,
+          '--model',
+          model,
+          ...languageArgs,
+          '--output_format',
+          outputFormat,
+        ];
       }
 
       // Execute whisper
-      const { stdout } = await execAsync(command, {
+      const { stdout } = await execFileAsync(this.whisperPath, args, {
         maxBuffer: 10 * 1024 * 1024, // 10MB buffer
       });
 
@@ -129,7 +139,7 @@ export class LocalWhisperProvider implements STTProvider {
    */
   async isInstalled(): Promise<boolean> {
     try {
-      await execAsync(`${this.whisperPath} --help`);
+      await execFileAsync(this.whisperPath, ['--help']);
       return true;
     } catch {
       return false;
