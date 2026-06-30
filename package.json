@@ -1,6 +1,6 @@
 {
   "name": "agentsea",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "private": true,
   "description": "AgentSea - Production-ready ADK for building agentic AI applications in Node.js",
   "keywords": [
@@ -37,6 +37,8 @@
     "prepare": "husky",
     "changeset": "changeset",
     "version-packages": "changeset version",
+    "version-lockstep": "node scripts/release-version.mjs",
+    "version-lockstep:dry": "node scripts/release-version.mjs --dry-run",
     "release": "pnpm build && changeset publish"
   },
   "devDependencies": {

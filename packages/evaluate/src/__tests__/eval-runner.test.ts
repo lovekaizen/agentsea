@@ -187,19 +187,31 @@ describe('EvalRunner', () => {
     });
 
     it('should handle timeout', async () => {
-      const generateFn = vi.fn(
-        async () =>
-          new Promise((resolve) => setTimeout(() => resolve('answer'), 100)),
-      );
+      // Use fake timers so the 50ms timeout deterministically fires before the
+      // 100ms generation on every attempt, regardless of CI runner load.
+      vi.useFakeTimers();
+      try {
+        const generateFn = vi.fn(
+          async () =>
+            new Promise((resolve) => setTimeout(() => resolve('answer'), 100)),
+        );
 
-      const timeoutRunner = new EvalRunner({ timeout: 50 });
-      const onError = vi.fn();
-      const errorRunner = new EvalRunner({ timeout: 50, onError });
+        const onError = vi.fn();
+        const errorRunner = new EvalRunner({ timeout: 50, onError });
 
-      const results = await errorRunner.run(dataset, generateFn, [mockMetric]);
+        const resultsPromise = errorRunner.run(dataset, generateFn, [
+          mockMetric,
+        ]);
+        // Drive all pending timers (timeouts, retries, every dataset item) to
+        // completion, flushing microtasks in between.
+        await vi.runAllTimersAsync();
+        const results = await resultsPromise;
 
-      expect(results).toHaveLength(3);
-      expect(results[0].passed).toBe(false);
+        expect(results).toHaveLength(3);
+        expect(results[0].passed).toBe(false);
+      } finally {
+        vi.useRealTimers();
+      }
     });
 
     it('should run with judge when provided', async () => {

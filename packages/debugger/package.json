@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-debugger",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "description": "AI Agent debugger with step-through execution, decision tree visualization, checkpoint replay, and what-if scenario testing",
   "type": "module",
   "main": "./dist/index.js",

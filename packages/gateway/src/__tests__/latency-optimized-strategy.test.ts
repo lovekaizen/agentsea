@@ -271,15 +271,27 @@ describe('LatencyOptimizedStrategy', () => {
         messages: [{ role: 'user', content: 'Hello' }],
       };
 
-      // Make multiple requests during warmup
+      // Deterministically force exploration across different providers.
+      // Each exploring route() consumes two Math.random() calls: the first
+      // gates exploration (< 0.3), the second selects the index within the
+      // top 3 (floor(random * 3) -> 0, 1, 2). Cycling the index value
+      // guarantees we visit multiple providers instead of relying on chance.
+      const originalRandom = Math.random;
+      const sequence = [0.1, 0.0, 0.1, 0.4, 0.1, 0.8];
+      let call = 0;
+      Math.random = vi.fn(() => sequence[call++ % sequence.length]);
+
       const providers = new Set<string>();
-      for (let i = 0; i < 20; i++) {
-        const decision = strategy.route(request, registry);
-        providers.add(decision.provider);
+      try {
+        for (let i = 0; i < 20; i++) {
+          const decision = strategy.route(request, registry);
+          providers.add(decision.provider);
+        }
+      } finally {
+        Math.random = originalRandom;
       }
 
-      // Due to randomization, should have tried multiple providers
-      // (with 30% random chance per request, very likely to see variation)
+      // Exploration should have surfaced more than one provider.
       expect(providers.size).toBeGreaterThan(1);
     });
 

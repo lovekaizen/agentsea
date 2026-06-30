@@ -1,5 +1,7 @@
 # @lov3kaizen/agentsea-costs
 
+## 1.1.1
+
 ## 0.6.0
 
 ### Minor Changes

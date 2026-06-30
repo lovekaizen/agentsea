@@ -1,5 +1,12 @@
 # @lov3kaizen/agentsea-surf
 
+## 1.1.1
+
+### Patch Changes
+
+- @lov3kaizen/agentsea-core@1.1.1
+- @lov3kaizen/agentsea-types@1.1.1
+
 ## 0.6.0
 
 ### Minor Changes
