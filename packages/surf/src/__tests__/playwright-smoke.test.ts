@@ -22,32 +22,48 @@ let backend: PlaywrightBackend | null = null;
 let browserAvailable = false;
 let skipReason = '';
 
+/**
+ * Disconnect without ever hanging: a wedged/partially-launched browser can make
+ * disconnect() stall, which would otherwise trip the hook timeout. Bound it.
+ */
+async function boundedDisconnect(b: PlaywrightBackend): Promise<void> {
+  await Promise.race([
+    b.disconnect().catch(() => {}),
+    new Promise<void>((resolve) => setTimeout(resolve, 8000)),
+  ]);
+}
+
 beforeAll(async () => {
   if (FORCE_SKIP) {
     skipReason = 'SURF_SKIP_PLAYWRIGHT=1';
     return;
   }
+  let b: PlaywrightBackend | null = null;
   try {
-    const b = new PlaywrightBackend({ headless: true });
+    b = new PlaywrightBackend({ headless: true });
     await b.connect();
     backend = b;
     browserAvailable = true;
   } catch (err) {
     skipReason = err instanceof Error ? err.message : String(err);
     browserAvailable = false;
-    if (backend) {
-      await backend.disconnect().catch(() => {});
-      backend = null;
+    // A failed launch may still have spawned a browser process; tear down the
+    // local instance (not the never-assigned `backend`) so no handle lingers
+    // and stalls the afterAll teardown.
+    if (b) {
+      await boundedDisconnect(b);
     }
+    backend = null;
   }
 }, 60_000);
 
 afterAll(async () => {
-  if (backend) {
-    await backend.disconnect().catch(() => {});
-    backend = null;
+  const b = backend;
+  backend = null;
+  if (b) {
+    await boundedDisconnect(b);
   }
-});
+}, 30_000);
 
 describe('PlaywrightBackend headless smoke', () => {
   it('reports whether a browser was available (always runs)', () => {
