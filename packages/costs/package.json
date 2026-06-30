@@ -1,6 +1,6 @@
 {
   "name": "@lov3kaizen/agentsea-costs",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "engines": {
     "node": ">=20.0.0"
   },

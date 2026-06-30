@@ -1,6 +1,6 @@
 {
   "name": "agentsea",
-  "version": "1.2.0",
+  "version": "1.2.1",
   "private": true,
   "description": "AgentSea - Production-ready ADK for building agentic AI applications in Node.js",
   "keywords": [

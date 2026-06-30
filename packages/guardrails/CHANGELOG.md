@@ -1,5 +1,9 @@
 # @lov3kaizen/agentsea-guardrails
 
+## 1.2.1
+
+- Bump for monorepo version consistency.
+
 ## 1.2.0
 
 - Bump for monorepo version consistency.
