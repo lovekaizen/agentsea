@@ -30,7 +30,7 @@ const agent = new Agent(
   {
     name: 'my-agent',
     description: 'Agent with formatting',
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-opus-4-8',
     provider: 'anthropic',
     outputFormat: 'markdown', // or 'text', 'html', 'react'
     formatOptions: {
@@ -386,7 +386,7 @@ import { AgentDecorator } from '@lov3kaizen/agentsea-nestjs';
 @AgentDecorator({
   name: 'my-agent',
   description: 'Agent with formatting',
-  model: 'claude-3-5-sonnet-20241022',
+  model: 'claude-opus-4-8',
   provider: 'anthropic',
   outputFormat: 'html',
   formatOptions: {

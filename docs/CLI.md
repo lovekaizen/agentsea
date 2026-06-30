@@ -412,7 +412,7 @@ sea config
     "default": {
       "name": "default",
       "description": "Default agent",
-      "model": "claude-sonnet-4-20250514",
+      "model": "claude-opus-4-8",
       "provider": "anthropic",
       "systemPrompt": "You are a helpful assistant.",
       "temperature": 0.7,
@@ -487,7 +487,7 @@ sea init
 # 3. Create production agent
 sea agent create
 # Name: prod
-# Model: claude-sonnet-4-20250514
+# Model: claude-opus-4-8
 # High quality settings
 
 # 4. Run tasks

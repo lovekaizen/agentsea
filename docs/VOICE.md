@@ -361,7 +361,7 @@ const toolRegistry = new ToolRegistry();
 const agent = new Agent(
   {
     name: 'voice-assistant',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-opus-4-8',
     provider: 'anthropic',
     systemPrompt: 'You are a helpful voice assistant.',
     description: 'Voice assistant',
@@ -497,7 +497,7 @@ voiceAgent.setAutoSpeak(false);
 const agent = new Agent(
   {
     name: 'customer-service',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-opus-4-8',
     provider: 'anthropic',
     systemPrompt: 'You are a helpful customer service representative.',
     description: 'Customer service bot',
@@ -522,7 +522,7 @@ const result = await voiceAgent.processVoice(customerAudio, context);
 const agent = new Agent(
   {
     name: 'language-tutor',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-opus-4-8',
     provider: 'anthropic',
     systemPrompt: 'You are a Spanish language tutor.',
     description: 'Language tutor',
@@ -548,7 +548,7 @@ const result = await voiceAgent.processVoice(studentAudio, context);
 const agent = new Agent(
   {
     name: 'podcast-host',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-opus-4-8',
     provider: 'anthropic',
     systemPrompt: 'You are an engaging podcast host.',
     description: 'Podcast host',

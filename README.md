@@ -39,6 +39,19 @@ AgentSea ADK unites AI agents and services to create powerful, intelligent appli
 - 🚀 **Production Ready** - Rate limiting, caching, error handling, retries
 - 📘 **TypeScript** - Fully typed with comprehensive definitions
 
+## 🧠 Supported Models
+
+AgentSea ships a typed model registry (60+ models with capabilities and live pricing). Latest highlights per provider — pass any of these as `model`:
+
+| Provider             | Latest models                                                                                                                  | Notes                                               |
+| -------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
+| **Anthropic Claude** | `claude-opus-4-8` _(default)_, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`, `claude-haiku-4-5`, `claude-fable-5` | Adaptive thinking on Opus 4.6+, Sonnet 4.6, Fable 5 |
+| **OpenAI**           | `gpt-5.5`, `gpt-5.4-mini`, `gpt-5.2` (+ `pro` / `codex`), `gpt-5.1`, `o3`, `o1`                                                | Reasoning-effort aware, per-model capability typing |
+| **Google Gemini**    | `gemini-3.5-flash`, `gemini-3.1-pro-preview`, `gemini-2.5-pro`, `gemini-2.5-flash`                                             |                                                     |
+| **Local / OSS**      | Ollama, LM Studio, LocalAI, vLLM, Text Generation WebUI, any OpenAI-compatible endpoint                                        | Run fully on your own hardware                      |
+
+Older generations (Claude 3.x / Sonnet 4.5, GPT-4o, Gemini 1.5/2.0, …) remain supported. See [`@lov3kaizen/agentsea-types`](./packages/types) for the full registry and [costs](./packages/costs) for the pricing table.
+
 ## 🚀 Quick Start
 
 ### Requirements
@@ -71,7 +84,7 @@ import {
 const agent = new Agent(
   {
     name: 'assistant',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-opus-4-8',
     provider: 'anthropic',
     systemPrompt: 'You are a helpful assistant.',
     tools: [calculatorTool],
@@ -106,21 +119,21 @@ import {
 
 // Use Gemini
 const geminiAgent = new Agent(
-  { model: 'gemini-pro', provider: 'gemini' },
+  { model: 'gemini-2.5-pro', provider: 'gemini' },
   new GeminiProvider(process.env.GEMINI_API_KEY),
   toolRegistry,
 );
 
 // Use OpenAI
 const openaiAgent = new Agent(
-  { model: 'gpt-4-turbo-preview', provider: 'openai' },
+  { model: 'gpt-5.5', provider: 'openai' },
   new OpenAIProvider(process.env.OPENAI_API_KEY),
   toolRegistry,
 );
 
 // Use Anthropic
 const claudeAgent = new Agent(
-  { model: 'claude-sonnet-4-20250514', provider: 'anthropic' },
+  { model: 'claude-opus-4-8', provider: 'anthropic' },
   new AnthropicProvider(process.env.ANTHROPIC_API_KEY),
   toolRegistry,
 );
@@ -154,12 +167,19 @@ Get compile-time validation for model-specific options. Inspired by [TanStack AI
 ```typescript
 import { anthropic, openai, createProvider } from '@lov3kaizen/agentsea-core';
 
-// ✅ Valid: Claude 3.5 Sonnet supports tools, system prompts, and extended thinking
-const claudeConfig = anthropic('claude-3-5-sonnet-20241022', {
+// ✅ Valid: Claude Opus 4.8 supports tools and system prompts. Thinking is
+// adaptive on 4.6+ models, so budget_tokens-style config is intentionally
+// not part of the type.
+const claudeConfig = anthropic('claude-opus-4-8', {
+  tools: [myTool],
+  systemPrompt: 'You are a helpful assistant',
+});
+
+// ✅ Valid: Claude Sonnet 4.5 still exposes explicit extended thinking
+const sonnetConfig = anthropic('claude-sonnet-4-5-20250929', {
   tools: [myTool],
   systemPrompt: 'You are a helpful assistant',
   thinking: { type: 'enabled', budgetTokens: 10000 },
-  temperature: 0.7,
 });
 
 // ✅ Valid: o1 supports tools but NOT system prompts
@@ -167,12 +187,6 @@ const o1Config = openai('o1', {
   tools: [myTool],
   reasoningEffort: 'high',
   // systemPrompt: '...' // ❌ TypeScript error - o1 doesn't support system prompts
-});
-
-// ❌ TypeScript error: o1-mini doesn't support tools
-const o1MiniConfig = openai('o1-mini', {
-  // tools: [myTool], // Error: 'tools' does not exist in type
-  reasoningEffort: 'medium',
 });
 
 // Create type-safe providers
@@ -258,7 +272,7 @@ const toolRegistry = new ToolRegistry();
 const agent = new Agent(
   {
     name: 'voice-assistant',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-opus-4-8',
     provider: 'anthropic',
     systemPrompt: 'You are a helpful voice assistant.',
     description: 'Voice assistant',
@@ -336,7 +350,7 @@ const acpTools = createACPTools(acpClient);
 const shoppingAgent = new Agent(
   {
     name: 'shopping-assistant',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-opus-4-8',
     provider: 'anthropic',
     systemPrompt: 'You are a helpful shopping assistant.',
     tools: acpTools, // Includes 14 commerce tools
@@ -400,7 +414,7 @@ Launch an interactive AI coding session with 13 built-in tools:
 sea code
 
 # Use a specific provider/model
-sea code --provider anthropic --model claude-sonnet-4-20250514
+sea code --provider anthropic --model claude-opus-4-8
 
 # Verbose mode with token usage and latency
 sea code --verbose
@@ -456,7 +470,7 @@ import { AnthropicProvider } from '@lov3kaizen/agentsea-core';
     AgenticModule.forRoot({
       provider: new AnthropicProvider(),
       defaultConfig: {
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-opus-4-8',
         provider: 'anthropic',
       },
       enableRestApi: true, // Enable REST API endpoints
@@ -545,7 +559,7 @@ AgentSea follows a clean, layered architecture:
 └─────────────────────────────────────────┘
                     │
 ┌─────────────────────────────────────────┐
-│         AgentSea ADK Layer               │
+│         AgentSea ADK Layer              │
 │  ┌─────────────────────────────────┐    │
 │  │  Multi-Agent Orchestration      │    │
 │  └─────────────────────────────────┘    │
@@ -570,63 +584,21 @@ AgentSea follows a clean, layered architecture:
 └─────────────────────────────────────────┘
 ```
 
-## 🎯 Core Concepts
+## Core Concepts
 
-### Agents
-
-Autonomous AI entities that can reason, use tools, and maintain conversation context.
-
-### Crews
-
-Multi-agent teams with defined roles, delegation strategies, and coordinated task execution.
-
-### Tools
-
-Functions that agents can call to perform specific tasks (API calls, calculations, etc.).
-
-### Memory
-
-Hierarchical memory system with episodic, semantic, and working memory structures. Supports multi-agent sharing with access control.
-
-### Guardrails
-
-Input validation, output filtering, and safety checks to ensure responsible AI behavior.
-
-### Evaluation
-
-LLM-as-Judge, human feedback collection, and continuous monitoring for quality assurance.
-
-### Gateway
-
-OpenAI-compatible API gateway with intelligent routing, load balancing, and fallback handling.
-
-### MCP
-
-Model Context Protocol integration for seamless tool and resource integration.
-
-### Conversation Schemas
-
-Define structured conversation flows with validation and dynamic routing.
-
-### Agentic Coding
-
-Interactive AI coding sessions with 13 built-in tools for file operations, code editing, search, shell execution, and git operations. Works with any provider.
-
-### Red Teaming
-
-Proactive security testing with adversarial attack generation, vulnerability scanning, jailbreak detection, compliance checking, and audit logging.
-
-### Prompt Management
-
-Git-like version control for prompts with environment promotion (dev/staging/prod), A/B testing, and team collaboration.
-
-### Debugger
-
-Step-through agent execution with breakpoints, checkpoint replay, what-if scenario testing, and decision tree visualization.
-
-### Analytics
-
-Conversation analytics with intent classification, sentiment analysis, topic clustering, anomaly detection, and KPI tracking.
+| Concept                   | What it is                                                                                           |
+| ------------------------- | ---------------------------------------------------------------------------------------------------- |
+| **Agents**                | Autonomous entities that reason, call tools, and keep conversation context                           |
+| **Crews**                 | Multi-agent teams with roles, delegation, and sequential/concurrent task execution                   |
+| **Tools**                 | Functions agents call (built-in coding/general tools, MCP tools, or your own)                        |
+| **Memory**                | Episodic, semantic, and working memory with multi-agent sharing and access control                   |
+| **Guardrails**            | Input validation, output filtering, prompt-injection/PII safety checks                               |
+| **Gateway**               | OpenAI-compatible gateway with routing, load balancing, caching, and fallbacks                       |
+| **MCP**                   | Model Context Protocol for plug-in tools and resources                                               |
+| **Conversation Schemas**  | Structured, validated conversation flows with dynamic routing                                        |
+| **Evaluation / Red Team** | LLM-as-Judge, human feedback, monitoring + adversarial attack generation and jailbreak detection     |
+| **Prompts / Debugger**    | Git-like prompt versioning & A/B testing; step-through execution with checkpoints and what-if replay |
+| **Analytics**             | Intent classification, sentiment, topic clustering, anomaly detection, and KPI tracking              |
 
 ## 📚 Documentation
 
@@ -704,73 +676,6 @@ pnpm lint
 pnpm type-check
 ```
 
-## ✅ Feature Status
-
-Maturity is tracked per area. **Stable** = implemented and covered by tests;
-**Beta** = usable and tested but with known gaps or rough edges (see each package
-README); **WIP** = under active development, APIs and behavior may change.
-
-### ✅ Stable
-
-- [x] Multi-provider support (Claude, GPT, Gemini) with 60+ models including GPT-5, GPT-4.1, o3, o4-mini
-- [x] Per-model type safety with compile-time validation of model-specific options
-- [x] Local & open source model support (Ollama, LM Studio, LocalAI, etc.)
-- [x] Voice support (TTS/STT) with multiple providers
-- [x] Command-line interface (CLI) with interactive chat
-- [x] Agentic coding (`sea code`) with 13 built-in coding tools
-- [x] MCP protocol integration
-- [x] ACP (Agentic Commerce Protocol) with 14 commerce operations
-- [x] Conversation schema system with step-based flows
-- [x] Advanced memory stores (Buffer, Redis, PostgreSQL, SQLite, Pinecone)
-- [x] Memory structures (Episodic, Semantic, Working)
-- [x] Multi-agent memory sharing with access control
-- [x] LLM Gateway with OpenAI-compatible API, caching, and cost optimization
-- [x] Intelligent routing (round-robin, least-latency, cost-based)
-- [x] Structured output with Zod schema enforcement
-- [x] Document ingestion pipeline with parsers and chunkers
-- [x] Guardrails for content safety, prompt injection, and PII detection
-- [x] Content filtering and validation
-- [x] Intelligent caching with semantic similarity, streaming replay, and multi-tier support
-- [x] Prompt management with version control, A/B testing, and environment promotion
-- [x] Agent debugger with step-through execution, checkpoint replay, and what-if testing
-- [x] Conversation analytics with intent classification, sentiment, and topic clustering
-- [x] Built-in tools (13 coding tools + 8 general tools + custom support)
-- [x] Observability (logging, metrics, tracing)
-- [x] Cost tracking with 60+ model pricing registry and budget enforcement
-- [x] NestJS integration for all packages
-- [x] React components for agent interfaces
-- [x] Multi-tenancy support
-- [x] Rate limiting and caching
-- [x] TypeScript definitions with strict type safety
-- [x] CI/CD workflows with automated releases
-- [x] **Crews** — multi-agent orchestration (role-based coordination; round-robin,
-      best-match, auction, hierarchical, and consensus delegation) with real LLM
-      execution by default via the core-backed `CoreExecutor` (mock path opt-in
-      with `mock: true`). The default execution path is covered end-to-end in the
-      `e2e` package via an injectable provider seam.
-- [x] **Evaluate** — LLM evaluation metrics, LLM-as-Judge, human feedback, and
-      preference learning (RLHF/DPO). Continuous monitoring with email (SMTP via
-      nodemailer), webhook/Slack, and PagerDuty (Events API v2) alert channels;
-      HuggingFace dataset import (datasets-server REST) and Hub export
-      (`@huggingface/hub`).
-- [x] **Red Team** — adversarial attack generation, vulnerability scanning, and
-      jailbreak detection; safety benchmarks, compliance checking. Continuous
-      testing with cron-driven schedules (`cron-parser`), real alert delivery
-      (webhook/Slack/Teams/Discord/PagerDuty/email), and tamper-evident,
-      hash-chained audit logging with pluggable persistent storage
-      (`FileAuditStore`).
-- [x] **Embeddings** — multi-provider support (OpenAI, Cohere, Voyage, HuggingFace),
-      chunking, caching, and Pinecone/Chroma/Qdrant/**pgvector/Weaviate/Milvus**
-      stores, plus local **ONNX** models via Transformers.js
-      (`@xenova/transformers`).
-- [x] **Surf** — vision-driven computer use and browser automation across
-      **Puppeteer/Playwright** (chromium/firefox/webkit), **Docker**,
-      **Kubernetes** (pod via `kubectl exec`), **VNC/RDP** (remote display), and
-      native Linux/macOS/Windows backends. Backend action translation is
-      unit-tested (injected exec/clients) and a guarded headless smoke test
-      covers the real browser launch path. VNC/RDP frame-capture and the RDP
-      transport are experimental — inject a custom client for production.
-
 ### 🚧 Work in Progress
 
 - [ ] Admin UI dashboard improvements
@@ -796,8 +701,6 @@ Built with ❤️ by [lovekaizen](https://lovekaizen.com)
 Special thanks to:
 
 - [Anthropic](https://anthropic.com) for Claude
-- [OpenAI](https://openai.com) for GPT
-- [Google](https://ai.google.dev) for Gemini
 - The open source community
 
 ---

@@ -50,7 +50,7 @@ GET /agents
     {
       "name": "customer-support",
       "description": "AI customer support agent",
-      "model": "claude-3-5-sonnet-20241022",
+      "model": "claude-opus-4-8",
       "provider": "anthropic",
       "tools": ["search", "order-lookup"]
     }
@@ -76,7 +76,7 @@ GET /agents/:name
   "data": {
     "name": "customer-support",
     "description": "AI customer support agent",
-    "model": "claude-3-5-sonnet-20241022",
+    "model": "claude-opus-4-8",
     "provider": "anthropic",
     "systemPrompt": "You are a helpful customer support agent...",
     "tools": [
