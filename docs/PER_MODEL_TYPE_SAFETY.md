@@ -123,12 +123,10 @@ const o3MiniConfig = openai('o3-mini', {
 
 **Typed models (latest first):**
 
-- `gpt-5.2` (+ `pro`/`codex`), `gpt-5.1` (+ `codex` variants)
+- `gpt-5.5`, `gpt-5.4-mini`, `gpt-5.2` (+ `pro`/`codex`), `gpt-5.1` (+ `codex` variants)
 - `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5-pro`, `gpt-4.1`
 - `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo`
 - Reasoning: `o3`, `o3-pro`, `o3-mini`, `o1`, `o1-mini`
-
-> Even newer models (e.g. `gpt-5.5`, `gpt-5.4-mini`) are accepted at runtime via the plain string `model` field and priced in the [costs](../packages/costs) registry; they're added to the typed builder above as the type registry catches up.
 
 ### `gemini(model, config?)`
 
@@ -154,10 +152,9 @@ const geminiConfig = gemini('gemini-1.5-pro', {
 
 **Typed models (latest first):**
 
+- `gemini-3.5-flash`, `gemini-3.1-pro-preview`
 - `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.0-flash`
 - `gemini-1.5-pro`, `gemini-1.5-flash`, `gemini-1.5-flash-8b`
-
-> Newer Gemini releases (e.g. `gemini-3.5-flash`, `gemini-3.1-pro-preview`) are accepted at runtime via the string `model` field and priced in the [costs](../packages/costs) registry, ahead of the typed builder.
 
 ### `ollama(model, config?)`
 
@@ -266,7 +263,7 @@ console.log(`Context window: ${info?.capabilities.contextWindow}`);
 
 ## Model Capability Reference
 
-> The tables below are illustrative. The latest typed models — Claude Opus 4.6–4.8, Sonnet 4.6, Fable 5; GPT-5.1/5.2 and o3; Gemini 2.5 — are in the registry; call `getModelInfo(model)` for exact, up-to-date capabilities, context window, and max output.
+> The tables below are illustrative. The latest typed models — Claude Opus 4.6–4.8, Sonnet 4.6, Fable 5; GPT-5.5/5.4-mini/5.2 and o3; Gemini 3.5/3.1/2.5 — are in the registry; call `getModelInfo(model)` for exact, up-to-date capabilities, context window, and max output.
 
 ### Anthropic Models
 
