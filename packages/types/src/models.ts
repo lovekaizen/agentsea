@@ -424,7 +424,10 @@ export type AnthropicModelCapabilities = {
 // ============================================================================
 
 export type OpenAIModel =
-  // GPT-5.2 family (latest)
+  // GPT-5.5 / 5.4 family (latest)
+  | 'gpt-5.5'
+  | 'gpt-5.4-mini'
+  // GPT-5.2 family
   | 'gpt-5.2'
   | 'gpt-5.2-pro'
   | 'gpt-5.2-codex'
@@ -504,6 +507,29 @@ export interface OpenAIProviderOptions {
  * Model capabilities for OpenAI models
  */
 export type OpenAIModelCapabilities = {
+  // GPT-5.5 / 5.4 family (latest)
+  'gpt-5.5': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 1050000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
+  'gpt-5.4-mini': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: false;
+    contextWindow: 400000;
+    maxOutputTokens: 128000;
+    parallelToolCalls: true;
+  };
   // GPT-5.2 family
   'gpt-5.2': ModelCapabilities & {
     tools: true;
@@ -948,7 +974,10 @@ export type OpenAIModelCapabilities = {
 // ============================================================================
 
 export type GeminiModel =
-  // Gemini 2.5 family (latest)
+  // Gemini 3.x family (latest)
+  | 'gemini-3.5-flash'
+  | 'gemini-3.1-pro-preview'
+  // Gemini 2.5 family
   | 'gemini-2.5-pro'
   | 'gemini-2.5-pro-latest'
   | 'gemini-2.5-flash'
@@ -993,6 +1022,29 @@ export interface GeminiProviderOptions {
  * Model capabilities for Gemini models
  */
 export type GeminiModelCapabilities = {
+  // Gemini 3.x family (latest)
+  'gemini-3.5-flash': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 1048576;
+    maxOutputTokens: 65536;
+    parallelToolCalls: true;
+  };
+  'gemini-3.1-pro-preview': ModelCapabilities & {
+    tools: true;
+    streaming: true;
+    vision: true;
+    structuredOutput: true;
+    systemMessage: true;
+    extendedThinking: true;
+    contextWindow: 1048576;
+    maxOutputTokens: 65536;
+    parallelToolCalls: true;
+  };
   'gemini-2.5-pro': ModelCapabilities & {
     tools: true;
     streaming: true;
@@ -1625,6 +1677,122 @@ export interface ModelInfo {
  * Model registry for runtime capability checks
  */
 export const MODEL_REGISTRY: Record<string, ModelInfo> = {
+  // ---- Reconciled with the costs pricing registry ----
+  'gpt-5.5': {
+    provider: 'openai',
+    model: 'gpt-5.5',
+    displayName: 'GPT-5.5',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 1050000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-5.4-mini': {
+    provider: 'openai',
+    model: 'gpt-5.4-mini',
+    displayName: 'GPT-5.4 Mini',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 400000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'gemini-3.5-flash': {
+    provider: 'gemini',
+    model: 'gemini-3.5-flash',
+    displayName: 'Gemini 3.5 Flash',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 1048576,
+      maxOutputTokens: 65536,
+      parallelToolCalls: true,
+    },
+  },
+  'gemini-3.1-pro-preview': {
+    provider: 'gemini',
+    model: 'gemini-3.1-pro-preview',
+    displayName: 'Gemini 3.1 Pro Preview',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 1048576,
+      maxOutputTokens: 65536,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-4-turbo': {
+    provider: 'openai',
+    model: 'gpt-4-turbo',
+    displayName: 'GPT-4 Turbo',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 128000,
+      maxOutputTokens: 4096,
+      parallelToolCalls: true,
+    },
+  },
+  'gpt-3.5-turbo': {
+    provider: 'openai',
+    model: 'gpt-3.5-turbo',
+    displayName: 'GPT-3.5 Turbo',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: false,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 16385,
+      maxOutputTokens: 4096,
+      parallelToolCalls: true,
+    },
+  },
+  'claude-3-haiku-20240307': {
+    provider: 'anthropic',
+    model: 'claude-3-haiku-20240307',
+    displayName: 'Claude 3 Haiku',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: false,
+      contextWindow: 200000,
+      maxOutputTokens: 4096,
+      parallelToolCalls: true,
+    },
+  },
+  // Note: Cohere models (command-r, command-r-plus) are priced in the costs
+  // registry for cost tracking but are intentionally not in this typed
+  // registry — AgentSea has no typed Cohere provider/builder yet.
   // ---- Anthropic Models ----
   // Claude Fable 5 — most capable model. Adaptive thinking + effort param;
   // no budget_tokens extended thinking, no assistant prefill;

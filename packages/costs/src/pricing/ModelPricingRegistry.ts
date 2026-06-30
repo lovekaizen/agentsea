@@ -928,6 +928,23 @@ const DEFAULT_PRICING: ModelPricing[] = [
     },
   },
   {
+    model: 'gemini-2.0-flash-exp',
+    provider: 'google',
+    displayName: 'Gemini 2.0 Flash (Experimental)',
+    inputPricePerMillion: 0.1,
+    outputPricePerMillion: 0.4,
+    contextWindow: 1048576,
+    maxOutputTokens: 8192,
+    currency: 'USD',
+    capabilities: {
+      vision: true,
+      functionCalling: true,
+      streaming: true,
+      jsonMode: true,
+      systemMessage: true,
+    },
+  },
+  {
     model: 'gemini-1.5-pro',
     provider: 'google',
     displayName: 'Gemini 1.5 Pro',
@@ -1100,6 +1117,9 @@ const DEFAULT_PRICING: ModelPricing[] = [
       systemMessage: true,
     },
   },
+  // Cohere — priced here for cost tracking only. There is no typed Cohere
+  // provider/builder yet, so these are intentionally absent from the
+  // @lov3kaizen/agentsea-types MODEL_REGISTRY.
   {
     model: 'command-r',
     provider: 'cohere',
