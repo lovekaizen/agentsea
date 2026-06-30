@@ -86,8 +86,8 @@
     "vitest": "^3.2.6"
   },
   "peerDependencies": {
-    "@lov3kaizen/agentsea-core": ">=2.0.0",
-    "@lov3kaizen/agentsea-embeddings": ">=2.0.0"
+    "@lov3kaizen/agentsea-core": ">=0.6.0",
+    "@lov3kaizen/agentsea-embeddings": ">=1.0.0"
   },
   "peerDependenciesMeta": {
     "@lov3kaizen/agentsea-core": {

@@ -61,7 +61,7 @@
     "murmurhash": "^2.0.1"
   },
   "peerDependencies": {
-    "@lov3kaizen/agentsea-core": ">=2.0.0"
+    "@lov3kaizen/agentsea-core": ">=0.6.0"
   },
   "peerDependenciesMeta": {
     "@lov3kaizen/agentsea-core": {
