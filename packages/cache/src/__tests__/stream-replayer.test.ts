@@ -116,81 +116,109 @@ describe('StreamReplayer', () => {
     });
 
     it('should respect speed multiplier', async () => {
-      const fastReplayer = new StreamReplayer({
-        simulateTiming: true,
-        speedMultiplier: 10, // 10x faster
-        minDelayMs: 0,
-        maxDelayMs: 1000,
-      });
+      // Fake timers so elapsed time reflects only the simulated delay.
+      vi.useFakeTimers();
+      try {
+        const fastReplayer = new StreamReplayer({
+          simulateTiming: true,
+          speedMultiplier: 10, // 10x faster
+          minDelayMs: 0,
+          maxDelayMs: 1000,
+        });
 
-      const timestamp = Date.now();
-      const stream = createTestStream([
-        { content: 'A', timestamp: timestamp },
-        { content: 'B', timestamp: timestamp + 100 }, // 100ms delay
-      ]);
+        const timestamp = Date.now();
+        const stream = createTestStream([
+          { content: 'A', timestamp: timestamp },
+          { content: 'B', timestamp: timestamp + 100 }, // 100ms delay
+        ]);
 
-      const startTime = Date.now();
+        const startTime = Date.now();
 
-      for await (const _chunk of fastReplayer.replay(stream)) {
-        // Iterate through all chunks
+        const iterate = (async () => {
+          for await (const _chunk of fastReplayer.replay(stream)) {
+            // Iterate through all chunks
+          }
+        })();
+        await vi.runAllTimersAsync();
+        await iterate;
+
+        const duration = Date.now() - startTime;
+
+        // With 10x speed, 100ms delay should become ~10ms.
+        expect(duration).toBeLessThan(80);
+      } finally {
+        vi.useRealTimers();
       }
-
-      const duration = Date.now() - startTime;
-
-      // With 10x speed, 100ms delay should become ~10ms (allow CI timing variance)
-      expect(duration).toBeLessThan(80);
     });
 
     it('should respect minimum delay', async () => {
-      const minDelayReplayer = new StreamReplayer({
-        simulateTiming: true,
-        speedMultiplier: 100, // Very fast
-        minDelayMs: 10,
-        maxDelayMs: 1000,
-      });
+      vi.useFakeTimers();
+      try {
+        const minDelayReplayer = new StreamReplayer({
+          simulateTiming: true,
+          speedMultiplier: 100, // Very fast
+          minDelayMs: 10,
+          maxDelayMs: 1000,
+        });
 
-      const timestamp = Date.now();
-      const stream = createTestStream([
-        { content: 'A', timestamp: timestamp },
-        { content: 'B', timestamp: timestamp + 1 }, // 1ms delay (would be 0.01ms with speedMultiplier)
-      ]);
+        const timestamp = Date.now();
+        const stream = createTestStream([
+          { content: 'A', timestamp: timestamp },
+          { content: 'B', timestamp: timestamp + 1 }, // 1ms delay (would be 0.01ms with speedMultiplier)
+        ]);
 
-      const startTime = Date.now();
+        const startTime = Date.now();
 
-      for await (const _chunk of minDelayReplayer.replay(stream)) {
-        // Iterate through all chunks
+        const iterate = (async () => {
+          for await (const _chunk of minDelayReplayer.replay(stream)) {
+            // Iterate through all chunks
+          }
+        })();
+        await vi.runAllTimersAsync();
+        await iterate;
+
+        const duration = Date.now() - startTime;
+
+        // Should respect minDelay of 10ms.
+        expect(duration).toBeGreaterThanOrEqual(8);
+      } finally {
+        vi.useRealTimers();
       }
-
-      const duration = Date.now() - startTime;
-
-      // Should respect minDelay of 10ms (allow 2ms tolerance for timer resolution)
-      expect(duration).toBeGreaterThanOrEqual(8);
     });
 
     it('should respect maximum delay', async () => {
-      const maxDelayReplayer = new StreamReplayer({
-        simulateTiming: true,
-        speedMultiplier: 1,
-        minDelayMs: 0,
-        maxDelayMs: 5,
-      });
+      vi.useFakeTimers();
+      try {
+        const maxDelayReplayer = new StreamReplayer({
+          simulateTiming: true,
+          speedMultiplier: 1,
+          minDelayMs: 0,
+          maxDelayMs: 5,
+        });
 
-      const timestamp = Date.now();
-      const stream = createTestStream([
-        { content: 'A', timestamp: timestamp },
-        { content: 'B', timestamp: timestamp + 1000 }, // 1000ms delay
-      ]);
+        const timestamp = Date.now();
+        const stream = createTestStream([
+          { content: 'A', timestamp: timestamp },
+          { content: 'B', timestamp: timestamp + 1000 }, // 1000ms delay
+        ]);
 
-      const startTime = Date.now();
+        const startTime = Date.now();
 
-      for await (const _chunk of maxDelayReplayer.replay(stream)) {
-        // Iterate through all chunks
+        const iterate = (async () => {
+          for await (const _chunk of maxDelayReplayer.replay(stream)) {
+            // Iterate through all chunks
+          }
+        })();
+        await vi.runAllTimersAsync();
+        await iterate;
+
+        const duration = Date.now() - startTime;
+
+        // Should cap at maxDelay of 5ms.
+        expect(duration).toBeLessThan(200);
+      } finally {
+        vi.useRealTimers();
       }
-
-      const duration = Date.now() - startTime;
-
-      // Should cap at maxDelay of 5ms (allow generous CI timing variance)
-      expect(duration).toBeLessThan(200);
     });
   });
 
@@ -247,23 +275,31 @@ describe('StreamReplayer', () => {
     });
 
     it('should not simulate timing in sync mode', () => {
-      const syncReplayer = new StreamReplayer({
-        simulateTiming: true, // Should be ignored in sync mode
-      });
+      // Fake timers freeze the clock across the synchronous loop, so the
+      // assertion verifies "no delay timers were used" rather than racing the
+      // CI runner's wall clock.
+      vi.useFakeTimers();
+      try {
+        const syncReplayer = new StreamReplayer({
+          simulateTiming: true, // Should be ignored in sync mode
+        });
 
-      const stream = createTestStream([{ content: 'A' }, { content: 'B' }]);
+        const stream = createTestStream([{ content: 'A' }, { content: 'B' }]);
 
-      const startTime = Date.now();
-      const chunks: StreamChunk[] = [];
+        const startTime = Date.now();
+        const chunks: StreamChunk[] = [];
 
-      for (const chunk of syncReplayer.replaySync(stream)) {
-        chunks.push(chunk);
+        for (const chunk of syncReplayer.replaySync(stream)) {
+          chunks.push(chunk);
+        }
+
+        const duration = Date.now() - startTime;
+
+        // Should be very fast (no delays)
+        expect(duration).toBeLessThan(10);
+      } finally {
+        vi.useRealTimers();
       }
-
-      const duration = Date.now() - startTime;
-
-      // Should be very fast (no delays)
-      expect(duration).toBeLessThan(10);
     });
   });
 
@@ -403,31 +439,43 @@ describe('StreamReplayer', () => {
     });
 
     it('should apply updated configuration', async () => {
-      const configReplayer = new StreamReplayer({
-        simulateTiming: true,
-        speedMultiplier: 1,
-      });
+      // Fake timers make the elapsed time reflect only the simulated replay
+      // delay, not async/scheduling overhead — which is what made the absolute
+      // wall-clock threshold flaky on slow CI runners.
+      vi.useFakeTimers();
+      try {
+        const configReplayer = new StreamReplayer({
+          simulateTiming: true,
+          speedMultiplier: 1,
+        });
 
-      configReplayer.configure({
-        speedMultiplier: 100, // Very fast
-      });
+        configReplayer.configure({
+          speedMultiplier: 100, // Very fast
+        });
 
-      const timestamp = Date.now();
-      const stream = createTestStream([
-        { content: 'A', timestamp: timestamp },
-        { content: 'B', timestamp: timestamp + 100 },
-      ]);
+        const timestamp = Date.now();
+        const stream = createTestStream([
+          { content: 'A', timestamp: timestamp },
+          { content: 'B', timestamp: timestamp + 100 },
+        ]);
 
-      const startTime = Date.now();
+        const startTime = Date.now();
 
-      for await (const _chunk of configReplayer.replay(stream)) {
-        // Iterate
+        const iterate = (async () => {
+          for await (const _chunk of configReplayer.replay(stream)) {
+            // Iterate
+          }
+        })();
+        await vi.runAllTimersAsync();
+        await iterate;
+
+        const duration = Date.now() - startTime;
+
+        // With 100x speed, the 100ms gap collapses to a ~1ms simulated delay.
+        expect(duration).toBeLessThan(50);
+      } finally {
+        vi.useRealTimers();
       }
-
-      const duration = Date.now() - startTime;
-
-      // With 100x speed, should be very fast
-      expect(duration).toBeLessThan(50);
     });
   });
 
