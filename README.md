@@ -46,11 +46,11 @@ AgentSea ships a typed model registry (60+ models with capabilities and live pri
 | Provider             | Latest models                                                                                                                  | Notes                                               |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
 | **Anthropic Claude** | `claude-opus-4-8` _(default)_, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`, `claude-haiku-4-5`, `claude-fable-5` | Adaptive thinking on Opus 4.6+, Sonnet 4.6, Fable 5 |
-| **OpenAI**           | `gpt-5.2`, `gpt-5.2-pro`, `gpt-5.1` (+ `codex` variants), `gpt-5`, `gpt-4.1`, `o1`                                             | Reasoning-effort aware, per-model capability typing |
-| **Google Gemini**    | `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.0-flash`                                                                       |                                                     |
+| **OpenAI**           | `gpt-5.5`, `gpt-5.4-mini`, `gpt-5.2` (+ `pro` / `codex`), `gpt-5.1`, `o3`, `o1`                                                | Reasoning-effort aware, per-model capability typing |
+| **Google Gemini**    | `gemini-3.5-flash`, `gemini-3.1-pro-preview`, `gemini-2.5-pro`, `gemini-2.5-flash`                                             |                                                     |
 | **Local / OSS**      | Ollama, LM Studio, LocalAI, vLLM, Text Generation WebUI, any OpenAI-compatible endpoint                                        | Run fully on your own hardware                      |
 
-Older generations (Claude 3.x / Sonnet 4.5, GPT-4o, Gemini 1.5, …) remain supported. See [`@lov3kaizen/agentsea-types`](./packages/types) for the full registry and [costs](./packages/costs) for the pricing table.
+Older generations (Claude 3.x / Sonnet 4.5, GPT-4o, Gemini 1.5/2.0, …) remain supported. See [`@lov3kaizen/agentsea-types`](./packages/types) for the full registry and [costs](./packages/costs) for the pricing table.
 
 ## 🚀 Quick Start
 
@@ -126,7 +126,7 @@ const geminiAgent = new Agent(
 
 // Use OpenAI
 const openaiAgent = new Agent(
-  { model: 'gpt-5.1', provider: 'openai' },
+  { model: 'gpt-5.5', provider: 'openai' },
   new OpenAIProvider(process.env.OPENAI_API_KEY),
   toolRegistry,
 );

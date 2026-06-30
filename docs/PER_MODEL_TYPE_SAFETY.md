@@ -29,7 +29,7 @@ import {
 } from '@lov3kaizen/agentsea-core';
 
 // Type-safe configuration for Claude
-const claudeConfig = anthropic('claude-3-5-sonnet-20241022', {
+const claudeConfig = anthropic('claude-opus-4-8', {
   tools: [myTool],
   systemPrompt: 'You are helpful',
   temperature: 0.7,
@@ -48,35 +48,41 @@ AgentSea provides config builder functions for each provider:
 ```typescript
 import { anthropic } from '@lov3kaizen/agentsea-core';
 
-// Claude 3.5 Sonnet - supports everything
-const config = anthropic('claude-3-5-sonnet-20241022', {
+// Claude Opus 4.8 (recommended default) - tools + system prompts.
+// Thinking is adaptive on 4.6+ models, so budget_tokens-style config is not
+// part of the type for them.
+const config = anthropic('claude-opus-4-8', {
   tools: [myTool],
   systemPrompt: 'You are a helpful assistant',
-  thinking: { type: 'enabled', budgetTokens: 10000 }, // Extended thinking
   temperature: 0.7,
   maxTokens: 4096,
   providerOptions: {
     metadata: { userId: 'user-123' },
-    betas: ['computer-use-2024-10-22'],
   },
 });
 
-// Claude 3 Haiku - NO extended thinking
-const haikuConfig = anthropic('claude-3-haiku-20240307', {
+// Claude Sonnet 4.5 - still exposes explicit extended thinking
+const thinkingConfig = anthropic('claude-sonnet-4-5-20250929', {
+  tools: [myTool],
+  systemPrompt: 'You are a helpful assistant',
+  thinking: { type: 'enabled', budgetTokens: 10000 },
+});
+
+// Claude Haiku 4.5 - fast/cheap, NO extended thinking
+const haikuConfig = anthropic('claude-haiku-4-5-20251001', {
   tools: [myTool],
   systemPrompt: 'You are fast',
   // thinking: { ... } // ❌ TypeScript error!
 });
 ```
 
-**Supported Models:**
+**Supported Models (latest first):**
 
-- `claude-3-5-sonnet-20241022`, `claude-3-5-sonnet-latest`
-- `claude-3-5-haiku-20241022`, `claude-3-5-haiku-latest`
-- `claude-3-opus-20240229`, `claude-3-opus-latest`
-- `claude-3-sonnet-20240229`, `claude-3-haiku-20240307`
+- `claude-opus-4-8` _(default)_, `claude-opus-4-7`, `claude-opus-4-6`
+- `claude-sonnet-4-6`, `claude-haiku-4-5`, `claude-fable-5`
+- `claude-sonnet-4-5-20250929`, `claude-opus-4-5-20251101`
 - `claude-opus-4-0-20250514`, `claude-sonnet-4-0-20250514`
-- `claude-opus-4-5-20251101`
+- Claude 3.x family (`claude-3-5-sonnet-*`, `claude-3-5-haiku-*`, `claude-3-opus-*`, …)
 
 ### `openai(model, config?)`
 
@@ -115,15 +121,12 @@ const o3MiniConfig = openai('o3-mini', {
 });
 ```
 
-**Supported Models:**
+**Supported Models (latest first):**
 
-- `gpt-4o`, `gpt-4o-2024-11-20`, `gpt-4o-2024-08-06`
-- `gpt-4o-mini`, `gpt-4o-mini-2024-07-18`
-- `gpt-4-turbo`, `gpt-4-turbo-2024-04-09`, `gpt-4-turbo-preview`
-- `gpt-4`, `gpt-4-0613`
-- `gpt-3.5-turbo`, `gpt-3.5-turbo-0125`
-- `o1`, `o1-2024-12-17`, `o1-mini`, `o1-mini-2024-09-12`, `o1-preview`
-- `o3-mini`, `o3-mini-2025-01-31`
+- `gpt-5.5`, `gpt-5.4-mini`, `gpt-5.2` (+ `pro`/`codex`), `gpt-5.1` (+ `codex` variants)
+- `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5-pro`, `gpt-4.1`
+- `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo`
+- Reasoning: `o3`, `o3-pro`, `o3-mini`, `o1`, `o1-mini`
 
 ### `gemini(model, config?)`
 
@@ -147,12 +150,11 @@ const geminiConfig = gemini('gemini-1.5-pro', {
 });
 ```
 
-**Supported Models:**
+**Supported Models (latest first):**
 
-- `gemini-2.0-flash-exp`, `gemini-2.0-flash-thinking-exp`
-- `gemini-1.5-pro`, `gemini-1.5-pro-latest`
-- `gemini-1.5-flash`, `gemini-1.5-flash-latest`, `gemini-1.5-flash-8b`
-- `gemini-1.0-pro`
+- `gemini-3.5-flash`, `gemini-3.1-pro-preview`
+- `gemini-2.5-pro`, `gemini-2.5-flash`, `gemini-2.0-flash`
+- `gemini-1.5-pro`, `gemini-1.5-flash`, `gemini-1.5-flash-8b`
 
 ### `ollama(model, config?)`
 
@@ -179,14 +181,14 @@ Use `createProvider()` for type-safe provider creation:
 import { createProvider, anthropic, openai } from '@lov3kaizen/agentsea-core';
 
 // Generic factory
-const claudeProvider = createProvider(anthropic('claude-3-5-sonnet-20241022', { ... }));
+const claudeProvider = createProvider(anthropic('claude-opus-4-8', { ... }));
 const openaiProvider = createProvider(openai('gpt-4o', { ... }));
 
 // Provider-specific factories (for explicit typing)
 import { createAnthropicProvider, createOpenAIProvider } from '@lov3kaizen/agentsea-core';
 
 const claude = createAnthropicProvider(
-  anthropic('claude-3-5-sonnet-20241022', { ... }),
+  anthropic('claude-opus-4-8', { ... }),
   { apiKey: process.env.ANTHROPIC_API_KEY }
 );
 ```
@@ -247,7 +249,7 @@ const thinkingModels = getModelsWithCapability('extendedThinking', true);
 ### Using Provider Capabilities
 
 ```typescript
-const provider = createProvider(anthropic('claude-3-5-sonnet-20241022', { ... }));
+const provider = createProvider(anthropic('claude-opus-4-8', { ... }));
 
 // Check capabilities on the provider
 if (provider.supportsCapability('tools')) {
@@ -260,6 +262,8 @@ console.log(`Context window: ${info?.capabilities.contextWindow}`);
 ```
 
 ## Model Capability Reference
+
+> The tables below are illustrative. The latest models — Claude Opus 4.6–4.8, Sonnet 4.6, Fable 5; GPT-5.x and o3; Gemini 2.5/3.x — are in the registry; call `getModelInfo(model)` for exact, up-to-date capabilities, context window, and max output.
 
 ### Anthropic Models
 

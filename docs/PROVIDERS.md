@@ -44,19 +44,21 @@ const provider = new AnthropicProvider(process.env.ANTHROPIC_API_KEY);
 
 const agent = new Agent({
   name: 'claude-agent',
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-opus-4-8',
   provider: 'anthropic',
 });
 
 agent.registerProvider('anthropic', provider);
 ```
 
-**Available Models:**
+**Available Models (latest):**
 
-- `claude-sonnet-4-20250514` - Most capable
-- `claude-3-5-sonnet-20241022` - Fast and capable
-- `claude-3-opus-20240229` - Previous flagship
-- `claude-3-haiku-20240307` - Fast and cost-effective
+- `claude-opus-4-8` - Most capable (default); also `claude-opus-4-7`, `claude-opus-4-6`
+- `claude-sonnet-4-6` - Balanced speed and quality
+- `claude-haiku-4-5` - Fast and cost-effective
+- `claude-fable-5` - Most advanced reasoning
+
+Older generations (Claude 3.x, Sonnet/Opus 4.0–4.5) remain supported.
 
 **Features:**
 
@@ -80,18 +82,19 @@ const provider = new OpenAIProvider(process.env.OPENAI_API_KEY);
 
 const agent = new Agent({
   name: 'gpt-agent',
-  model: 'gpt-4-turbo-preview',
+  model: 'gpt-5.5',
   provider: 'openai',
 });
 
 agent.registerProvider('openai', provider);
 ```
 
-**Available Models:**
+**Available Models (latest):**
 
-- `gpt-4-turbo-preview` - Most capable
-- `gpt-4` - Stable GPT-4
-- `gpt-3.5-turbo` - Fast and cost-effective
+- `gpt-5.5` - Most capable; also `gpt-5.2` (+ `pro`/`codex`), `gpt-5.1`
+- `gpt-5.4-mini` - Fast and cost-effective
+- `o3`, `o1` - Reasoning models
+- `gpt-4.1`, `gpt-4o` - Previous generation
 
 **Features:**
 
@@ -115,24 +118,25 @@ const provider = new GeminiProvider(process.env.GEMINI_API_KEY);
 
 const agent = new Agent({
   name: 'gemini-agent',
-  model: 'gemini-pro',
+  model: 'gemini-2.5-pro',
   provider: 'gemini',
 });
 
 agent.registerProvider('gemini', provider);
 ```
 
-**Available Models:**
+**Available Models (latest):**
 
-- `gemini-pro` - Most capable
-- `gemini-pro-vision` - With vision capabilities
+- `gemini-3.5-flash`, `gemini-3.1-pro-preview` - Newest generation
+- `gemini-2.5-pro` - Most capable stable
+- `gemini-2.5-flash`, `gemini-2.0-flash` - Fast and cost-effective
 
 **Features:**
 
 - ✅ Tool calling
 - ✅ Streaming
 - ✅ System prompts
-- ✅ Vision (gemini-pro-vision)
+- ✅ Vision (multimodal models)
 
 **Environment Variables:**
 
@@ -522,13 +526,13 @@ const provider = new OllamaProvider({
 ```typescript
 // Fast, cheap queries - use smaller models
 const quickAgent = new Agent({
-  model: 'claude-3-haiku-20240307',
+  model: 'claude-haiku-4-5',
   provider: 'anthropic',
 });
 
 // Complex, important queries - use larger models
 const smartAgent = new Agent({
-  model: 'claude-sonnet-4-20250514',
+  model: 'claude-opus-4-8',
   provider: 'anthropic',
 });
 ```

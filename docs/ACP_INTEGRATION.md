@@ -46,7 +46,7 @@ const acpTools = createACPTools(acpClient);
 const agent = new Agent(
   {
     name: 'shopping-assistant',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-opus-4-8',
     provider: 'anthropic',
     tools: acpTools,
     systemPrompt: 'You are a helpful shopping assistant...',

@@ -29,7 +29,7 @@ import {
 const agent = new Agent(
   {
     name: 'assistant',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-opus-4-8',
     provider: 'anthropic',
     systemPrompt: 'You are a helpful assistant.',
   },
@@ -94,7 +94,7 @@ import { readFileSync, writeFileSync } from 'fs';
 const agent = new Agent(
   {
     name: 'voice-assistant',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-opus-4-8',
     provider: 'anthropic',
     systemPrompt: 'You are a helpful voice assistant.',
   },
@@ -135,7 +135,7 @@ writeFileSync('./response.mp3', result.audio!);
 sea code
 
 # Use a specific model
-sea code --provider anthropic --model claude-sonnet-4-20250514
+sea code --provider anthropic --model claude-opus-4-8
 
 # Verbose mode (shows tool calls, token usage, latency)
 sea code --verbose
@@ -167,7 +167,7 @@ agentsea code
 # Create an agent
 agentsea agent create my-agent \
   --provider anthropic \
-  --model claude-sonnet-4-20250514
+  --model claude-opus-4-8
 
 # Run agent with a message
 agentsea agent run my-agent "What is the capital of France?"
@@ -216,7 +216,7 @@ async function bootstrap() {
     {
       name: 'customer-support',
       description: 'AI customer support agent',
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-opus-4-8',
       provider: 'anthropic',
     },
     new AnthropicProvider(),
@@ -357,7 +357,7 @@ import { calculatorTool, weatherTool } from '@lov3kaizen/agentsea-core';
 const agent = new Agent(
   {
     name: 'assistant',
-    model: 'claude-sonnet-4-20250514',
+    model: 'claude-opus-4-8',
     provider: 'anthropic',
     tools: [calculatorTool, weatherTool],
   },
