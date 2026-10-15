@@ -44,6 +44,10 @@ export class MCPClient extends EventEmitter {
         this.config.command,
         this.config.args,
         this.config.env,
+        {
+          passEnv: this.config.passEnv,
+          inheritFullEnv: this.config.inheritFullEnv,
+        },
       );
     }
 

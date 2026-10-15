@@ -6,7 +6,21 @@ export interface MCPServerConfig {
   name: string;
   command: string;
   args?: string[];
+  /** Variables set explicitly for the server process */
   env?: Record<string, string>;
+  /**
+   * Parent environment variables to pass through to a stdio server in addition
+   * to the default allow-list (HOME, LOGNAME, PATH, SHELL, TERM, USER). The
+   * server does not inherit anything else.
+   */
+  passEnv?: string[];
+  /**
+   * Restore the previous behaviour of inheriting the whole parent environment,
+   * including provider API keys.
+   *
+   * @deprecated Escape hatch for one minor release. Use `passEnv` and `env`.
+   */
+  inheritFullEnv?: boolean;
   transport?: 'stdio' | 'sse';
   url?: string; // For SSE transport
 }
