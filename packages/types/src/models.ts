@@ -60,6 +60,10 @@ export type AnthropicModel =
   | 'claude-fable-5'
   // Claude Opus 5.5 — default. Adaptive thinking always on; 1M context, 128K output.
   | 'claude-opus-5-5'
+  // Claude Sonnet 5.5 — balanced default. Adaptive thinking; 1M context, 128K output.
+  | 'claude-sonnet-5-5'
+  // Claude Haiku 5.5 — fast default. Adaptive thinking; 1M context, 128K output.
+  | 'claude-haiku-5-5'
   // Claude 4.x family (4.6+ aliases are the complete IDs — no date-suffixed variants exist)
   | 'claude-opus-4-8'
   | 'claude-opus-4-7'
@@ -112,13 +116,13 @@ export const DEFAULT_ANTHROPIC_MODEL: AnthropicModel = 'claude-opus-5-5';
  * Recommended balanced (speed/intelligence) Anthropic model.
  */
 export const DEFAULT_ANTHROPIC_BALANCED_MODEL: AnthropicModel =
-  'claude-sonnet-4-6';
+  'claude-sonnet-5-5';
 
 /**
  * Recommended fast/cheap Anthropic model.
  */
 export const DEFAULT_ANTHROPIC_FAST_MODEL: AnthropicModel =
-  'claude-haiku-4-5-20251001';
+  'claude-haiku-5-5';
 
 /**
  * Anthropic-specific provider options
@@ -1834,6 +1838,38 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'anthropic',
     model: 'claude-opus-5-5',
     displayName: 'Claude Opus 5.5',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 1000000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'claude-sonnet-5-5': {
+    provider: 'anthropic',
+    model: 'claude-sonnet-5-5',
+    displayName: 'Claude Sonnet 5.5',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 1000000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'claude-haiku-5-5': {
+    provider: 'anthropic',
+    model: 'claude-haiku-5-5',
+    displayName: 'Claude Haiku 5.5',
     capabilities: {
       tools: true,
       streaming: true,
