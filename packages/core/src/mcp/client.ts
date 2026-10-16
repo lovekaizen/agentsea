@@ -17,7 +17,6 @@ import {
   MCPResource,
   MCPPrompt,
   MCPCallToolResponse,
-  MCPListToolsResponse,
   MCPReadResourceResponse,
   MCPMessage,
   MCP_PROTOCOL_VERSION,
@@ -32,6 +31,16 @@ const CLIENT_INFO = { name: 'agentsea', version: '0.1.0' };
 // and a timeout here sends a modern server down the legacy path.
 const DISCOVER_TIMEOUT_MS = 15_000;
 const REQUEST_TIMEOUT_MS = 30_000;
+// Progress can extend a wait, but the spec says a client SHOULD always enforce
+// a maximum timeout. This is that maximum, counted from when the request is sent.
+const MAX_REQUEST_TIMEOUT_MS = 600_000;
+/** JSON-RPC error code for a request whose Mcp-* headers do not match its body. */
+const HEADER_MISMATCH_ERROR = -32020;
+/** Errors only a modern server sends. Over HTTP these never mean "legacy server". */
+const MODERN_ERROR_CODES = new Set([
+  UNSUPPORTED_PROTOCOL_VERSION,
+  HEADER_MISMATCH_ERROR,
+]);
 const MAX_TIMER_MS = 2_147_483_647;
 
 /**
@@ -205,10 +214,7 @@ export class MCPClient extends EventEmitter {
       // A connect() that was superseded or disconnected mid-probe must not
       // start a handshake on whatever transport is current now.
       if (this.transport !== transport) throw error;
-      if (
-        error instanceof MCPProtocolError &&
-        error.code === UNSUPPORTED_PROTOCOL_VERSION
-      ) {
+      if (error instanceof MCPProtocolError && MODERN_ERROR_CODES.has(error.code)) {
         throw error;
       }
       // Only a server that answered is a legacy candidate. A dead stdio child
@@ -309,18 +315,11 @@ export class MCPClient extends EventEmitter {
    * List available tools
    */
   async listTools(): Promise<MCPTool[]> {
-    const response = await this.sendRequest({
-      jsonrpc: '2.0',
-      id: this.nextId(),
-      method: 'tools/list',
-      params: {},
-    });
-
-    const result = response.result as MCPListToolsResponse;
+    const all = await this.listAllPages<MCPTool>('tools/list', 'tools');
     const tools =
       this.config.transport === 'http'
-        ? result.tools.filter((tool) => this.acceptTool(tool))
-        : result.tools;
+        ? all.filter((tool) => this.acceptTool(tool))
+        : all;
     for (const tool of tools) {
       this.toolSchemas.set(
         tool.name,
@@ -374,14 +373,36 @@ export class MCPClient extends EventEmitter {
    * List available resources
    */
   async listResources(): Promise<MCPResource[]> {
-    const response = await this.sendRequest({
-      jsonrpc: '2.0',
-      id: this.nextId(),
-      method: 'resources/list',
-      params: {},
-    });
+    return this.listAllPages<MCPResource>('resources/list', 'resources');
+  }
 
-    return (response.result as { resources: MCPResource[] }).resources;
+  /**
+   * Fetch every page of a list method. The cursor is opaque: it is passed back
+   * exactly as the server sent it, and the list ends when no nextCursor comes.
+   */
+  private async listAllPages<T>(method: string, key: string): Promise<T[]> {
+    const items: T[] = [];
+    const seen = new Set<string>();
+    let cursor: string | undefined;
+    do {
+      const response = await this.sendRequest({
+        jsonrpc: '2.0',
+        id: this.nextId(),
+        method,
+        params: cursor === undefined ? {} : { cursor },
+      });
+      const page = (response.result ?? {}) as Record<string, unknown>;
+      items.push(...((page[key] as T[] | undefined) ?? []));
+      cursor = (page.nextCursor as string | undefined) ?? undefined;
+      if (cursor !== undefined) {
+        // A cursor the server has already sent would loop forever.
+        if (seen.has(cursor)) {
+          throw new Error(`MCP ${method} returned a repeated nextCursor`);
+        }
+        seen.add(cursor);
+      }
+    } while (cursor !== undefined);
+    return items;
   }
 
   /**
@@ -404,14 +425,7 @@ export class MCPClient extends EventEmitter {
    * List available prompts
    */
   async listPrompts(): Promise<MCPPrompt[]> {
-    const response = await this.sendRequest({
-      jsonrpc: '2.0',
-      id: this.nextId(),
-      method: 'prompts/list',
-      params: {},
-    });
-
-    return (response.result as { prompts: MCPPrompt[] }).prompts;
+    return this.listAllPages<MCPPrompt>('prompts/list', 'prompts');
   }
 
   /**
@@ -514,9 +528,17 @@ export class MCPClient extends EventEmitter {
       REQUEST_TIMEOUT_MS,
     );
 
+    const ceilingMs = timerMs(
+      this.config.maxRequestTimeoutMs,
+      MAX_REQUEST_TIMEOUT_MS,
+    );
+    const sentAt = Date.now();
+
     const settled = new Promise<MCPMessage>((resolve, reject) => {
       let timer: ReturnType<typeof setTimeout> | undefined;
       const arm = () => {
+        // A wait never runs past the ceiling, however much progress arrives.
+        const untilCeiling = Math.max(0, ceilingMs - (Date.now() - sentAt));
         timer = setTimeout(() => {
           if (this.pendingRequests.delete(id)) {
             // Settle the caller first, so nothing that goes wrong while
@@ -530,7 +552,7 @@ export class MCPClient extends EventEmitter {
               // Cancellation is best effort; the caller already has its error.
             }
           }
-        }, timeoutMs);
+        }, Math.min(timeoutMs, untilCeiling));
       };
       arm();
       this.pendingRequests.set(id, {
