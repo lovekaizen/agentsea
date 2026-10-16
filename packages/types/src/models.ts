@@ -58,6 +58,8 @@ export interface ModelDefinition<
 export type AnthropicModel =
   // Claude 5 family (most capable; alias-only ID — no date-suffixed variant exists)
   | 'claude-fable-5'
+  // Claude Opus 5.5 — default. Adaptive thinking always on; 1M context, 128K output.
+  | 'claude-opus-5-5'
   // Claude 4.x family (4.6+ aliases are the complete IDs — no date-suffixed variants exist)
   | 'claude-opus-4-8'
   | 'claude-opus-4-7'
@@ -104,7 +106,7 @@ export type AnthropicModel =
 /**
  * Recommended default Anthropic model.
  */
-export const DEFAULT_ANTHROPIC_MODEL: AnthropicModel = 'claude-opus-4-8';
+export const DEFAULT_ANTHROPIC_MODEL: AnthropicModel = 'claude-opus-5-5';
 
 /**
  * Recommended balanced (speed/intelligence) Anthropic model.
@@ -1816,6 +1818,25 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
   // Claude Opus 4.8 — recommended default. Adaptive thinking + effort param;
   // no budget_tokens extended thinking, no assistant prefill;
   // temperature/top_p removed at the API level.
+  // Claude Opus 5.5 — default. Limits from the verified spec table; the four
+  // capability flags are confirmed in Anthropic's Opus 5.5 migration guide and
+  // the parallel tool use page (parallel calls are on by default for Claude 4+).
+  'claude-opus-5-5': {
+    provider: 'anthropic',
+    model: 'claude-opus-5-5',
+    displayName: 'Claude Opus 5.5',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 1000000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
   'claude-opus-4-8': {
     provider: 'anthropic',
     model: 'claude-opus-4-8',
