@@ -1,6 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 
-import { StdioTransport, buildStdioEnv } from '../transport';
+import { StdioEnvOptions, StdioTransport, buildStdioEnv } from '../transport';
 
 const SECRETS = {
   ANTHROPIC_API_KEY: 'sk-ant-SENTINEL-1111',
@@ -86,10 +86,11 @@ describe('stdio server environment', () => {
   });
 
   it('passes only the parent variables named in passEnv', async () => {
+    // CUSTOM_UNLISTED is not on the default allow-list, so this proves passEnv.
     const env = await childEnv(undefined, {
-      passEnv: ['HTTPS_PROXY', 'GITHUB_TOKEN'],
+      passEnv: ['CUSTOM_UNLISTED', 'GITHUB_TOKEN'],
     });
-    expect(env.HTTPS_PROXY).toBe('http://proxy.test');
+    expect(env.CUSTOM_UNLISTED).toBe('x');
     expect(env.GITHUB_TOKEN).toBe(SECRETS.GITHUB_TOKEN);
     expect(env.ANTHROPIC_API_KEY).toBeUndefined();
     expect(env.OPENAI_API_KEY).toBeUndefined();
@@ -134,6 +135,42 @@ describe('buildStdioEnv', () => {
       'SystemRoot',
     ]);
     expect(buildStdioEnv(win, {}, {}, 'linux')).toEqual({});
+  });
+
+  it('matches passEnv names case-insensitively on win32', () => {
+    const win = { GITHUB_TOKEN: 't', Other: 'o' };
+    expect(
+      buildStdioEnv(win, {}, { passEnv: ['github_token'] }, 'win32'),
+    ).toEqual({ GITHUB_TOKEN: 't' });
+    expect(
+      buildStdioEnv(win, {}, { passEnv: ['github_token'] }, 'linux'),
+    ).toEqual({});
+  });
+
+  it('treats only the literal true as inheritFullEnv', () => {
+    const untyped = { inheritFullEnv: 'false' } as unknown as StdioEnvOptions;
+    expect(buildStdioEnv(parent, {}, untyped)).toEqual({
+      PATH: '/bin',
+      HOME: '/h',
+    });
+  });
+
+  it('treats null options and env as absent', () => {
+    const nullish = {
+      passEnv: null,
+      inheritFullEnv: null,
+    } as unknown as StdioEnvOptions;
+    expect(
+      buildStdioEnv(parent, null as unknown as undefined, nullish),
+    ).toEqual({ PATH: '/bin', HOME: '/h' });
+    expect(
+      buildStdioEnv(
+        { Path: 'C:\\bin' },
+        null as unknown as undefined,
+        nullish,
+        'win32',
+      ),
+    ).toEqual({ Path: 'C:\\bin' });
   });
 
   it('lets an explicit key replace a case-variant parent key on win32', () => {

@@ -16,7 +16,8 @@ export interface MCPTransport extends EventEmitter {
 /**
  * Environment variables a stdio server inherits from the parent by default.
  * Enough to locate, start and reach the network through a corporate proxy
- * with a private CA; nothing that is a credential.
+ * with a private CA. None of these is a provider API key or token. Proxy URLs
+ * can still embed `user:password`, so treat them as sensitive to your setup.
  */
 const DEFAULT_ENV_ALLOWLIST: readonly string[] = [
   'HOME',
@@ -35,6 +36,11 @@ const DEFAULT_ENV_ALLOWLIST: readonly string[] = [
   'https_proxy',
   'no_proxy',
   'NODE_EXTRA_CA_CERTS',
+  'SSL_CERT_FILE',
+  'REQUESTS_CA_BUNDLE',
+  'CURL_CA_BUNDLE',
+  'ALL_PROXY',
+  'all_proxy',
 ];
 
 /** Extra names Windows programs need to start. Not exercised on Windows in CI. */
@@ -77,47 +83,48 @@ export function buildStdioEnv(
   options: StdioEnvOptions = {},
   platform: NodeJS.Platform = process.platform,
 ): Record<string, string> {
-  if (options.inheritFullEnv) {
+  // Untyped config (JSON or YAML) can send strings or nulls where the type says
+  // boolean or array. Only the literal `true` opts in to full inheritance, so
+  // `"false"` cannot re-enable the leak. `null` means absent.
+  const windows = platform === 'win32';
+  const vars = explicit ?? {};
+  if (options.inheritFullEnv === true) {
     const all: Record<string, string> = {};
     for (const [k, v] of Object.entries(parent)) {
       if (v !== undefined) all[k] = v;
     }
-    return { ...all, ...explicit };
+    return { ...all, ...vars };
   }
 
-  // Untyped config (JSON or YAML) can hand over a string; spreading it would
-  // pass single characters as names and drop the variable with no error.
-  if (options.passEnv !== undefined && !Array.isArray(options.passEnv)) {
+  const passEnv = options.passEnv ?? undefined;
+  // A string here would spread into single characters and drop the variable.
+  if (passEnv !== undefined && !Array.isArray(passEnv)) {
     throw new TypeError(
       'passEnv must be an array of environment variable names',
     );
   }
 
-  const windows = platform === 'win32';
+  // Windows environment names are case-insensitive; elsewhere they are exact.
+  const fold = (name: string): string => (windows ? name.toUpperCase() : name);
   const names = [
     ...DEFAULT_ENV_ALLOWLIST,
     ...(windows ? WINDOWS_ENV_ALLOWLIST : []),
-    ...(options.passEnv ?? []),
+    ...(passEnv ?? []),
   ];
-  // Windows environment names are case-insensitive.
-  const wanted = new Set(windows ? names.map((n) => n.toUpperCase()) : names);
+  const wanted = new Set(names.map(fold));
 
   const env: Record<string, string> = {};
   for (const [k, v] of Object.entries(parent)) {
     if (v === undefined) continue;
-    if (wanted.has(windows ? k.toUpperCase() : k)) env[k] = v;
+    if (wanted.has(fold(k))) env[k] = v;
   }
 
-  if (windows) {
-    // An explicit `PATH` must replace a parent `Path`, not sit beside it.
-    const explicitUpper = new Set(
-      Object.keys(explicit).map((k) => k.toUpperCase()),
-    );
-    for (const k of Object.keys(env)) {
-      if (explicitUpper.has(k.toUpperCase())) delete env[k];
-    }
+  // An explicit `PATH` must replace a parent `Path`, not sit beside it.
+  const explicitFolded = new Set(Object.keys(vars).map(fold));
+  for (const k of Object.keys(env)) {
+    if (explicitFolded.has(fold(k))) delete env[k];
   }
-  return { ...env, ...explicit };
+  return { ...env, ...vars };
 }
 
 let warnedFullEnv = false;
@@ -145,7 +152,7 @@ export class StdioTransport extends EventEmitter implements MCPTransport {
   async connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
-        if (this.envOptions.inheritFullEnv && !warnedFullEnv) {
+        if (this.envOptions.inheritFullEnv === true && !warnedFullEnv) {
           warnedFullEnv = true;
           process.emitWarning(
             'MCP stdio servers inherit the full parent environment, including API keys. Use passEnv or env instead; inheritFullEnv will be removed.',

@@ -7,7 +7,6 @@ interface MCPServerConfig {
   command: string;
   args?: string[];
   env?: Record<string, string>;
-  passEnv?: string[];
 }
 
 /**
