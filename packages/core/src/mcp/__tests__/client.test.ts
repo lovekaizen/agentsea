@@ -9,6 +9,7 @@ const mockTransportInstance = {
   on: vi.fn(),
   emit: vi.fn(),
   close: vi.fn(),
+  isConnected: vi.fn().mockReturnValue(true),
 };
 
 // Mock transport with shared instance

@@ -5,6 +5,7 @@ import {
   StdioTransport,
   SSETransport,
   StreamableHTTPTransport,
+  MCPHttpError,
   invalidMcpHeaderAnnotation,
   mcpParamHeaders,
 } from './transport';
@@ -31,6 +32,21 @@ const CLIENT_INFO = { name: 'agentsea', version: '0.1.0' };
 // and a timeout here sends a modern server down the legacy path.
 const DISCOVER_TIMEOUT_MS = 15_000;
 const REQUEST_TIMEOUT_MS = 30_000;
+const MAX_TIMER_MS = 2_147_483_647;
+
+/**
+ * A usable timer delay. Zero, negative and non-finite values mean "use the
+ * default", not "fire now". Anything past setTimeout's limit is capped there.
+ */
+function timerMs(value: number | undefined, fallback: number): number {
+  // Untyped config can send strings or booleans, and Number() would turn
+  // `true` into 1ms. Only a real number is used. Infinity means no practical
+  // limit, capped at the timer max.
+  if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
+    return fallback;
+  }
+  return Math.min(value, MAX_TIMER_MS);
+}
 
 /** A JSON-RPC error response from the server, with its code kept. */
 export class MCPProtocolError extends Error {
@@ -41,6 +57,17 @@ export class MCPProtocolError extends Error {
   ) {
     super(`MCP Error: ${message} (${code})`);
     this.name = 'MCPProtocolError';
+  }
+}
+
+/** A request got no answer in time. The request is cancelled on the way out. */
+export class MCPTimeoutError extends Error {
+  constructor(
+    readonly requestId: string | number,
+    timeoutMs: number,
+  ) {
+    super(`Request timeout after ${timeoutMs}ms`);
+    this.name = 'MCPTimeoutError';
   }
 }
 
@@ -67,11 +94,14 @@ export class MCPClient extends EventEmitter {
   private modern = false;
   private requestId = 0;
   private toolSchemas = new Map<string, Record<string, unknown>>();
+  private connectChain: Promise<void> = Promise.resolve();
   private pendingRequests = new Map<
     string | number,
     {
       resolve: (value: MCPMessage) => void;
       reject: (error: Error) => void;
+      /** Restart the timeout. Called on progress for this request. */
+      touch: () => void;
     }
   >();
 
@@ -83,7 +113,19 @@ export class MCPClient extends EventEmitter {
    * Connect to the MCP server. Tries server/discover (2026-07-28) first and
    * falls back to the 2024-11-05 initialize handshake for legacy servers.
    */
-  async connect(): Promise<void> {
+  connect(): Promise<void> {
+    // Calls run one at a time. Overlapping handshakes would share this.transport
+    // and write this.modern and serverInfo from two places at once.
+    const next = this.connectChain
+      .catch(() => undefined)
+      .then(() => this.establish());
+    this.connectChain = next;
+    return next;
+  }
+
+  private async establish(): Promise<void> {
+    // A second connect() must not leave the previous session or child behind.
+    this.teardown(false);
     if (this.config.transport === 'sse' && this.config.url) {
       this.transport = new SSETransport(this.config.url);
     } else if (this.config.transport === 'http' && this.config.url) {
@@ -100,14 +142,24 @@ export class MCPClient extends EventEmitter {
       );
     }
 
-    // Set up event handlers
-    this.transport.on('message', this.handleMessage.bind(this));
-    this.transport.on('error', (error: Error) => this.emit('error', error));
-    this.transport.on('stderr', (text: string) => this.emit('stderr', text));
-    this.transport.on('disconnect', () => this.emit('disconnect'));
+    // Events from a transport the client has already left are ignored. The
+    // listeners stay attached, so a late stdio error cannot go unhandled.
+    const transport = this.transport;
+    const bind = (event: string, handle: (...args: unknown[]) => void) =>
+      transport.on(event, (...args: unknown[]) => {
+        if (this.transport === transport) handle(...args);
+      });
+    bind('message', (message) => this.handleMessage(message as MCPMessage));
+    bind('error', (error) => this.emit('error', error as Error));
+    bind('stderr', (text) => this.emit('stderr', text as string));
+    bind('disconnect', () => {
+      // The connection ended on its own, so fail its waiting callers now.
+      this.failPending('Connection closed');
+      this.emit('disconnect');
+    });
 
     try {
-      await this.transport.connect();
+      await transport.connect();
 
       // The deprecated SSE transport only speaks the legacy handshake.
       if (this.config.transport === 'sse') {
@@ -116,8 +168,9 @@ export class MCPClient extends EventEmitter {
         await this.discover();
       }
     } catch (error) {
-      // Do not leave a spawned child or an open stream behind a failed connect.
-      this.disconnect();
+      // Do not leave a spawned child or an open stream behind a failed connect,
+      // and do not close a newer connection that replaced this one.
+      if (this.transport === transport) this.teardown(false);
       throw error;
     }
   }
@@ -129,6 +182,13 @@ export class MCPClient extends EventEmitter {
    * failure (method not found, no reply) means a legacy server.
    */
   private async discover(): Promise<void> {
+    const transport = this.transport;
+    // Never shorter than the cold-start floor, so a short requestTimeoutMs
+    // cannot turn a slow modern server into a legacy one.
+    const probeMs = Math.max(
+      DISCOVER_TIMEOUT_MS,
+      timerMs(this.config.requestTimeoutMs, 0),
+    );
     let result: MCPDiscoverResult;
     try {
       const response = await this.sendRequest(
@@ -138,23 +198,38 @@ export class MCPClient extends EventEmitter {
           method: 'server/discover',
           params: {},
         },
-        { meta: true, timeoutMs: DISCOVER_TIMEOUT_MS },
+        { meta: true, timeoutMs: probeMs },
       );
       result = response.result as MCPDiscoverResult;
     } catch (error) {
+      // A connect() that was superseded or disconnected mid-probe must not
+      // start a handshake on whatever transport is current now.
+      if (this.transport !== transport) throw error;
       if (
         error instanceof MCPProtocolError &&
         error.code === UNSUPPORTED_PROTOCOL_VERSION
       ) {
         throw error;
       }
-      // Streamable HTTP has no legacy handshake here: a server that predates
-      // 2026-07-28 may need session headers this transport does not send.
+      // Only a server that answered is a legacy candidate. A dead stdio child
+      // or a refused connection is not, so report its real cause.
+      if (!transport?.isConnected()) throw error;
       if (this.config.transport === 'http') {
-        throw new Error(
-          `MCP server did not answer server/discover (${(error as Error).message}). ` +
-            'Legacy initialize over Streamable HTTP is not supported; use transport "sse" for HTTP+SSE servers.',
-        );
+        // Over HTTP a silent server is not a cold start. Fail at the discover
+        // timeout instead of waiting out a second one on initialize.
+        if (error instanceof MCPTimeoutError) {
+          throw new Error(
+            `MCP server did not answer server/discover within ${probeMs / 1000}s`,
+          );
+        }
+        // Only a JSON-RPC error, or a status a legacy server gives for an
+        // unknown endpoint, is evidence of a legacy server. A 5xx or a network
+        // failure is not, and falling back on it would pin the connection to
+        // the legacy path for its whole lifetime.
+        const legacyStatus =
+          error instanceof MCPHttpError &&
+          [400, 404, 405].includes(error.status);
+        if (!(error instanceof MCPProtocolError) && !legacyStatus) throw error;
       }
       await this.initialize();
       return;
@@ -220,10 +295,13 @@ export class MCPClient extends EventEmitter {
       protocolVersion: legacy.protocolVersion,
       capabilities: legacy.capabilities ?? {},
     };
-    await this.transport!.send({
-      jsonrpc: '2.0',
-      method: 'notifications/initialized',
-    });
+    await this.transport!.send(
+      {
+        jsonrpc: '2.0',
+        method: 'notifications/initialized',
+      },
+      this.versionHeaders(),
+    );
     this.emit('initialized', this.serverInfo);
   }
 
@@ -367,13 +445,37 @@ export class MCPClient extends EventEmitter {
    * Disconnect from the server
    */
   disconnect(): void {
-    if (this.transport) {
-      this.transport.close();
-      this.transport = null;
-      this.serverInfo = null;
-      this.modern = false;
-      this.toolSchemas.clear();
-    }
+    this.teardown(true);
+  }
+
+  /**
+   * Close the current transport. `announce` emits 'disconnect' for a live
+   * connection. A reconnect or a failed connect passes false, so listeners
+   * such as the registry do not drop the server's tools for a transient step.
+   */
+  private teardown(announce: boolean): void {
+    const transport = this.transport;
+    if (!transport) return;
+    const wasConnected = transport.isConnected();
+    // Read before serverInfo is cleared: the session DELETE carries the version.
+    const closeHeaders = this.versionHeaders();
+    // Clear the current transport first, so its events are ignored from here on.
+    this.transport = null;
+    this.serverInfo = null;
+    this.modern = false;
+    this.toolSchemas.clear();
+    // Nothing on a closed connection can answer. Fail waiting callers now,
+    // rather than let them time out and report a timeout.
+    this.failPending('Client disconnected');
+    transport.close(closeHeaders);
+    if (announce && wasConnected) this.emit('disconnect');
+  }
+
+  /** Reject every waiting request. Each one's timer is cleared on the way. */
+  private failPending(reason: string): void {
+    const waiting = [...this.pendingRequests.values()];
+    this.pendingRequests.clear();
+    for (const pending of waiting) pending.reject(new Error(reason));
   }
 
   /**
@@ -391,25 +493,46 @@ export class MCPClient extends EventEmitter {
     message: MCPMessage,
     options: { meta?: boolean; timeoutMs?: number } = {},
   ): Promise<MCPMessage> {
-    if (!this.transport || !this.transport.isConnected()) {
+    const transport = this.transport;
+    if (!transport || !transport.isConnected()) {
       throw new Error('Not connected to MCP server');
     }
 
     const useMeta = options.meta ?? this.modern;
-    const outgoing = useMeta ? this.withMeta(message) : message;
+    // Ask for progress on every request, keyed by its id, so a long call that
+    // reports progress is not cut off at the timeout.
+    const outgoing = this.withProgressToken(
+      useMeta ? this.withMeta(message) : message,
+    );
     const headers =
       this.config.transport === 'http'
-        ? this.paramHeaders(outgoing)
+        ? { ...this.versionHeaders(), ...this.paramHeaders(outgoing) }
         : undefined;
     const id = outgoing.id!;
-    const timeoutMs = options.timeoutMs ?? REQUEST_TIMEOUT_MS;
+    const timeoutMs = timerMs(
+      options.timeoutMs ?? this.config.requestTimeoutMs,
+      REQUEST_TIMEOUT_MS,
+    );
 
     const settled = new Promise<MCPMessage>((resolve, reject) => {
-      const timer = setTimeout(() => {
-        if (this.pendingRequests.delete(id)) {
-          reject(new Error('Request timeout'));
-        }
-      }, timeoutMs);
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const arm = () => {
+        timer = setTimeout(() => {
+          if (this.pendingRequests.delete(id)) {
+            // Settle the caller first, so nothing that goes wrong while
+            // cancelling can leave it waiting.
+            reject(new MCPTimeoutError(id, timeoutMs));
+            try {
+              // Cancel on the transport this request went out on, not whichever
+              // one is current when the timer fires.
+              this.cancelRequest(transport, id, outgoing.method);
+            } catch {
+              // Cancellation is best effort; the caller already has its error.
+            }
+          }
+        }, timeoutMs);
+      };
+      arm();
       this.pendingRequests.set(id, {
         resolve: (value) => {
           clearTimeout(timer);
@@ -419,12 +542,18 @@ export class MCPClient extends EventEmitter {
           clearTimeout(timer);
           reject(error);
         },
+        // Progress from the server means the work is still moving, so the
+        // wait starts again. The request is still cancelled once progress stops.
+        touch: () => {
+          clearTimeout(timer);
+          arm();
+        },
       });
     });
 
     // A transport that rejects its send fails only this request.
     Promise.resolve()
-      .then(() => this.transport!.send(outgoing, headers))
+      .then(() => transport.send(outgoing, headers))
       .catch((error: unknown) => {
         const pending = this.pendingRequests.get(id);
         this.pendingRequests.delete(id);
@@ -441,6 +570,41 @@ export class MCPClient extends EventEmitter {
       throw new MCPInputRequiredError(outgoing.method ?? 'request');
     }
     return response;
+  }
+
+  /**
+   * Tell the server to stop work on a request that timed out. Transports that
+   * can abort a request do so. Stdio gets the spec's notifications/cancelled.
+   */
+  private cancelRequest(
+    transport: MCPTransport,
+    id: string | number,
+    method?: string,
+  ): void {
+    // The spec forbids cancelling initialize, so a slow handshake is left alone.
+    if (method === 'initialize') return;
+    // Abort the local request, if the transport can. The notification is sent
+    // on every transport, because the server does the work.
+    transport.cancel?.(id);
+    const notice: MCPMessage = {
+      jsonrpc: '2.0',
+      method: 'notifications/cancelled',
+      params: { requestId: id },
+    };
+    // Modern requests carry _meta and the version header, so the cancel does too.
+    const outgoing = this.modern ? this.withMeta(notice) : notice;
+    Promise.resolve()
+      .then(() => transport.send(outgoing, this.versionHeaders()))
+      .catch(() => undefined);
+  }
+
+  /**
+   * The negotiated version as a header on the legacy path. The modern path
+   * sends it through `_meta` instead, so nothing is added there.
+   */
+  private versionHeaders(): Record<string, string> {
+    const version = this.serverInfo?.protocolVersion;
+    return !this.modern && version ? { 'MCP-Protocol-Version': version } : {};
   }
 
   private withMeta(message: MCPMessage): MCPMessage {
@@ -479,8 +643,13 @@ export class MCPClient extends EventEmitter {
    * Handle incoming messages
    */
   private handleMessage(message: MCPMessage): void {
-    // Handle responses
-    if (message.id !== undefined && this.pendingRequests.has(message.id)) {
+    // Handle responses. A message with a method is a request or notification
+    // from the server, even when its id collides with one of ours.
+    if (
+      message.method === undefined &&
+      message.id !== undefined &&
+      this.pendingRequests.has(message.id)
+    ) {
       const pending = this.pendingRequests.get(message.id)!;
       this.pendingRequests.delete(message.id);
 
@@ -498,10 +667,35 @@ export class MCPClient extends EventEmitter {
       return;
     }
 
+    // Progress for one of our requests restarts that request's timeout.
+    if (message.method === 'notifications/progress') {
+      const token = (message.params as { progressToken?: unknown } | undefined)
+        ?.progressToken;
+      if (
+        (typeof token === 'string' || typeof token === 'number') &&
+        this.pendingRequests.has(token)
+      ) {
+        this.pendingRequests.get(token)!.touch();
+      }
+    }
+
     // Handle notifications
     if (message.method) {
       this.emit('notification', message);
     }
+  }
+
+  /** Add `_meta.progressToken` so the server may report progress for this request. */
+  private withProgressToken(message: MCPMessage): MCPMessage {
+    const params = (message.params ?? {}) as Record<string, unknown>;
+    const meta = (params._meta ?? {}) as Record<string, unknown>;
+    return {
+      ...message,
+      params: {
+        ...params,
+        _meta: { ...meta, progressToken: message.id },
+      },
+    };
   }
 
   /**

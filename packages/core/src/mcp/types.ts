@@ -16,6 +16,11 @@ export interface MCPServerConfig extends StdioEnvOptions {
    */
   transport?: 'stdio' | 'sse' | 'http';
   url?: string; // For http and sse transports
+  /**
+   * Milliseconds to wait for a response before cancelling. Default 30000.
+   * Infinity means no practical limit.
+   */
+  requestTimeoutMs?: number;
 }
 
 /** Protocol revision this client speaks by default (stateless, per-request). */

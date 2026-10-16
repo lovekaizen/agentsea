@@ -17,7 +17,13 @@ export interface MCPTransport extends EventEmitter {
     message: MCPMessage,
     headers?: Record<string, string>,
   ): void | Promise<void>;
-  close(): void;
+  /** Abort the in-flight request with this id, if the transport can. */
+  cancel?(id: string | number): void;
+  /**
+   * Close the transport. `headers` are extra headers for any final request the
+   * transport sends (the session DELETE on Streamable HTTP).
+   */
+  close(headers?: Record<string, string>): void;
   isConnected(): boolean;
 }
 
@@ -325,6 +331,14 @@ export class SSETransport extends EventEmitter implements MCPTransport {
   }
 }
 
+/** An HTTP response that was not a usable MCP reply. Carries the status. */
+export class MCPHttpError extends Error {
+  constructor(readonly status: number) {
+    super(`MCP HTTP ${status}`);
+    this.name = 'MCPHttpError';
+  }
+}
+
 const BASE64_PREFIX = '=?base64?';
 const BASE64_SUFFIX = '?=';
 
@@ -473,20 +487,39 @@ export function isHeaderEligibleType(prop: Record<string, unknown>): boolean {
 /**
  * Streamable HTTP transport (protocol 2026-07-28). Each JSON-RPC message is its
  * own POST to one endpoint. The response is either one JSON body or an SSE
- * stream scoped to that request. There are no sessions and no resumption.
+ * stream scoped to that request. A session id is sent only when a 2025-03-26
+ * server assigns one. There is no resumption.
  */
 export class StreamableHTTPTransport
   extends EventEmitter
   implements MCPTransport
 {
   private connected = false;
-  private inFlight = new Set<AbortController>();
+  /**
+   * Every POST still in flight. Requests are keyed by JSON-RPC id, so cancel()
+   * can find them. Notifications get a private key, so close() aborts them too.
+   */
+  private inFlight = new Map<string | number, AbortController>();
+  private postSeq = 0;
+  /** Set when a 2025-03-26 server assigns `Mcp-Session-Id`. */
+  private sessionId?: string;
 
   constructor(
     private url: string,
     private fetchImpl: typeof fetch = fetch,
   ) {
     super();
+  }
+
+  /**
+   * Cancel the request with this id by aborting its HTTP request. On
+   * Streamable HTTP, closing the response stream is the cancel signal.
+   */
+  cancel(id: string | number): void {
+    const controller = this.inFlight.get(id);
+    if (!controller) return;
+    this.inFlight.delete(id);
+    controller.abort();
   }
 
   connect(): Promise<void> {
@@ -505,13 +538,15 @@ export class StreamableHTTPTransport
     if (!this.connected) throw new Error('Transport not connected');
 
     const controller = new AbortController();
-    this.inFlight.add(controller);
+    const key = message.id ?? `notification:${++this.postSeq}`;
+    this.inFlight.set(key, controller);
     try {
       const response = await this.fetchImpl(this.url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json, text/event-stream',
+          ...this.sessionHeaders(),
           ...mcpRequestHeaders(message),
           ...headers,
         },
@@ -519,9 +554,12 @@ export class StreamableHTTPTransport
         signal: controller.signal,
       });
 
+      const assigned = response.headers.get('mcp-session-id');
+      if (assigned) this.sessionId = assigned;
+
       // Notifications get a bare 202; nothing to correlate.
       if (message.id === undefined) {
-        if (!response.ok) throw new Error(`MCP HTTP ${response.status}`);
+        if (!response.ok) throw new MCPHttpError(response.status);
         return;
       }
 
@@ -540,11 +578,13 @@ export class StreamableHTTPTransport
         parsed = undefined;
       }
       if (!parsed || (!response.ok && parsed.id === undefined)) {
-        throw new Error(`MCP HTTP ${response.status}`);
+        throw new MCPHttpError(response.status);
       }
       this.emit('message', parsed);
     } finally {
-      this.inFlight.delete(controller);
+      if (this.inFlight.get(key) === controller) {
+        this.inFlight.delete(key);
+      }
     }
   }
 
@@ -592,9 +632,24 @@ export class StreamableHTTPTransport
     this.emit('message', message);
   }
 
-  close(): void {
-    for (const controller of this.inFlight) controller.abort();
+  /** The session header, once a 2025-03-26 server has assigned one. */
+  private sessionHeaders(): Record<string, string> {
+    return this.sessionId ? { 'Mcp-Session-Id': this.sessionId } : {};
+  }
+
+  close(headers: Record<string, string> = {}): void {
+    for (const controller of this.inFlight.values()) controller.abort();
     this.inFlight.clear();
+    if (this.sessionId) {
+      // Best effort, and bounded so a hung server cannot hold the process open.
+      const sessionHeaders = { ...this.sessionHeaders(), ...headers };
+      this.sessionId = undefined;
+      this.fetchImpl(this.url, {
+        method: 'DELETE',
+        headers: sessionHeaders,
+        signal: AbortSignal.timeout(2_000),
+      }).catch(() => undefined);
+    }
     if (this.connected) {
       this.connected = false;
       this.emit('disconnect');

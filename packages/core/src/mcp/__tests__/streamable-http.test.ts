@@ -7,9 +7,11 @@ import {
   MCPClient,
   MCPInputRequiredError,
   MCPProtocolError,
+  MCPTimeoutError,
   UNSUPPORTED_PROTOCOL_VERSION,
 } from '../client';
 import {
+  MCPHttpError,
   StdioTransport,
   StreamableHTTPTransport,
   encodeHeaderValue,
@@ -277,7 +279,10 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     headers: IncomingMessage['headers'];
     body: MCPMessage;
   }> = [];
-  let mode: 'modern' | 'legacy' | 'unsupported' = 'modern';
+  let mode: 'modern' | 'legacy' | 'unsupported' | 'unavailable' = 'modern';
+  const SESSION = 'sess-1';
+  const deletes: string[] = [];
+  const cancels: string[] = [];
 
   const weatherTool = {
     name: 'lookup_weather',
@@ -317,6 +322,13 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
 
   beforeAll(async () => {
     server = createServer((req, res) => {
+      if (req.method === 'DELETE') {
+        deletes.push(
+          `${String(req.headers['mcp-session-id'])}|${String(req.headers['mcp-protocol-version'])}`,
+        );
+        res.writeHead(200);
+        return res.end();
+      }
       let raw = '';
       req.on('data', (c) => (raw += c));
       req.on('end', () => {
@@ -325,7 +337,24 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
         const id = body.id;
         const params = (body.params ?? {}) as Record<string, unknown>;
 
+        // 2025-03-26 style: after initialize, every request carries the session.
+        if (
+          mode === 'legacy' &&
+          body.method !== 'initialize' &&
+          body.method !== 'server/discover' &&
+          req.headers['mcp-session-id'] !== SESSION
+        ) {
+          return send(res, 400, {
+            jsonrpc: '2.0',
+            id,
+            error: { code: -32600, message: 'Missing session' },
+          });
+        }
+
         if (body.method === 'server/discover') {
+          if (mode === 'unavailable') {
+            return send(res, 503, { error: 'try again later' });
+          }
           if (mode === 'legacy') {
             return send(res, 404, {
               jsonrpc: '2.0',
@@ -356,6 +385,7 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
         }
 
         if (body.method === 'initialize') {
+          res.setHeader('Mcp-Session-Id', SESSION);
           return send(res, 200, {
             jsonrpc: '2.0',
             id,
@@ -372,6 +402,12 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
           return res.end();
         }
 
+        if (body.method === 'notifications/cancelled') {
+          cancels.push(String(params.requestId));
+          res.writeHead(202);
+          return res.end();
+        }
+
         if (body.method === 'tools/list') {
           return send(res, 200, {
             jsonrpc: '2.0',
@@ -382,6 +418,50 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
 
         if (body.method === 'tools/call') {
           const args = (params.arguments ?? {}) as Record<string, string>;
+          // Progress streams for longer than the client's timeout, then the answer.
+          // 'stall' sends two progress events and then goes silent.
+          if (args.query === 'progress' || args.query === 'stall') {
+            const token = (
+              params._meta as { progressToken?: unknown } | undefined
+            )?.progressToken;
+            const steps = args.query === 'progress' ? 6 : 2;
+            res.writeHead(200, { 'content-type': 'text/event-stream' });
+            let step = 0;
+            const tick = () => {
+              if (step < steps) {
+                step += 1;
+                res.write(
+                  `data: ${JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'notifications/progress',
+                    params: {
+                      progressToken: token,
+                      progress: step,
+                      total: steps,
+                    },
+                  })}\n\n`,
+                );
+                setTimeout(tick, 100);
+              } else if (args.query === 'progress') {
+                res.write(
+                  `data: ${JSON.stringify({
+                    jsonrpc: '2.0',
+                    id,
+                    result: {
+                      resultType: 'complete',
+                      content: [{ type: 'text', text: 'done after progress' }],
+                    },
+                  })}\n\n`,
+                );
+                res.end();
+              }
+              // 'stall' never reaches the else branch: the client must time out.
+            };
+            setTimeout(tick, 100);
+            return;
+          }
+          // Never answer: the client must time out and cancel.
+          if (args.query === 'hang') return;
           if (args.query === 'needs-input') {
             return send(res, 200, {
               jsonrpc: '2.0',
@@ -428,14 +508,144 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     await new Promise<void>((r) => server.close(() => r()));
   });
 
-  function newClient(): MCPClient {
+  function newClient(extra: { requestTimeoutMs?: number } = {}): MCPClient {
     return new MCPClient({
       name: 'remote',
       command: '',
       transport: 'http',
       url,
+      ...extra,
     });
   }
+
+  it('cancels a timed-out tools/call: rejects typed, sends notifications/cancelled', async () => {
+    mode = 'modern';
+    cancels.length = 0;
+    const client = newClient({ requestTimeoutMs: 200 });
+    await client.connect();
+    await client.listTools();
+    await expect(
+      client.callTool('lookup_weather', { region: 'us-west1', query: 'hang' }),
+    ).rejects.toBeInstanceOf(MCPTimeoutError);
+
+    const deadline = Date.now() + 2_000;
+    while (cancels.length === 0 && Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 10));
+    }
+    expect(cancels).toHaveLength(1);
+    client.disconnect();
+  });
+
+  it('keeps a call alive while the server reports progress past the timeout', async () => {
+    mode = 'modern';
+    const client = newClient({ requestTimeoutMs: 300 });
+    await client.connect();
+    await client.listTools();
+    // Six progress events about 100ms apart: longer than 300ms in total.
+    const started = Date.now();
+    const result = await client.callTool('lookup_weather', {
+      region: 'us-west1',
+      query: 'progress',
+    });
+    expect(Date.now() - started).toBeGreaterThan(300);
+    expect(result.content[0].text).toBe('done after progress');
+    client.disconnect();
+  });
+
+  it('times out and cancels once progress stops', async () => {
+    mode = 'modern';
+    cancels.length = 0;
+    const client = newClient({ requestTimeoutMs: 300 });
+    await client.connect();
+    await client.listTools();
+    await expect(
+      client.callTool('lookup_weather', { region: 'us-west1', query: 'stall' }),
+    ).rejects.toBeInstanceOf(MCPTimeoutError);
+    const deadline = Date.now() + 2_000;
+    while (cancels.length === 0 && Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 10));
+    }
+    expect(cancels).toHaveLength(1);
+    client.disconnect();
+  });
+
+  it('treats requestTimeoutMs of 0 as the default, not as fire-now', async () => {
+    mode = 'modern';
+    const client = newClient({ requestTimeoutMs: 0 });
+    await client.connect();
+    const tools = await client.listTools();
+    expect(tools.map((t) => t.name)).toEqual(['lookup_weather']);
+    client.disconnect();
+  });
+
+  it('does not fall back to the legacy handshake on a 503 during discovery', async () => {
+    mode = 'unavailable';
+    seen.length = 0;
+    try {
+      const client = newClient();
+      const error = await client.connect().catch((e: unknown) => e);
+      expect(error).toBeInstanceOf(MCPHttpError);
+      expect((error as MCPHttpError).status).toBe(503);
+      expect(seen.map((s) => s.method)).not.toContain('initialize');
+    } finally {
+      mode = 'modern';
+    }
+  });
+
+  it('runs overlapping connect() calls one after another', async () => {
+    mode = 'modern';
+    seen.length = 0;
+    const client = newClient();
+    await Promise.all([client.connect(), client.connect()]);
+    // Each connect probes once, and neither handshake interleaves with the other.
+    expect(seen.filter((s) => s.method === 'server/discover')).toHaveLength(2);
+    expect(client.getServerInfo()?.protocolVersion).toBe(MODERN);
+    const tools = await client.listTools();
+    expect(tools.map((t) => t.name)).toEqual(['lookup_weather']);
+    client.disconnect();
+  });
+
+  it('treats a non-numeric requestTimeoutMs as the default, not as 1ms', async () => {
+    mode = 'modern';
+    const client = newClient({
+      requestTimeoutMs: '5s' as unknown as number,
+    });
+    await client.connect();
+    const tools = await client.listTools();
+    expect(tools.map((t) => t.name)).toEqual(['lookup_weather']);
+    const other = newClient({ requestTimeoutMs: true as unknown as number });
+    await other.connect();
+    expect((await other.listTools()).length).toBe(1);
+    client.disconnect();
+    other.disconnect();
+  });
+
+  it('reconnecting does not announce a disconnect; Infinity is a real limit', async () => {
+    mode = 'modern';
+    const client = newClient({ requestTimeoutMs: Infinity });
+    let disconnects = 0;
+    client.on('disconnect', () => disconnects++);
+    await client.connect();
+    await client.connect();
+    expect(disconnects).toBe(0);
+    const tools = await client.listTools();
+    expect(tools.map((t) => t.name)).toEqual(['lookup_weather']);
+    client.disconnect();
+    expect(disconnects).toBe(1);
+  });
+
+  it('fails waiting calls at once when the client disconnects', async () => {
+    mode = 'modern';
+    const client = newClient({ requestTimeoutMs: 60_000 });
+    await client.connect();
+    await client.listTools();
+    const waiting = client.callTool('lookup_weather', {
+      region: 'us-west1',
+      query: 'hang',
+    });
+    client.disconnect();
+    await expect(waiting).rejects.toThrow('Client disconnected');
+  });
 
   it('negotiates the modern path, sends _meta, and filters the bad tool', async () => {
     mode = 'modern';
@@ -499,18 +709,41 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     client.disconnect();
   });
 
-  it('refuses the legacy handshake over Streamable HTTP with a clear error', async () => {
+  it('runs the legacy handshake over HTTP with a session and version header', async () => {
     mode = 'legacy';
     seen.length = 0;
-    const client = newClient();
-    const error = await client.connect().catch((e: unknown) => e);
-    expect((error as Error).message).toMatch(
-      /Legacy initialize over Streamable HTTP/,
-    );
-    // Nothing was sent after the failed probe, and the client is torn down.
-    expect(seen.map((s) => s.method)).not.toContain('initialize');
-    expect(client.isConnected()).toBe(false);
-    mode = 'modern';
+    deletes.length = 0;
+    try {
+      const client = newClient();
+      await client.connect();
+      expect(client.getServerInfo()?.name).toBe('legacy');
+
+      // initialize carries no session yet; everything after it must.
+      const after = seen.slice(
+        seen.findIndex((s) => s.method === 'initialize') + 1,
+      );
+      expect(after.length).toBeGreaterThan(0);
+      for (const s of after) {
+        expect(s.headers['mcp-session-id']).toBe(SESSION);
+        expect(s.headers['mcp-protocol-version']).toBe('2024-11-05');
+      }
+      expect(after.map((s) => s.method)).toContain('notifications/initialized');
+
+      // A legacy call with no _meta still works and is session-bound.
+      const tools = await client.listTools();
+      expect(tools.map((t) => t.name)).toEqual(['lookup_weather']);
+
+      client.disconnect();
+      // DELETE is best effort. Poll for it rather than sleeping a fixed time.
+      const deadline = Date.now() + 2_000;
+      while (deletes.length === 0 && Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 10));
+      }
+      // The DELETE carries the session and the negotiated version.
+      expect(deletes).toEqual([`${SESSION}|2024-11-05`]);
+    } finally {
+      mode = 'modern';
+    }
   });
 
   it('skips a malformed SSE event and still returns the real response', async () => {
@@ -540,6 +773,30 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     expect(seen.map((s) => s.method)).not.toContain('initialize');
     client.disconnect();
     mode = 'modern';
+  });
+});
+
+describe('StreamableHTTPTransport cancel', () => {
+  it('aborts an in-flight request by id', async () => {
+    let aborted = false;
+    const fetchImpl = ((_url: string, init: RequestInit) =>
+      new Promise((_resolve, reject) => {
+        init.signal!.addEventListener('abort', () => {
+          aborted = true;
+          reject(new DOMException('aborted', 'AbortError'));
+        });
+      })) as unknown as typeof fetch;
+    const transport = new StreamableHTTPTransport('http://x/mcp', fetchImpl);
+    await transport.connect();
+    const pending = transport.send({
+      jsonrpc: '2.0',
+      id: 42,
+      method: 'tools/call',
+      params: { name: 'slow' },
+    });
+    transport.cancel(42);
+    await expect(pending).rejects.toThrow();
+    expect(aborted).toBe(true);
   });
 });
 
