@@ -58,6 +58,7 @@ overrides:
   vite@<6.4.2: ^6.4.2
   ws@8: ^8.20.1
   yaml@2: ^2.8.3
+  engine.io@6: ^6.6.10
 
 importers:
 
@@ -6374,6 +6375,11 @@ packages:
       '@types/webidl-conversions': 7.0.3
     dev: false
 
+  /@types/ws@8.18.2:
+    resolution: {integrity: sha512-67MQl+fpWKVTT1NYdnmo3U4sc/xPo/zQBncVnI74qmQa0z/b+1g6iYqNmGCPbxO+zz2aklb08a0oHfegiVd0/w==}
+    dependencies:
+      '@types/node': 20.19.24
+
   /@types/yauzl@2.10.3:
     resolution: {integrity: sha512-oJoftv0LSuaDZE3Le4DbKX+KS9G36NzOeSap90UIK0yMA/NhKJhqlSGtNDORNRaIbQfzjXDrQa0ytJ6mNRGz/Q==}
     requiresBuild: true
@@ -6717,7 +6723,7 @@ packages:
       '@vitest/spy': 3.2.6
       estree-walker: 3.0.3
       magic-string: 0.30.21
-      vite: 6.4.3(@types/node@20.19.24)
+      vite: 6.4.3(@types/node@22.19.3)
     dev: true
 
   /@vitest/pretty-format@3.2.6:
@@ -8527,17 +8533,17 @@ packages:
     resolution: {integrity: sha512-HqD3yTBfnBxIrbnM1DoD6Pcq8NECnh8d4As1Qgh0z5Gg3jRRIqijury0CL3ghu/edArpUYiYqQiDUQBIs4np3Q==}
     engines: {node: '>=10.0.0'}
 
-  /engine.io@6.6.4:
-    resolution: {integrity: sha512-ZCkIjSYNDyGn0R6ewHDtXgns/Zre/NT6Agvq1/WobF7JXgFff4SeDroKiCO3fNJreU9YG429Sc81o4w5ok/W5g==}
+  /engine.io@6.6.11:
+    resolution: {integrity: sha512-z34mGpLoY/82ZbkX1LqGMIaf3wjVMPL6gVC681QDqnmzJ26synI8qAE32P+a7UazmpJZ8UGrFIeAavgRfXzYrg==}
     engines: {node: '>=10.2.0'}
     dependencies:
       '@types/cors': 2.8.19
       '@types/node': 20.19.24
+      '@types/ws': 8.18.2
       accepts: 1.3.8
-      base64id: 2.0.0
       cookie: 0.7.2
       cors: 2.8.5
-      debug: 4.3.7
+      debug: 4.4.3
       engine.io-parser: 5.2.3
       ws: 8.21.0
     transitivePeerDependencies:
@@ -12714,6 +12720,7 @@ packages:
   /prom-client@15.1.3:
     resolution: {integrity: sha512-6ZiOBfCywsD4k1BN9IX0uZhF+tJkV8q8llP64G5Hajs4JOeVLPCwpPVcpXy3BwYiUGgyJzsJJQeOIv7+hDSq8g==}
     engines: {node: ^16 || ^18 || >=20}
+    deprecated: prom-client has been replaced by @prometheus-io/client
     requiresBuild: true
     dependencies:
       '@opentelemetry/api': 1.9.0
@@ -13683,7 +13690,7 @@ packages:
       base64id: 2.0.0
       cors: 2.8.5
       debug: 4.3.7
-      engine.io: 6.6.4
+      engine.io: 6.6.11
       socket.io-adapter: 2.5.5
       socket.io-parser: 4.2.6
     transitivePeerDependencies:
@@ -13699,7 +13706,7 @@ packages:
       base64id: 2.0.0
       cors: 2.8.5
       debug: 4.4.3
-      engine.io: 6.6.4
+      engine.io: 6.6.11
       socket.io-adapter: 2.5.5
       socket.io-parser: 4.2.6
     transitivePeerDependencies:
