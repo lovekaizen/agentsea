@@ -96,6 +96,8 @@ export class MCPClient extends EventEmitter {
     {
       resolve: (value: MCPMessage) => void;
       reject: (error: Error) => void;
+      /** Restart the timeout. Called on progress for this request. */
+      touch: () => void;
     }
   >();
 
@@ -482,7 +484,11 @@ export class MCPClient extends EventEmitter {
     }
 
     const useMeta = options.meta ?? this.modern;
-    const outgoing = useMeta ? this.withMeta(message) : message;
+    // Ask for progress on every request, keyed by its id, so a long call that
+    // reports progress is not cut off at the timeout.
+    const outgoing = this.withProgressToken(
+      useMeta ? this.withMeta(message) : message,
+    );
     const headers =
       this.config.transport === 'http'
         ? { ...this.versionHeaders(), ...this.paramHeaders(outgoing) }
@@ -494,14 +500,18 @@ export class MCPClient extends EventEmitter {
     );
 
     const settled = new Promise<MCPMessage>((resolve, reject) => {
-      const timer = setTimeout(() => {
-        if (this.pendingRequests.delete(id)) {
-          // Cancel on the transport this request went out on, not whichever
-          // one is current when the timer fires.
-          this.cancelRequest(transport, id, outgoing.method);
-          reject(new MCPTimeoutError(id, timeoutMs));
-        }
-      }, timeoutMs);
+      let timer: ReturnType<typeof setTimeout> | undefined;
+      const arm = () => {
+        timer = setTimeout(() => {
+          if (this.pendingRequests.delete(id)) {
+            // Cancel on the transport this request went out on, not whichever
+            // one is current when the timer fires.
+            this.cancelRequest(transport, id, outgoing.method);
+            reject(new MCPTimeoutError(id, timeoutMs));
+          }
+        }, timeoutMs);
+      };
+      arm();
       this.pendingRequests.set(id, {
         resolve: (value) => {
           clearTimeout(timer);
@@ -510,6 +520,12 @@ export class MCPClient extends EventEmitter {
         reject: (error) => {
           clearTimeout(timer);
           reject(error);
+        },
+        // Progress from the server means the work is still moving, so the
+        // wait starts again. The request is still cancelled once progress stops.
+        touch: () => {
+          clearTimeout(timer);
+          arm();
         },
       });
     });
@@ -630,10 +646,35 @@ export class MCPClient extends EventEmitter {
       return;
     }
 
+    // Progress for one of our requests restarts that request's timeout.
+    if (message.method === 'notifications/progress') {
+      const token = (message.params as { progressToken?: unknown } | undefined)
+        ?.progressToken;
+      if (
+        (typeof token === 'string' || typeof token === 'number') &&
+        this.pendingRequests.has(token)
+      ) {
+        this.pendingRequests.get(token)!.touch();
+      }
+    }
+
     // Handle notifications
     if (message.method) {
       this.emit('notification', message);
     }
+  }
+
+  /** Add `_meta.progressToken` so the server may report progress for this request. */
+  private withProgressToken(message: MCPMessage): MCPMessage {
+    const params = (message.params ?? {}) as Record<string, unknown>;
+    const meta = (params._meta ?? {}) as Record<string, unknown>;
+    return {
+      ...message,
+      params: {
+        ...params,
+        _meta: { ...meta, progressToken: message.id },
+      },
+    };
   }
 
   /**

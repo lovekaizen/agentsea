@@ -412,6 +412,48 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
 
         if (body.method === 'tools/call') {
           const args = (params.arguments ?? {}) as Record<string, string>;
+          // Progress streams for longer than the client's timeout, then the answer.
+          // 'stall' sends two progress events and then goes silent.
+          if (args.query === 'progress' || args.query === 'stall') {
+            const token = (
+              params._meta as { progressToken?: unknown } | undefined
+            )?.progressToken;
+            const steps = args.query === 'progress' ? 6 : 2;
+            res.writeHead(200, { 'content-type': 'text/event-stream' });
+            let step = 0;
+            const tick = () => {
+              if (step < steps) {
+                step += 1;
+                res.write(
+                  `data: ${JSON.stringify({
+                    jsonrpc: '2.0',
+                    method: 'notifications/progress',
+                    params: {
+                      progressToken: token,
+                      progress: step,
+                      total: steps,
+                    },
+                  })}\n\n`,
+                );
+                setTimeout(tick, 100);
+              } else if (args.query === 'progress') {
+                res.write(
+                  `data: ${JSON.stringify({
+                    jsonrpc: '2.0',
+                    id,
+                    result: {
+                      resultType: 'complete',
+                      content: [{ type: 'text', text: 'done after progress' }],
+                    },
+                  })}\n\n`,
+                );
+                res.end();
+              }
+              // 'stall' never reaches the else branch: the client must time out.
+            };
+            setTimeout(tick, 100);
+            return;
+          }
           // Never answer: the client must time out and cancel.
           if (args.query === 'hang') return;
           if (args.query === 'needs-input') {
@@ -480,6 +522,39 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
       client.callTool('lookup_weather', { region: 'us-west1', query: 'hang' }),
     ).rejects.toBeInstanceOf(MCPTimeoutError);
 
+    const deadline = Date.now() + 2_000;
+    while (cancels.length === 0 && Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 10));
+    }
+    expect(cancels).toHaveLength(1);
+    client.disconnect();
+  });
+
+  it('keeps a call alive while the server reports progress past the timeout', async () => {
+    mode = 'modern';
+    const client = newClient({ requestTimeoutMs: 300 });
+    await client.connect();
+    await client.listTools();
+    // Six progress events about 100ms apart: longer than 300ms in total.
+    const started = Date.now();
+    const result = await client.callTool('lookup_weather', {
+      region: 'us-west1',
+      query: 'progress',
+    });
+    expect(Date.now() - started).toBeGreaterThan(300);
+    expect(result.content[0].text).toBe('done after progress');
+    client.disconnect();
+  });
+
+  it('times out and cancels once progress stops', async () => {
+    mode = 'modern';
+    cancels.length = 0;
+    const client = newClient({ requestTimeoutMs: 300 });
+    await client.connect();
+    await client.listTools();
+    await expect(
+      client.callTool('lookup_weather', { region: 'us-west1', query: 'stall' }),
+    ).rejects.toBeInstanceOf(MCPTimeoutError);
     const deadline = Date.now() + 2_000;
     while (cancels.length === 0 && Date.now() < deadline) {
       await new Promise((r) => setTimeout(r, 10));
