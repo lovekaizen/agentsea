@@ -31,6 +31,18 @@ const CLIENT_INFO = { name: 'agentsea', version: '0.1.0' };
 // and a timeout here sends a modern server down the legacy path.
 const DISCOVER_TIMEOUT_MS = 15_000;
 const REQUEST_TIMEOUT_MS = 30_000;
+const MAX_TIMER_MS = 2_147_483_647;
+
+/**
+ * A usable timer delay. Zero, negative and non-finite values mean "use the
+ * default", not "fire now". Anything past setTimeout's limit is capped there.
+ */
+function timerMs(value: number | undefined, fallback: number): number {
+  if (value === undefined || !Number.isFinite(value) || value <= 0) {
+    return fallback;
+  }
+  return Math.min(value, MAX_TIMER_MS);
+}
 
 /** A JSON-RPC error response from the server, with its code kept. */
 export class MCPProtocolError extends Error {
@@ -113,14 +125,27 @@ export class MCPClient extends EventEmitter {
       );
     }
 
-    // Set up event handlers
-    this.transport.on('message', this.handleMessage.bind(this));
-    this.transport.on('error', (error: Error) => this.emit('error', error));
-    this.transport.on('stderr', (text: string) => this.emit('stderr', text));
-    this.transport.on('disconnect', () => this.emit('disconnect'));
+    // Events from a transport the client has already left are ignored. The
+    // listeners stay attached, so a late stdio error cannot go unhandled.
+    const transport = this.transport;
+    const whileCurrent = (handle: () => void) => {
+      if (this.transport === transport) handle();
+    };
+    transport.on('message', (message: MCPMessage) =>
+      whileCurrent(() => this.handleMessage(message)),
+    );
+    transport.on('error', (error: Error) =>
+      whileCurrent(() => this.emit('error', error)),
+    );
+    transport.on('stderr', (text: string) =>
+      whileCurrent(() => this.emit('stderr', text)),
+    );
+    transport.on('disconnect', () =>
+      whileCurrent(() => this.emit('disconnect')),
+    );
 
     try {
-      await this.transport.connect();
+      await transport.connect();
 
       // The deprecated SSE transport only speaks the legacy handshake.
       if (this.config.transport === 'sse') {
@@ -129,8 +154,9 @@ export class MCPClient extends EventEmitter {
         await this.discover();
       }
     } catch (error) {
-      // Do not leave a spawned child or an open stream behind a failed connect.
-      this.disconnect();
+      // Do not leave a spawned child or an open stream behind a failed connect,
+      // and do not close a newer connection that replaced this one.
+      if (this.transport === transport) this.disconnect();
       throw error;
     }
   }
@@ -151,7 +177,10 @@ export class MCPClient extends EventEmitter {
           method: 'server/discover',
           params: {},
         },
-        { meta: true, timeoutMs: DISCOVER_TIMEOUT_MS },
+        {
+          meta: true,
+          timeoutMs: timerMs(this.config.requestTimeoutMs, DISCOVER_TIMEOUT_MS),
+        },
       );
       result = response.result as MCPDiscoverResult;
     } catch (error) {
@@ -386,16 +415,22 @@ export class MCPClient extends EventEmitter {
    * Disconnect from the server
    */
   disconnect(): void {
-    if (this.transport) {
-      // Detach listeners first, so a closing transport cannot report a
-      // 'disconnect' that belongs to a connection the client already left.
-      this.transport.removeAllListeners();
-      this.transport.close();
-      this.transport = null;
-      this.serverInfo = null;
-      this.modern = false;
-      this.toolSchemas.clear();
+    const transport = this.transport;
+    if (!transport) return;
+    const wasConnected = transport.isConnected();
+    // Clear the current transport first, so its events are ignored from here on.
+    this.transport = null;
+    this.serverInfo = null;
+    this.modern = false;
+    this.toolSchemas.clear();
+    // Nothing on a closed connection can answer. Fail waiting callers now,
+    // rather than let them time out and report a timeout.
+    for (const pending of this.pendingRequests.values()) {
+      pending.reject(new Error('Client disconnected'));
     }
+    this.pendingRequests.clear();
+    transport.close();
+    if (wasConnected) this.emit('disconnect');
   }
 
   /**
@@ -425,8 +460,10 @@ export class MCPClient extends EventEmitter {
         ? this.paramHeaders(outgoing)
         : undefined;
     const id = outgoing.id!;
-    const timeoutMs =
-      options.timeoutMs ?? this.config.requestTimeoutMs ?? REQUEST_TIMEOUT_MS;
+    const timeoutMs = timerMs(
+      options.timeoutMs ?? this.config.requestTimeoutMs,
+      REQUEST_TIMEOUT_MS,
+    );
 
     const settled = new Promise<MCPMessage>((resolve, reject) => {
       const timer = setTimeout(() => {
@@ -532,8 +569,13 @@ export class MCPClient extends EventEmitter {
    * Handle incoming messages
    */
   private handleMessage(message: MCPMessage): void {
-    // Handle responses
-    if (message.id !== undefined && this.pendingRequests.has(message.id)) {
+    // Handle responses. A message with a method is a request or notification
+    // from the server, even when its id collides with one of ours.
+    if (
+      message.method === undefined &&
+      message.id !== undefined &&
+      this.pendingRequests.has(message.id)
+    ) {
       const pending = this.pendingRequests.get(message.id)!;
       this.pendingRequests.delete(message.id);
 

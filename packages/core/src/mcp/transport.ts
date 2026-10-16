@@ -485,8 +485,12 @@ export class StreamableHTTPTransport
   implements MCPTransport
 {
   private connected = false;
-  /** Requests still waiting for an answer, keyed by JSON-RPC id. */
+  /**
+   * Every POST still in flight. Requests are keyed by JSON-RPC id, so cancel()
+   * can find them. Notifications get a private key, so close() aborts them too.
+   */
   private inFlight = new Map<string | number, AbortController>();
+  private postSeq = 0;
   /** Set when a 2025-03-26 server assigns `Mcp-Session-Id`. */
   private sessionId?: string;
   /** Negotiated protocol version on the legacy path, sent on later requests. */
@@ -531,7 +535,8 @@ export class StreamableHTTPTransport
     if (!this.connected) throw new Error('Transport not connected');
 
     const controller = new AbortController();
-    if (message.id !== undefined) this.inFlight.set(message.id, controller);
+    const key = message.id ?? `notification:${++this.postSeq}`;
+    this.inFlight.set(key, controller);
     try {
       const response = await this.fetchImpl(this.url, {
         method: 'POST',
@@ -574,11 +579,8 @@ export class StreamableHTTPTransport
       }
       this.emit('message', parsed);
     } finally {
-      if (
-        message.id !== undefined &&
-        this.inFlight.get(message.id) === controller
-      ) {
-        this.inFlight.delete(message.id);
+      if (this.inFlight.get(key) === controller) {
+        this.inFlight.delete(key);
       }
     }
   }

@@ -488,6 +488,28 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     client.disconnect();
   });
 
+  it('treats requestTimeoutMs of 0 as the default, not as fire-now', async () => {
+    mode = 'modern';
+    const client = newClient({ requestTimeoutMs: 0 });
+    await client.connect();
+    const tools = await client.listTools();
+    expect(tools.map((t) => t.name)).toEqual(['lookup_weather']);
+    client.disconnect();
+  });
+
+  it('fails waiting calls at once when the client disconnects', async () => {
+    mode = 'modern';
+    const client = newClient({ requestTimeoutMs: 60_000 });
+    await client.connect();
+    await client.listTools();
+    const waiting = client.callTool('lookup_weather', {
+      region: 'us-west1',
+      query: 'hang',
+    });
+    client.disconnect();
+    await expect(waiting).rejects.toThrow('Client disconnected');
+  });
+
   it('negotiates the modern path, sends _meta, and filters the bad tool', async () => {
     mode = 'modern';
     seen.length = 0;
