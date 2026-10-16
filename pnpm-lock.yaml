@@ -44,8 +44,8 @@ overrides:
   picomatch@2: ^2.3.2
   picomatch@4: ^4.0.4
   postcss@<8.5.10: '>=8.5.10'
-  protobufjs@7: ^7.5.8
-  protobufjs@8: ^8.2.0
+  protobufjs@7: ^7.6.5
+  protobufjs@8: ^8.6.6
   qs@6: ^6.15.2
   rollup@4: ^4.59.0
   socket.io-parser@4: ^4.2.6
@@ -2801,7 +2801,7 @@ packages:
     dependencies:
       lodash.camelcase: 4.3.0
       long: 5.3.2
-      protobufjs: 7.6.3
+      protobufjs: 7.6.6
       yargs: 17.7.2
     dev: false
 
@@ -2813,7 +2813,7 @@ packages:
     dependencies:
       lodash.camelcase: 4.3.0
       long: 5.3.2
-      protobufjs: 7.6.3
+      protobufjs: 7.6.6
       yargs: 17.7.2
     dev: false
 
@@ -3740,7 +3740,7 @@ packages:
       '@opentelemetry/sdk-logs': 0.217.0(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-metrics': 2.7.1(@opentelemetry/api@1.9.0)
       '@opentelemetry/sdk-trace-base': 2.7.1(@opentelemetry/api@1.9.0)
-      protobufjs: 8.6.3
+      protobufjs: 8.8.1
     dev: false
     optional: true
 
@@ -3944,10 +3944,6 @@ packages:
   /@protobufjs/float@1.0.2:
     resolution: {integrity: sha512-Ddb+kVXlXst9d+R9PfTIxh1EdNkgoRe5tOX6t01f1lYWOvJnSPDBlG241QLzcyPdoNTsblLUdujGSE4RzrTZGQ==}
     requiresBuild: true
-    dev: false
-
-  /@protobufjs/inquire@1.1.2:
-    resolution: {integrity: sha512-pa0vFRuws4wkvaXKK1uXZMAwAX4/t8ANaJo45iw/oQHNQ9q5xUzwgFmVJGXiga2BeN+zpX7Vf9vmsiIa2J+MUw==}
     dev: false
 
   /@protobufjs/path@1.1.2:
@@ -6679,7 +6675,7 @@ packages:
       dayjs: 1.11.21
       generic-pool: 3.9.0
       lru-cache: 9.1.2
-      protobufjs: 7.6.3
+      protobufjs: 7.6.6
       winston: 3.19.0
     transitivePeerDependencies:
       - aws-crt
@@ -9538,7 +9534,7 @@ packages:
       node-fetch: 2.7.0(encoding@0.1.13)
       object-hash: 3.0.0
       proto3-json-serializer: 2.0.2
-      protobufjs: 7.6.3
+      protobufjs: 7.6.6
       retry-request: 7.0.2
       uuid: 14.0.0
     transitivePeerDependencies:
@@ -12556,26 +12552,7 @@ packages:
     resolution: {integrity: sha512-SAzp/O4Yh02jGdRc+uIrGoe87dkN/XtwxfZ4ZyafJHymd79ozp5VG5nyZ7ygqPM5+cpLDjjGnYFUkngonyDPOQ==}
     engines: {node: '>=14.0.0'}
     dependencies:
-      protobufjs: 7.6.3
-    dev: false
-
-  /protobufjs@7.6.3:
-    resolution: {integrity: sha512-+k0vdJKNdW+Vu+dYe8tZA/VvQb6XKNWexC6URwBFXxNnjLJz9nQJCemGyNgRAWD+B7+nGNc9qMPGwcD7s4nzUw==}
-    engines: {node: '>=12.0.0'}
-    requiresBuild: true
-    dependencies:
-      '@protobufjs/aspromise': 1.1.2
-      '@protobufjs/base64': 1.1.2
-      '@protobufjs/codegen': 2.0.5
-      '@protobufjs/eventemitter': 1.1.1
-      '@protobufjs/fetch': 1.1.1
-      '@protobufjs/float': 1.0.2
-      '@protobufjs/inquire': 1.1.2
-      '@protobufjs/path': 1.1.2
-      '@protobufjs/pool': 1.1.0
-      '@protobufjs/utf8': 1.1.1
-      '@types/node': 20.19.24
-      long: 5.3.2
+      protobufjs: 7.6.6
     dev: false
 
   /protobufjs@7.6.6:
@@ -12595,10 +12572,9 @@ packages:
       '@types/node': 20.19.24
       long: 5.3.2
     dev: false
-    optional: true
 
-  /protobufjs@8.6.3:
-    resolution: {integrity: sha512-alQyzT0j401LGBtwsqu6uprjR6pfNH1UJf9N6GBFMjIcd+HzTe0/HrjAbFCqun+zvnfLarrxAtMM2xvZ+kFZ5A==}
+  /protobufjs@8.8.1:
+    resolution: {integrity: sha512-d9e9179bjXSJdpJ3+R9fP8hzXsnKLyxTjHLG1dUzje8a27pPyXCe6PrcRtgx2rjoM3IZzHd2vAs+6J/BsO1k7Q==}
     engines: {node: '>=12.0.0'}
     requiresBuild: true
     dependencies:
