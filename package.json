@@ -70,7 +70,7 @@
       "@grpc/grpc-js@1": "^1.14.4",
       "@hono/node-server@1": "^1.19.13",
       "@isaacs/brace-expansion@5": "^5.0.1",
-      "@opentelemetry/core": "^2.8.0",
+      "@opentelemetry/core": "^2.12.0",
       "@protobufjs/utf8": ">=1.1.1",
       "@tootallnate/once": ">=2.0.1",
       "@xmldom/xmldom": "^0.8.13",
@@ -119,7 +119,8 @@
       "validator": "^13.15.22",
       "vite@<6.4.2": "^6.4.2",
       "ws@8": "^8.20.1",
-      "yaml@2": "^2.8.3"
+      "yaml@2": "^2.8.3",
+      "@opentelemetry/propagator-jaeger": "^2.9.0"
     }
   }
 }
