@@ -14,8 +14,8 @@ import {
 describe('default model constants', () => {
   it('exposes recommended defaults that exist in the registry', () => {
     expect(DEFAULT_ANTHROPIC_MODEL).toBe('claude-opus-5-5');
-    expect(DEFAULT_ANTHROPIC_BALANCED_MODEL).toBe('claude-sonnet-4-6');
-    expect(DEFAULT_ANTHROPIC_FAST_MODEL).toBe('claude-haiku-4-5-20251001');
+    expect(DEFAULT_ANTHROPIC_BALANCED_MODEL).toBe('claude-sonnet-5-5');
+    expect(DEFAULT_ANTHROPIC_FAST_MODEL).toBe('claude-haiku-5-5');
 
     expect(MODEL_REGISTRY[DEFAULT_ANTHROPIC_MODEL]).toBeDefined();
     expect(MODEL_REGISTRY[DEFAULT_ANTHROPIC_BALANCED_MODEL]).toBeDefined();

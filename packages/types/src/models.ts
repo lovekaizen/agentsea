@@ -60,6 +60,10 @@ export type AnthropicModel =
   | 'claude-fable-5'
   // Claude Opus 5.5 — default. Adaptive thinking always on; 1M context, 128K output.
   | 'claude-opus-5-5'
+  // Claude Sonnet 5.5 — balanced default. Adaptive thinking; 1M context, 128K output.
+  | 'claude-sonnet-5-5'
+  // Claude Haiku 5.5 — fast default. Adaptive thinking; 1M context, 128K output.
+  | 'claude-haiku-5-5'
   // Claude 4.x family (4.6+ aliases are the complete IDs — no date-suffixed variants exist)
   | 'claude-opus-4-8'
   | 'claude-opus-4-7'
@@ -112,13 +116,13 @@ export const DEFAULT_ANTHROPIC_MODEL: AnthropicModel = 'claude-opus-5-5';
  * Recommended balanced (speed/intelligence) Anthropic model.
  */
 export const DEFAULT_ANTHROPIC_BALANCED_MODEL: AnthropicModel =
-  'claude-sonnet-4-6';
+  'claude-sonnet-5-5';
 
 /**
  * Recommended fast/cheap Anthropic model.
  */
 export const DEFAULT_ANTHROPIC_FAST_MODEL: AnthropicModel =
-  'claude-haiku-4-5-20251001';
+  'claude-haiku-5-5';
 
 /**
  * Anthropic-specific provider options
@@ -1672,6 +1676,11 @@ export interface ModelInfo {
   displayName: string;
   capabilities: ModelCapabilities;
   deprecated?: boolean;
+  /**
+   * Date (YYYY-MM-DD) the provider stops serving this model, from its own
+   * deprecation page. Set on deprecated entries.
+   */
+  retiresOn?: string;
   releaseDate?: string;
 }
 
@@ -1748,6 +1757,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'gpt-4-turbo',
     displayName: 'GPT-4 Turbo',
+    deprecated: true,
+    retiresOn: '2026-10-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -1764,6 +1775,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'gpt-3.5-turbo',
     displayName: 'GPT-3.5 Turbo',
+    deprecated: true,
+    retiresOn: '2026-10-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -1825,6 +1838,38 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'anthropic',
     model: 'claude-opus-5-5',
     displayName: 'Claude Opus 5.5',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 1000000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'claude-sonnet-5-5': {
+    provider: 'anthropic',
+    model: 'claude-sonnet-5-5',
+    displayName: 'Claude Sonnet 5.5',
+    capabilities: {
+      tools: true,
+      streaming: true,
+      vision: true,
+      structuredOutput: true,
+      systemMessage: true,
+      extendedThinking: true,
+      contextWindow: 1000000,
+      maxOutputTokens: 128000,
+      parallelToolCalls: true,
+    },
+  },
+  'claude-haiku-5-5': {
+    provider: 'anthropic',
+    model: 'claude-haiku-5-5',
+    displayName: 'Claude Haiku 5.5',
     capabilities: {
       tools: true,
       streaming: true,
@@ -1910,6 +1955,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'anthropic',
     model: 'claude-sonnet-4-5-20250929',
     displayName: 'Claude Sonnet 4.5',
+    deprecated: true,
+    retiresOn: '2026-11-30',
     capabilities: {
       tools: true,
       streaming: true,
@@ -2293,6 +2340,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'gpt-4.1-nano',
     displayName: 'GPT-4.1 Nano',
+    deprecated: true,
+    retiresOn: '2026-10-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -2341,6 +2390,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'o4-mini',
     displayName: 'o4 Mini',
+    deprecated: true,
+    retiresOn: '2026-10-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -2373,6 +2424,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'o4-mini-deep-research',
     displayName: 'o4 Mini Deep Research',
+    deprecated: true,
+    retiresOn: '2026-07-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -2389,6 +2442,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'o3-mini',
     displayName: 'o3 Mini',
+    deprecated: true,
+    retiresOn: '2026-10-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -2437,6 +2492,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'o1',
     displayName: 'o1',
+    deprecated: true,
+    retiresOn: '2026-10-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -2454,6 +2511,7 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     model: 'o1-mini',
     displayName: 'o1 Mini',
     deprecated: true,
+    retiresOn: '2025-10-27',
     capabilities: {
       tools: false,
       streaming: true,
