@@ -14,7 +14,126 @@ export interface MCPTransport extends EventEmitter {
 }
 
 /**
+ * Environment variables a stdio server inherits from the parent by default.
+ * Enough to locate, start and reach the network through a corporate proxy
+ * with a private CA. None of these is a provider API key or token. Proxy URLs
+ * can still embed `user:password`, so treat them as sensitive to your setup.
+ */
+const DEFAULT_ENV_ALLOWLIST: readonly string[] = [
+  'HOME',
+  'LOGNAME',
+  'PATH',
+  'SHELL',
+  'TERM',
+  'USER',
+  'TMPDIR',
+  'LANG',
+  'LC_ALL',
+  'HTTP_PROXY',
+  'HTTPS_PROXY',
+  'NO_PROXY',
+  'http_proxy',
+  'https_proxy',
+  'no_proxy',
+  'NODE_EXTRA_CA_CERTS',
+  'SSL_CERT_FILE',
+  'REQUESTS_CA_BUNDLE',
+  'CURL_CA_BUNDLE',
+  'ALL_PROXY',
+  'all_proxy',
+];
+
+/** Extra names Windows programs need to start. Not exercised on Windows in CI. */
+const WINDOWS_ENV_ALLOWLIST: readonly string[] = [
+  'APPDATA',
+  'COMSPEC',
+  'LOCALAPPDATA',
+  'PATHEXT',
+  'SYSTEMROOT',
+  'TEMP',
+  'TMP',
+  'USERPROFILE',
+];
+
+export interface StdioEnvOptions {
+  /**
+   * Names of parent environment variables to pass through in addition to the
+   * default allow-list (for example `HTTPS_PROXY`, or one specific API key the
+   * server needs). Anything not named here or in `env` is not inherited.
+   */
+  passEnv?: string[];
+  /**
+   * Restore the previous behaviour: the server inherits the whole parent
+   * environment, including provider API keys.
+   *
+   * @deprecated Escape hatch for the 2.x line while callers move to `passEnv`
+   * and `env`. It will be removed in a later major release.
+   */
+  inheritFullEnv?: boolean;
+}
+
+/**
+ * Build the environment for a stdio server. Pure: pass the parent environment
+ * in. Precedence, lowest to highest: allow-listed parent variables, variables
+ * named in `passEnv`, then the explicit `env` map.
+ */
+export function buildStdioEnv(
+  parent: NodeJS.ProcessEnv,
+  explicit: Record<string, string> = {},
+  options: StdioEnvOptions = {},
+  platform: NodeJS.Platform = process.platform,
+): Record<string, string> {
+  // Untyped config (JSON or YAML) can send strings or nulls where the type says
+  // boolean or array. Only the literal `true` opts in to full inheritance, so
+  // `"false"` cannot re-enable the leak. `null` means absent.
+  const windows = platform === 'win32';
+  const vars = explicit ?? {};
+  if (options.inheritFullEnv === true) {
+    const all: Record<string, string> = {};
+    for (const [k, v] of Object.entries(parent)) {
+      if (v !== undefined) all[k] = v;
+    }
+    return { ...all, ...vars };
+  }
+
+  const passEnv = options.passEnv ?? undefined;
+  // A string here would spread into single characters and drop the variable.
+  if (passEnv !== undefined && !Array.isArray(passEnv)) {
+    throw new TypeError(
+      'passEnv must be an array of environment variable names',
+    );
+  }
+
+  // Windows environment names are case-insensitive; elsewhere they are exact.
+  const fold = (name: string): string => (windows ? name.toUpperCase() : name);
+  const names = [
+    ...DEFAULT_ENV_ALLOWLIST,
+    ...(windows ? WINDOWS_ENV_ALLOWLIST : []),
+    ...(passEnv ?? []),
+  ];
+  const wanted = new Set(names.map(fold));
+
+  const env: Record<string, string> = {};
+  for (const [k, v] of Object.entries(parent)) {
+    if (v === undefined) continue;
+    if (wanted.has(fold(k))) env[k] = v;
+  }
+
+  // An explicit `PATH` must replace a parent `Path`, not sit beside it.
+  const explicitFolded = new Set(Object.keys(vars).map(fold));
+  for (const k of Object.keys(env)) {
+    if (explicitFolded.has(fold(k))) delete env[k];
+  }
+  return { ...env, ...vars };
+}
+
+let warnedFullEnv = false;
+
+/**
  * STDIO transport for MCP servers
+ *
+ * The server process does not inherit the parent environment. See
+ * {@link buildStdioEnv} and {@link StdioEnvOptions}.
  */
 export class StdioTransport extends EventEmitter implements MCPTransport {
   private process: ChildProcess | null = null;
@@ -25,6 +144,7 @@ export class StdioTransport extends EventEmitter implements MCPTransport {
     private command: string,
     private args: string[] = [],
     private env?: Record<string, string>,
+    private envOptions: StdioEnvOptions = {},
   ) {
     super();
   }
@@ -32,8 +152,17 @@ export class StdioTransport extends EventEmitter implements MCPTransport {
   async connect(): Promise<void> {
     return new Promise((resolve, reject) => {
       try {
+        if (this.envOptions.inheritFullEnv === true && !warnedFullEnv) {
+          warnedFullEnv = true;
+          process.emitWarning(
+            'MCP stdio servers inherit the full parent environment, including API keys. Use passEnv or env instead; inheritFullEnv will be removed.',
+            'DeprecationWarning',
+            'AGENTSEA_MCP_INHERIT_FULL_ENV',
+          );
+        }
+
         this.process = spawn(this.command, this.args, {
-          env: { ...process.env, ...this.env },
+          env: buildStdioEnv(process.env, this.env, this.envOptions),
           stdio: ['pipe', 'pipe', 'pipe'],
         });
 

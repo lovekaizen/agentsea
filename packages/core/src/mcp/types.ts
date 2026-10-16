@@ -2,10 +2,13 @@
  * MCP (Model Context Protocol) type definitions
  */
 
-export interface MCPServerConfig {
+import type { StdioEnvOptions } from './transport';
+
+export interface MCPServerConfig extends StdioEnvOptions {
   name: string;
   command: string;
   args?: string[];
+  /** Variables set explicitly for the server process */
   env?: Record<string, string>;
   transport?: 'stdio' | 'sse';
   url?: string; // For SSE transport

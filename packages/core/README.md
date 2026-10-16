@@ -298,6 +298,18 @@ const mcpTools = mcpRegistry.getTools();
 const agent = new Agent({ tools: mcpTools }, provider, toolRegistry);
 ```
 
+Stdio servers receive only a small set of parent environment variables (`HOME`, `PATH`, `TMPDIR`, proxy settings and similar). Provider API keys are not passed. To give a server a variable it needs, name it with `passEnv` or set it with `env`:
+
+```typescript
+await mcpRegistry.addServer({
+  name: 'github',
+  command: 'npx',
+  args: ['-y', '@modelcontextprotocol/server-github'],
+  transport: 'stdio',
+  passEnv: ['GITHUB_TOKEN'],
+});
+```
+
 ## ACP (Agentic Commerce Protocol)
 
 ```typescript
