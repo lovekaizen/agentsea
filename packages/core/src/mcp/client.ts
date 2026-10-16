@@ -84,6 +84,8 @@ export class MCPClient extends EventEmitter {
    * falls back to the 2024-11-05 initialize handshake for legacy servers.
    */
   async connect(): Promise<void> {
+    // A second connect() must not leave the previous session or child behind.
+    this.disconnect();
     if (this.config.transport === 'sse' && this.config.url) {
       this.transport = new SSETransport(this.config.url);
     } else if (this.config.transport === 'http' && this.config.url) {
@@ -147,6 +149,17 @@ export class MCPClient extends EventEmitter {
         error.code === UNSUPPORTED_PROTOCOL_VERSION
       ) {
         throw error;
+      }
+      // Over HTTP a silent server is not a cold start. Fail at the discover
+      // timeout instead of waiting out a second one on initialize.
+      if (
+        this.config.transport === 'http' &&
+        error instanceof Error &&
+        error.message === 'Request timeout'
+      ) {
+        throw new Error(
+          `MCP server did not answer server/discover within ${DISCOVER_TIMEOUT_MS / 1000}s`,
+        );
       }
       await this.initialize();
       return;
@@ -403,7 +416,7 @@ export class MCPClient extends EventEmitter {
     const settled = new Promise<MCPMessage>((resolve, reject) => {
       const timer = setTimeout(() => {
         if (this.pendingRequests.delete(id)) {
-          this.cancelRequest(id);
+          this.cancelRequest(id, outgoing.method);
           reject(new Error('Request timeout'));
         }
       }, timeoutMs);
@@ -444,13 +457,13 @@ export class MCPClient extends EventEmitter {
    * Tell the server to stop work on a request that timed out. Transports that
    * can abort a request do so. Stdio gets the spec's notifications/cancelled.
    */
-  private cancelRequest(id: string | number): void {
+  private cancelRequest(id: string | number, method?: string): void {
     const transport = this.transport;
-    if (!transport) return;
-    if (transport.cancel) {
-      transport.cancel(id);
-      return;
-    }
+    // The spec forbids cancelling initialize, so a slow handshake is left alone.
+    if (!transport || method === 'initialize') return;
+    // Abort the local request, if the transport can. The notification is sent
+    // on every transport, because the server does the work.
+    transport.cancel?.(id);
     Promise.resolve()
       .then(() =>
         transport.send({

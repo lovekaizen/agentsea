@@ -525,30 +525,36 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     mode = 'legacy';
     seen.length = 0;
     deletes.length = 0;
-    const client = newClient();
-    await client.connect();
-    expect(client.getServerInfo()?.name).toBe('legacy');
+    try {
+      const client = newClient();
+      await client.connect();
+      expect(client.getServerInfo()?.name).toBe('legacy');
 
-    // initialize carries no session yet; everything after it must.
-    const after = seen.slice(
-      seen.findIndex((s) => s.method === 'initialize') + 1,
-    );
-    expect(after.length).toBeGreaterThan(0);
-    for (const s of after) {
-      expect(s.headers['mcp-session-id']).toBe(SESSION);
-      expect(s.headers['mcp-protocol-version']).toBe('2024-11-05');
+      // initialize carries no session yet; everything after it must.
+      const after = seen.slice(
+        seen.findIndex((s) => s.method === 'initialize') + 1,
+      );
+      expect(after.length).toBeGreaterThan(0);
+      for (const s of after) {
+        expect(s.headers['mcp-session-id']).toBe(SESSION);
+        expect(s.headers['mcp-protocol-version']).toBe('2024-11-05');
+      }
+      expect(after.map((s) => s.method)).toContain('notifications/initialized');
+
+      // A legacy call with no _meta still works and is session-bound.
+      const tools = await client.listTools();
+      expect(tools.map((t) => t.name)).toEqual(['lookup_weather']);
+
+      client.disconnect();
+      // DELETE is best effort. Poll for it rather than sleeping a fixed time.
+      const deadline = Date.now() + 2_000;
+      while (deletes.length === 0 && Date.now() < deadline) {
+        await new Promise((r) => setTimeout(r, 10));
+      }
+      expect(deletes).toEqual([SESSION]);
+    } finally {
+      mode = 'modern';
     }
-    expect(after.map((s) => s.method)).toContain('notifications/initialized');
-
-    // A legacy call with no _meta still works and is session-bound.
-    const tools = await client.listTools();
-    expect(tools.map((t) => t.name)).toEqual(['lookup_weather']);
-
-    client.disconnect();
-    // DELETE is best effort; give the request a moment to land.
-    await new Promise((r) => setTimeout(r, 50));
-    expect(deletes).toEqual([SESSION]);
-    mode = 'modern';
   });
 
   it('skips a malformed SSE event and still returns the real response', async () => {

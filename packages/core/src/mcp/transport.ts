@@ -477,7 +477,8 @@ export function isHeaderEligibleType(prop: Record<string, unknown>): boolean {
 /**
  * Streamable HTTP transport (protocol 2026-07-28). Each JSON-RPC message is its
  * own POST to one endpoint. The response is either one JSON body or an SSE
- * stream scoped to that request. There are no sessions and no resumption.
+ * stream scoped to that request. A session id is sent only when a 2025-03-26
+ * server assigns one. There is no resumption.
  */
 export class StreamableHTTPTransport
   extends EventEmitter
@@ -537,10 +538,7 @@ export class StreamableHTTPTransport
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json, text/event-stream',
-          ...(this.sessionId ? { 'Mcp-Session-Id': this.sessionId } : {}),
-          ...(this.protocolVersion
-            ? { 'MCP-Protocol-Version': this.protocolVersion }
-            : {}),
+          ...this.sessionHeaders(),
           ...mcpRequestHeaders(message),
           ...headers,
         },
@@ -550,6 +548,9 @@ export class StreamableHTTPTransport
 
       const assigned = response.headers.get('mcp-session-id');
       if (assigned) this.sessionId = assigned;
+      // The server ended the session. Drop it rather than keep sending it.
+      // Re-initializing is not implemented yet.
+      if (response.status === 404) this.sessionId = undefined;
 
       // Notifications get a bare 202; nothing to correlate.
       if (message.id === undefined) {
@@ -629,21 +630,27 @@ export class StreamableHTTPTransport
     this.emit('message', message);
   }
 
+  /** Session and version headers that every request after initialize carries. */
+  private sessionHeaders(): Record<string, string> {
+    return {
+      ...(this.sessionId ? { 'Mcp-Session-Id': this.sessionId } : {}),
+      ...(this.protocolVersion
+        ? { 'MCP-Protocol-Version': this.protocolVersion }
+        : {}),
+    };
+  }
+
   close(): void {
     for (const controller of this.inFlight.values()) controller.abort();
     this.inFlight.clear();
     if (this.sessionId) {
-      // Best effort: tell a 2025-03-26 server the session is over.
-      const sessionId = this.sessionId;
+      // Best effort, and bounded so a hung server cannot hold the process open.
+      const headers = this.sessionHeaders();
       this.sessionId = undefined;
       this.fetchImpl(this.url, {
         method: 'DELETE',
-        headers: {
-          'Mcp-Session-Id': sessionId,
-          ...(this.protocolVersion
-            ? { 'MCP-Protocol-Version': this.protocolVersion }
-            : {}),
-        },
+        headers,
+        signal: AbortSignal.timeout(2_000),
       }).catch(() => undefined);
     }
     if (this.connected) {
