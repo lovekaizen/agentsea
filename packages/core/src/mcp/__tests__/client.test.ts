@@ -99,14 +99,18 @@ describe('MCPClient', () => {
         'disconnect',
         expect.any(Function),
       );
-      expect(sendRequestSpy).toHaveBeenCalledWith({
-        jsonrpc: '2.0',
-        id: expect.any(Number),
-        method: 'initialize',
-        params: expect.objectContaining({
-          protocolVersion: '2024-11-05',
-        }),
-      });
+      // The discover probe runs first; a non-DiscoverResult reply falls back.
+      expect(sendRequestSpy).toHaveBeenCalledWith(
+        {
+          jsonrpc: '2.0',
+          id: expect.any(Number),
+          method: 'initialize',
+          params: expect.objectContaining({
+            protocolVersion: '2024-11-05',
+          }),
+        },
+        { meta: false },
+      );
     });
 
     it('should create SSE transport when configured', async () => {
@@ -150,11 +154,10 @@ describe('MCPClient', () => {
 
       await client.connect();
 
+      // Identity is flattened from the legacy `serverInfo` field.
       expect(emitSpy).toHaveBeenCalledWith(
         'initialized',
-        expect.objectContaining({
-          serverInfo: { name: 'test-server', version: '1.0.0' },
-        }),
+        expect.objectContaining({ name: 'test-server', version: '1.0.0' }),
       );
     });
   });

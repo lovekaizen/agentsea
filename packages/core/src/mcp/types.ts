@@ -10,8 +10,25 @@ export interface MCPServerConfig extends StdioEnvOptions {
   args?: string[];
   /** Variables set explicitly for the server process */
   env?: Record<string, string>;
-  transport?: 'stdio' | 'sse';
-  url?: string; // For SSE transport
+  /**
+   * `http` is Streamable HTTP (2026-07-28). `sse` is the deprecated HTTP+SSE
+   * transport from 2024-11-05, kept for servers that have not moved.
+   */
+  transport?: 'stdio' | 'sse' | 'http';
+  url?: string; // For http and sse transports
+}
+
+/** Protocol revision this client speaks by default (stateless, per-request). */
+export const MCP_PROTOCOL_VERSION = '2026-07-28';
+/** Legacy revision, used only when the server does not answer server/discover. */
+export const MCP_LEGACY_PROTOCOL_VERSION = '2024-11-05';
+
+/** Result of `server/discover` (2026-07-28). */
+export interface MCPDiscoverResult {
+  resultType?: 'complete';
+  supportedVersions: string[];
+  capabilities: MCPServerCapabilities;
+  serverInfo: { name: string; version: string };
 }
 
 export interface MCPTool {
