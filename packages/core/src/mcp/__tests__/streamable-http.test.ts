@@ -497,6 +497,20 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     client.disconnect();
   });
 
+  it('reconnecting does not announce a disconnect; Infinity is a real limit', async () => {
+    mode = 'modern';
+    const client = newClient({ requestTimeoutMs: Infinity });
+    let disconnects = 0;
+    client.on('disconnect', () => disconnects++);
+    await client.connect();
+    await client.connect();
+    expect(disconnects).toBe(0);
+    const tools = await client.listTools();
+    expect(tools.map((t) => t.name)).toEqual(['lookup_weather']);
+    client.disconnect();
+    expect(disconnects).toBe(1);
+  });
+
   it('fails waiting calls at once when the client disconnects', async () => {
     mode = 'modern';
     const client = newClient({ requestTimeoutMs: 60_000 });

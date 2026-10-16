@@ -38,7 +38,8 @@ const MAX_TIMER_MS = 2_147_483_647;
  * default", not "fire now". Anything past setTimeout's limit is capped there.
  */
 function timerMs(value: number | undefined, fallback: number): number {
-  if (value === undefined || !Number.isFinite(value) || value <= 0) {
+  // Infinity is allowed: it means no practical limit, capped at the timer max.
+  if (value === undefined || Number.isNaN(value) || value <= 0) {
     return fallback;
   }
   return Math.min(value, MAX_TIMER_MS);
@@ -88,8 +89,6 @@ export class MCPClient extends EventEmitter {
   private serverInfo: MCPServerInfo | null = null;
   /** True after server/discover succeeds; requests then carry `_meta`. */
   private modern = false;
-  /** Version the legacy server negotiated; sent as a header on HTTP. */
-  private legacyVersion?: string;
   private requestId = 0;
   private toolSchemas = new Map<string, Record<string, unknown>>();
   private pendingRequests = new Map<
@@ -110,7 +109,7 @@ export class MCPClient extends EventEmitter {
    */
   async connect(): Promise<void> {
     // A second connect() must not leave the previous session or child behind.
-    this.disconnect();
+    this.teardown(false);
     if (this.config.transport === 'sse' && this.config.url) {
       this.transport = new SSETransport(this.config.url);
     } else if (this.config.transport === 'http' && this.config.url) {
@@ -155,7 +154,7 @@ export class MCPClient extends EventEmitter {
     } catch (error) {
       // Do not leave a spawned child or an open stream behind a failed connect,
       // and do not close a newer connection that replaced this one.
-      if (this.transport === transport) this.disconnect();
+      if (this.transport === transport) this.teardown(false);
       throw error;
     }
   }
@@ -193,6 +192,17 @@ export class MCPClient extends EventEmitter {
       if (
         error instanceof MCPProtocolError &&
         error.code === UNSUPPORTED_PROTOCOL_VERSION
+      ) {
+        throw error;
+      }
+      // Only a server that answered is a legacy candidate. A dead stdio child
+      // or a refused connection is not, so report its real cause.
+      if (!transport?.isConnected()) throw error;
+      if (
+        this.config.transport === 'http' &&
+        !(error instanceof MCPProtocolError) &&
+        !(error instanceof MCPTimeoutError) &&
+        !/^MCP HTTP \d+$/.test((error as Error).message)
       ) {
         throw error;
       }
@@ -264,11 +274,6 @@ export class MCPClient extends EventEmitter {
       capabilities: MCPServerInfo['capabilities'];
     };
     this.modern = false;
-    // Later requests carry the negotiated version, as a header on HTTP.
-    this.legacyVersion =
-      typeof legacy.protocolVersion === 'string'
-        ? legacy.protocolVersion
-        : undefined;
     this.serverInfo = {
       name: legacy.serverInfo?.name,
       version: legacy.serverInfo?.version,
@@ -425,6 +430,15 @@ export class MCPClient extends EventEmitter {
    * Disconnect from the server
    */
   disconnect(): void {
+    this.teardown(true);
+  }
+
+  /**
+   * Close the current transport. `announce` emits 'disconnect' for a live
+   * connection. A reconnect or a failed connect passes false, so listeners
+   * such as the registry do not drop the server's tools for a transient step.
+   */
+  private teardown(announce: boolean): void {
     const transport = this.transport;
     if (!transport) return;
     const wasConnected = transport.isConnected();
@@ -432,13 +446,12 @@ export class MCPClient extends EventEmitter {
     this.transport = null;
     this.serverInfo = null;
     this.modern = false;
-    this.legacyVersion = undefined;
     this.toolSchemas.clear();
     // Nothing on a closed connection can answer. Fail waiting callers now,
     // rather than let them time out and report a timeout.
     this.failPending('Client disconnected');
     transport.close();
-    if (wasConnected) this.emit('disconnect');
+    if (announce && wasConnected) this.emit('disconnect');
   }
 
   /** Reject every waiting request. Each one's timer is cleared on the way. */
@@ -548,11 +561,13 @@ export class MCPClient extends EventEmitter {
       .catch(() => undefined);
   }
 
-  /** The negotiated legacy version as a header. Empty on the modern path. */
+  /**
+   * The negotiated version as a header on the legacy path. The modern path
+   * sends it through `_meta` instead, so nothing is added there.
+   */
   private versionHeaders(): Record<string, string> {
-    return this.legacyVersion
-      ? { 'MCP-Protocol-Version': this.legacyVersion }
-      : {};
+    const version = this.serverInfo?.protocolVersion;
+    return !this.modern && version ? { 'MCP-Protocol-Version': version } : {};
   }
 
   private withMeta(message: MCPMessage): MCPMessage {
