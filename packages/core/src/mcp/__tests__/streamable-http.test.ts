@@ -283,6 +283,8 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
   const SESSION = 'sess-1';
   const deletes: string[] = [];
   const cancels: string[] = [];
+  // Queries whose response stream the client closed before the server finished.
+  const closedStreams: string[] = [];
 
   const weatherTool = {
     name: 'lookup_weather',
@@ -420,6 +422,10 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
           const args = (params.arguments ?? {}) as Record<string, string>;
           // Progress streams for longer than the client's timeout, then the answer.
           // 'stall' sends two progress events and then goes silent.
+          if (args.query === 'stall' || args.query === 'hang') {
+            // Over Streamable HTTP the client cancels by closing the stream.
+            res.on('close', () => closedStreams.push(args.query));
+          }
           if (args.query === 'progress' || args.query === 'stall') {
             const token = (
               params._meta as { progressToken?: unknown } | undefined
@@ -518,9 +524,10 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     });
   }
 
-  it('cancels a timed-out tools/call: rejects typed, sends notifications/cancelled', async () => {
+  it('cancels a timed-out tools/call by closing its stream, sending no notification', async () => {
     mode = 'modern';
     cancels.length = 0;
+    closedStreams.length = 0;
     const client = newClient({ requestTimeoutMs: 200 });
     await client.connect();
     await client.listTools();
@@ -529,10 +536,11 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     ).rejects.toBeInstanceOf(MCPTimeoutError);
 
     const deadline = Date.now() + 2_000;
-    while (cancels.length === 0 && Date.now() < deadline) {
+    while (closedStreams.length === 0 && Date.now() < deadline) {
       await new Promise((r) => setTimeout(r, 10));
     }
-    expect(cancels).toHaveLength(1);
+    expect(closedStreams).toEqual(['hang']);
+    expect(cancels).toHaveLength(0);
     client.disconnect();
   });
 
@@ -552,9 +560,10 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     client.disconnect();
   });
 
-  it('times out and cancels once progress stops', async () => {
+  it('times out and closes the stream once progress stops', async () => {
     mode = 'modern';
     cancels.length = 0;
+    closedStreams.length = 0;
     const client = newClient({ requestTimeoutMs: 300 });
     await client.connect();
     await client.listTools();
@@ -562,10 +571,11 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
       client.callTool('lookup_weather', { region: 'us-west1', query: 'stall' }),
     ).rejects.toBeInstanceOf(MCPTimeoutError);
     const deadline = Date.now() + 2_000;
-    while (cancels.length === 0 && Date.now() < deadline) {
+    while (closedStreams.length === 0 && Date.now() < deadline) {
       await new Promise((r) => setTimeout(r, 10));
     }
-    expect(cancels).toHaveLength(1);
+    expect(closedStreams).toEqual(['stall']);
+    expect(cancels).toHaveLength(0);
     client.disconnect();
   });
 
