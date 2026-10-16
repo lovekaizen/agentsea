@@ -21,6 +21,12 @@ export interface MCPServerConfig extends StdioEnvOptions {
    * Infinity means no practical limit.
    */
   requestTimeoutMs?: number;
+  /**
+   * Hard ceiling, in milliseconds, on how long one request may wait, counted
+   * from when it was sent. Progress notifications restart the
+   * requestTimeoutMs wait, but never past this. Default 600000.
+   */
+  maxRequestTimeoutMs?: number;
 }
 
 /** Protocol revision this client speaks by default (stateless, per-request). */
