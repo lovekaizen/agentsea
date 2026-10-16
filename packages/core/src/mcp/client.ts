@@ -20,13 +20,16 @@ import {
   MCPReadResourceResponse,
   MCPMessage,
   MCP_PROTOCOL_VERSION,
+  MCP_LEGACY_PROTOCOL_VERSION,
 } from './types';
 
 /** JSON-RPC error code for an unsupported protocol version (2026-07-28). */
 export const UNSUPPORTED_PROTOCOL_VERSION = -32022;
 
 const CLIENT_INFO = { name: 'agentsea', version: '0.1.0' };
-const DISCOVER_TIMEOUT_MS = 5_000;
+// Generous on purpose: a cold `npx` or `uvx` start can take several seconds,
+// and a timeout here sends a modern server down the legacy path.
+const DISCOVER_TIMEOUT_MS = 15_000;
 const REQUEST_TIMEOUT_MS = 30_000;
 
 /** A JSON-RPC error response from the server, with its code kept. */
@@ -103,13 +106,19 @@ export class MCPClient extends EventEmitter {
     this.transport.on('stderr', (text: string) => this.emit('stderr', text));
     this.transport.on('disconnect', () => this.emit('disconnect'));
 
-    await this.transport.connect();
+    try {
+      await this.transport.connect();
 
-    // The deprecated SSE transport only speaks the legacy handshake.
-    if (this.config.transport === 'sse') {
-      await this.initialize();
-    } else {
-      await this.discover();
+      // The deprecated SSE transport only speaks the legacy handshake.
+      if (this.config.transport === 'sse') {
+        await this.initialize();
+      } else {
+        await this.discover();
+      }
+    } catch (error) {
+      // Do not leave a spawned child or an open stream behind a failed connect.
+      this.disconnect();
+      throw error;
     }
   }
 
@@ -139,6 +148,14 @@ export class MCPClient extends EventEmitter {
       ) {
         throw error;
       }
+      // Streamable HTTP has no legacy handshake here: a server that predates
+      // 2026-07-28 may need session headers this transport does not send.
+      if (this.config.transport === 'http') {
+        throw new Error(
+          `MCP server did not answer server/discover (${(error as Error).message}). ` +
+            'Legacy initialize over Streamable HTTP is not supported; use transport "sse" for HTTP+SSE servers.',
+        );
+      }
       await this.initialize();
       return;
     }
@@ -158,8 +175,8 @@ export class MCPClient extends EventEmitter {
 
     this.modern = true;
     this.serverInfo = {
-      name: result.serverInfo.name,
-      version: result.serverInfo.version,
+      name: result.serverInfo?.name ?? 'unknown',
+      version: result.serverInfo?.version ?? 'unknown',
       protocolVersion: MCP_PROTOCOL_VERSION,
       capabilities: result.capabilities,
     };
@@ -177,7 +194,7 @@ export class MCPClient extends EventEmitter {
         id: this.nextId(),
         method: 'initialize',
         params: {
-          protocolVersion: '2024-11-05',
+          protocolVersion: MCP_LEGACY_PROTOCOL_VERSION,
           clientInfo: CLIENT_INFO,
           capabilities: {
             roots: {
@@ -257,6 +274,11 @@ export class MCPClient extends EventEmitter {
     name: string,
     args?: Record<string, unknown>,
   ): Promise<MCPCallToolResponse> {
+    // Streamable HTTP needs the tool's schema to build Mcp-Param-* headers.
+    // Load the list once if this tool is not known yet.
+    if (this.config.transport === 'http' && !this.toolSchemas.has(name)) {
+      await this.listTools();
+    }
     const response = await this.sendRequest({
       jsonrpc: '2.0',
       id: this.nextId(),

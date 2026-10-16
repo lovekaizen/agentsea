@@ -553,16 +553,21 @@ export class StreamableHTTPTransport
     const reader = response.body.getReader();
     const decoder = new TextDecoder();
     let buffer = '';
+    let cursor = 0; // where the next unread event starts
+    const boundary = /\r?\n\r?\n/g;
     for (;;) {
       const { done, value } = await reader.read();
       if (done) break;
       buffer += decoder.decode(value, { stream: true });
-      let boundary = buffer.search(/\r?\n\r?\n/);
-      while (boundary !== -1) {
-        this.dispatchEvent(buffer.slice(0, boundary));
-        buffer = buffer.slice(boundary).replace(/^\r?\n\r?\n/, '');
-        boundary = buffer.search(/\r?\n\r?\n/);
+      boundary.lastIndex = cursor;
+      let match: RegExpExecArray | null;
+      while ((match = boundary.exec(buffer)) !== null) {
+        this.dispatchEvent(buffer.slice(cursor, match.index));
+        cursor = match.index + match[0].length;
       }
+      // One slice per chunk keeps this linear, not quadratic.
+      buffer = buffer.slice(cursor);
+      cursor = 0;
     }
     buffer += decoder.decode();
     if (buffer.trim()) this.dispatchEvent(buffer);
@@ -576,11 +581,15 @@ export class StreamableHTTPTransport
       .map((line) => line.slice(5).replace(/^ /, ''))
       .join('\n');
     if (!data) return;
+    let message: MCPMessage;
     try {
-      this.emit('message', JSON.parse(data) as MCPMessage);
+      message = JSON.parse(data) as MCPMessage;
     } catch {
-      this.emit('error', new Error('Failed to parse event stream message'));
+      // A malformed event is skipped. The rest of the stream, including the
+      // real response, still counts.
+      return;
     }
+    this.emit('message', message);
   }
 
   close(): void {

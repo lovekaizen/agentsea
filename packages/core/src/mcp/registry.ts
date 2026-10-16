@@ -25,6 +25,15 @@ export class MCPRegistry {
       console.error(`MCP server '${config.name}' error:`, error);
     });
 
+    // stderr is logging, not failure; keep it visible so startup errors show.
+    client.on('stderr', (text: string) => {
+      console.error(`MCP server '${config.name}': ${text.trimEnd()}`);
+    });
+
+    client.on('warning', (message: string) => {
+      console.warn(`MCP server '${config.name}': ${message}`);
+    });
+
     client.on('disconnect', () => {
       console.log(`MCP server '${config.name}' disconnected`);
       this.removeServerTools(config.name);

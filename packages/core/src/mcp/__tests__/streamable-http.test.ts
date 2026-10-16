@@ -499,19 +499,35 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     client.disconnect();
   });
 
-  it('falls back to the legacy handshake when server/discover is not found', async () => {
+  it('refuses the legacy handshake over Streamable HTTP with a clear error', async () => {
     mode = 'legacy';
     seen.length = 0;
     const client = newClient();
-    await client.connect();
-    expect(client.getServerInfo()?.name).toBe('legacy');
-    const methods = seen.map((s) => s.method);
-    expect(methods).toContain('initialize');
-    expect(methods).toContain('notifications/initialized');
-    // The legacy path sends no _meta.
-    const init = seen.find((s) => s.method === 'initialize')!;
-    expect(init.body.params).not.toHaveProperty('_meta');
-    client.disconnect();
+    const error = await client.connect().catch((e: unknown) => e);
+    expect((error as Error).message).toMatch(
+      /Legacy initialize over Streamable HTTP/,
+    );
+    // Nothing was sent after the failed probe, and the client is torn down.
+    expect(seen.map((s) => s.method)).not.toContain('initialize');
+    expect(client.isConnected()).toBe(false);
+    mode = 'modern';
+  });
+
+  it('skips a malformed SSE event and still returns the real response', async () => {
+    const body =
+      'data: not-json\n\n' +
+      'data: {"jsonrpc":"2.0","id":11,"result":{"ok":true}}\n\n';
+    const transport = new StreamableHTTPTransport(
+      'http://x/mcp',
+      (async () =>
+        new Response(body, {
+          headers: { 'content-type': 'text/event-stream' },
+        })) as unknown as typeof fetch,
+    );
+    await transport.connect();
+    const got = new Promise<MCPMessage>((r) => transport.once('message', r));
+    await transport.send({ jsonrpc: '2.0', id: 11, method: 'tools/call' });
+    expect(await got).toMatchObject({ id: 11, result: { ok: true } });
   });
 
   it('stops on unsupported-version and does not fall back to initialize', async () => {
