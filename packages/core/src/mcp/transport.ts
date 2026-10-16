@@ -19,7 +19,11 @@ export interface MCPTransport extends EventEmitter {
   ): void | Promise<void>;
   /** Abort the in-flight request with this id, if the transport can. */
   cancel?(id: string | number): void;
-  close(): void;
+  /**
+   * Close the transport. `headers` are extra headers for any final request the
+   * transport sends (the session DELETE on Streamable HTTP).
+   */
+  close(headers?: Record<string, string>): void;
   isConnected(): boolean;
 }
 
@@ -327,6 +331,14 @@ export class SSETransport extends EventEmitter implements MCPTransport {
   }
 }
 
+/** An HTTP response that was not a usable MCP reply. Carries the status. */
+export class MCPHttpError extends Error {
+  constructor(readonly status: number) {
+    super(`MCP HTTP ${status}`);
+    this.name = 'MCPHttpError';
+  }
+}
+
 const BASE64_PREFIX = '=?base64?';
 const BASE64_SUFFIX = '?=';
 
@@ -547,7 +559,7 @@ export class StreamableHTTPTransport
 
       // Notifications get a bare 202; nothing to correlate.
       if (message.id === undefined) {
-        if (!response.ok) throw new Error(`MCP HTTP ${response.status}`);
+        if (!response.ok) throw new MCPHttpError(response.status);
         return;
       }
 
@@ -566,7 +578,7 @@ export class StreamableHTTPTransport
         parsed = undefined;
       }
       if (!parsed || (!response.ok && parsed.id === undefined)) {
-        throw new Error(`MCP HTTP ${response.status}`);
+        throw new MCPHttpError(response.status);
       }
       this.emit('message', parsed);
     } finally {
@@ -625,16 +637,16 @@ export class StreamableHTTPTransport
     return this.sessionId ? { 'Mcp-Session-Id': this.sessionId } : {};
   }
 
-  close(): void {
+  close(headers: Record<string, string> = {}): void {
     for (const controller of this.inFlight.values()) controller.abort();
     this.inFlight.clear();
     if (this.sessionId) {
       // Best effort, and bounded so a hung server cannot hold the process open.
-      const headers = this.sessionHeaders();
+      const sessionHeaders = { ...this.sessionHeaders(), ...headers };
       this.sessionId = undefined;
       this.fetchImpl(this.url, {
         method: 'DELETE',
-        headers,
+        headers: sessionHeaders,
         signal: AbortSignal.timeout(2_000),
       }).catch(() => undefined);
     }

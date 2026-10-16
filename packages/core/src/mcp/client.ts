@@ -5,6 +5,7 @@ import {
   StdioTransport,
   SSETransport,
   StreamableHTTPTransport,
+  MCPHttpError,
   invalidMcpHeaderAnnotation,
   mcpParamHeaders,
 } from './transport';
@@ -38,8 +39,10 @@ const MAX_TIMER_MS = 2_147_483_647;
  * default", not "fire now". Anything past setTimeout's limit is capped there.
  */
 function timerMs(value: number | undefined, fallback: number): number {
-  // Infinity is allowed: it means no practical limit, capped at the timer max.
-  if (value === undefined || Number.isNaN(value) || value <= 0) {
+  // Untyped config can send strings or booleans, and Number() would turn
+  // `true` into 1ms. Only a real number is used. Infinity means no practical
+  // limit, capped at the timer max.
+  if (typeof value !== 'number' || Number.isNaN(value) || value <= 0) {
     return fallback;
   }
   return Math.min(value, MAX_TIMER_MS);
@@ -91,6 +94,7 @@ export class MCPClient extends EventEmitter {
   private modern = false;
   private requestId = 0;
   private toolSchemas = new Map<string, Record<string, unknown>>();
+  private connectChain: Promise<void> = Promise.resolve();
   private pendingRequests = new Map<
     string | number,
     {
@@ -109,7 +113,17 @@ export class MCPClient extends EventEmitter {
    * Connect to the MCP server. Tries server/discover (2026-07-28) first and
    * falls back to the 2024-11-05 initialize handshake for legacy servers.
    */
-  async connect(): Promise<void> {
+  connect(): Promise<void> {
+    // Calls run one at a time. Overlapping handshakes would share this.transport
+    // and write this.modern and serverInfo from two places at once.
+    const next = this.connectChain
+      .catch(() => undefined)
+      .then(() => this.establish());
+    this.connectChain = next;
+    return next;
+  }
+
+  private async establish(): Promise<void> {
     // A second connect() must not leave the previous session or child behind.
     this.teardown(false);
     if (this.config.transport === 'sse' && this.config.url) {
@@ -200,23 +214,22 @@ export class MCPClient extends EventEmitter {
       // Only a server that answered is a legacy candidate. A dead stdio child
       // or a refused connection is not, so report its real cause.
       if (!transport?.isConnected()) throw error;
-      if (
-        this.config.transport === 'http' &&
-        !(error instanceof MCPProtocolError) &&
-        !(error instanceof MCPTimeoutError) &&
-        !/^MCP HTTP \d+$/.test((error as Error).message)
-      ) {
-        throw error;
-      }
-      // Over HTTP a silent server is not a cold start. Fail at the discover
-      // timeout instead of waiting out a second one on initialize.
-      if (
-        this.config.transport === 'http' &&
-        error instanceof MCPTimeoutError
-      ) {
-        throw new Error(
-          `MCP server did not answer server/discover within ${probeMs / 1000}s`,
-        );
+      if (this.config.transport === 'http') {
+        // Over HTTP a silent server is not a cold start. Fail at the discover
+        // timeout instead of waiting out a second one on initialize.
+        if (error instanceof MCPTimeoutError) {
+          throw new Error(
+            `MCP server did not answer server/discover within ${probeMs / 1000}s`,
+          );
+        }
+        // Only a JSON-RPC error, or a status a legacy server gives for an
+        // unknown endpoint, is evidence of a legacy server. A 5xx or a network
+        // failure is not, and falling back on it would pin the connection to
+        // the legacy path for its whole lifetime.
+        const legacyStatus =
+          error instanceof MCPHttpError &&
+          [400, 404, 405].includes(error.status);
+        if (!(error instanceof MCPProtocolError) && !legacyStatus) throw error;
       }
       await this.initialize();
       return;
@@ -444,6 +457,8 @@ export class MCPClient extends EventEmitter {
     const transport = this.transport;
     if (!transport) return;
     const wasConnected = transport.isConnected();
+    // Read before serverInfo is cleared: the session DELETE carries the version.
+    const closeHeaders = this.versionHeaders();
     // Clear the current transport first, so its events are ignored from here on.
     this.transport = null;
     this.serverInfo = null;
@@ -452,7 +467,7 @@ export class MCPClient extends EventEmitter {
     // Nothing on a closed connection can answer. Fail waiting callers now,
     // rather than let them time out and report a timeout.
     this.failPending('Client disconnected');
-    transport.close();
+    transport.close(closeHeaders);
     if (announce && wasConnected) this.emit('disconnect');
   }
 
@@ -504,10 +519,16 @@ export class MCPClient extends EventEmitter {
       const arm = () => {
         timer = setTimeout(() => {
           if (this.pendingRequests.delete(id)) {
-            // Cancel on the transport this request went out on, not whichever
-            // one is current when the timer fires.
-            this.cancelRequest(transport, id, outgoing.method);
+            // Settle the caller first, so nothing that goes wrong while
+            // cancelling can leave it waiting.
             reject(new MCPTimeoutError(id, timeoutMs));
+            try {
+              // Cancel on the transport this request went out on, not whichever
+              // one is current when the timer fires.
+              this.cancelRequest(transport, id, outgoing.method);
+            } catch {
+              // Cancellation is best effort; the caller already has its error.
+            }
           }
         }, timeoutMs);
       };

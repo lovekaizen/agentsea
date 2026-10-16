@@ -11,6 +11,7 @@ import {
   UNSUPPORTED_PROTOCOL_VERSION,
 } from '../client';
 import {
+  MCPHttpError,
   StdioTransport,
   StreamableHTTPTransport,
   encodeHeaderValue,
@@ -278,7 +279,7 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     headers: IncomingMessage['headers'];
     body: MCPMessage;
   }> = [];
-  let mode: 'modern' | 'legacy' | 'unsupported' = 'modern';
+  let mode: 'modern' | 'legacy' | 'unsupported' | 'unavailable' = 'modern';
   const SESSION = 'sess-1';
   const deletes: string[] = [];
   const cancels: string[] = [];
@@ -322,7 +323,9 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
   beforeAll(async () => {
     server = createServer((req, res) => {
       if (req.method === 'DELETE') {
-        deletes.push(String(req.headers['mcp-session-id']));
+        deletes.push(
+          `${String(req.headers['mcp-session-id'])}|${String(req.headers['mcp-protocol-version'])}`,
+        );
         res.writeHead(200);
         return res.end();
       }
@@ -349,6 +352,9 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
         }
 
         if (body.method === 'server/discover') {
+          if (mode === 'unavailable') {
+            return send(res, 503, { error: 'try again later' });
+          }
           if (mode === 'legacy') {
             return send(res, 404, {
               jsonrpc: '2.0',
@@ -572,6 +578,48 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     client.disconnect();
   });
 
+  it('does not fall back to the legacy handshake on a 503 during discovery', async () => {
+    mode = 'unavailable';
+    seen.length = 0;
+    try {
+      const client = newClient();
+      const error = await client.connect().catch((e: unknown) => e);
+      expect(error).toBeInstanceOf(MCPHttpError);
+      expect((error as MCPHttpError).status).toBe(503);
+      expect(seen.map((s) => s.method)).not.toContain('initialize');
+    } finally {
+      mode = 'modern';
+    }
+  });
+
+  it('runs overlapping connect() calls one after another', async () => {
+    mode = 'modern';
+    seen.length = 0;
+    const client = newClient();
+    await Promise.all([client.connect(), client.connect()]);
+    // Each connect probes once, and neither handshake interleaves with the other.
+    expect(seen.filter((s) => s.method === 'server/discover')).toHaveLength(2);
+    expect(client.getServerInfo()?.protocolVersion).toBe(MODERN);
+    const tools = await client.listTools();
+    expect(tools.map((t) => t.name)).toEqual(['lookup_weather']);
+    client.disconnect();
+  });
+
+  it('treats a non-numeric requestTimeoutMs as the default, not as 1ms', async () => {
+    mode = 'modern';
+    const client = newClient({
+      requestTimeoutMs: '5s' as unknown as number,
+    });
+    await client.connect();
+    const tools = await client.listTools();
+    expect(tools.map((t) => t.name)).toEqual(['lookup_weather']);
+    const other = newClient({ requestTimeoutMs: true as unknown as number });
+    await other.connect();
+    expect((await other.listTools()).length).toBe(1);
+    client.disconnect();
+    other.disconnect();
+  });
+
   it('reconnecting does not announce a disconnect; Infinity is a real limit', async () => {
     mode = 'modern';
     const client = newClient({ requestTimeoutMs: Infinity });
@@ -691,7 +739,8 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
       while (deletes.length === 0 && Date.now() < deadline) {
         await new Promise((r) => setTimeout(r, 10));
       }
-      expect(deletes).toEqual([SESSION]);
+      // The DELETE carries the session and the negotiated version.
+      expect(deletes).toEqual([`${SESSION}|2024-11-05`]);
     } finally {
       mode = 'modern';
     }

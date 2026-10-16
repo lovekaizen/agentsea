@@ -14,6 +14,7 @@ export {
   StdioTransport,
   SSETransport,
   StreamableHTTPTransport,
+  MCPHttpError,
   buildStdioEnv,
   encodeHeaderValue,
   invalidMcpHeaderAnnotation,
