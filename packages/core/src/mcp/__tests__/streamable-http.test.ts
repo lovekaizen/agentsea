@@ -278,6 +278,8 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     body: MCPMessage;
   }> = [];
   let mode: 'modern' | 'legacy' | 'unsupported' = 'modern';
+  const SESSION = 'sess-1';
+  const deletes: string[] = [];
 
   const weatherTool = {
     name: 'lookup_weather',
@@ -317,6 +319,11 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
 
   beforeAll(async () => {
     server = createServer((req, res) => {
+      if (req.method === 'DELETE') {
+        deletes.push(String(req.headers['mcp-session-id']));
+        res.writeHead(200);
+        return res.end();
+      }
       let raw = '';
       req.on('data', (c) => (raw += c));
       req.on('end', () => {
@@ -324,6 +331,20 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
         seen.push({ method: body.method, headers: req.headers, body });
         const id = body.id;
         const params = (body.params ?? {}) as Record<string, unknown>;
+
+        // 2025-03-26 style: after initialize, every request carries the session.
+        if (
+          mode === 'legacy' &&
+          body.method !== 'initialize' &&
+          body.method !== 'server/discover' &&
+          req.headers['mcp-session-id'] !== SESSION
+        ) {
+          return send(res, 400, {
+            jsonrpc: '2.0',
+            id,
+            error: { code: -32600, message: 'Missing session' },
+          });
+        }
 
         if (body.method === 'server/discover') {
           if (mode === 'legacy') {
@@ -356,6 +377,7 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
         }
 
         if (body.method === 'initialize') {
+          res.setHeader('Mcp-Session-Id', SESSION);
           return send(res, 200, {
             jsonrpc: '2.0',
             id,
@@ -499,17 +521,33 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     client.disconnect();
   });
 
-  it('refuses the legacy handshake over Streamable HTTP with a clear error', async () => {
+  it('runs the legacy handshake over HTTP with a session and version header', async () => {
     mode = 'legacy';
     seen.length = 0;
+    deletes.length = 0;
     const client = newClient();
-    const error = await client.connect().catch((e: unknown) => e);
-    expect((error as Error).message).toMatch(
-      /Legacy initialize over Streamable HTTP/,
+    await client.connect();
+    expect(client.getServerInfo()?.name).toBe('legacy');
+
+    // initialize carries no session yet; everything after it must.
+    const after = seen.slice(
+      seen.findIndex((s) => s.method === 'initialize') + 1,
     );
-    // Nothing was sent after the failed probe, and the client is torn down.
-    expect(seen.map((s) => s.method)).not.toContain('initialize');
-    expect(client.isConnected()).toBe(false);
+    expect(after.length).toBeGreaterThan(0);
+    for (const s of after) {
+      expect(s.headers['mcp-session-id']).toBe(SESSION);
+      expect(s.headers['mcp-protocol-version']).toBe('2024-11-05');
+    }
+    expect(after.map((s) => s.method)).toContain('notifications/initialized');
+
+    // A legacy call with no _meta still works and is session-bound.
+    const tools = await client.listTools();
+    expect(tools.map((t) => t.name)).toEqual(['lookup_weather']);
+
+    client.disconnect();
+    // DELETE is best effort; give the request a moment to land.
+    await new Promise((r) => setTimeout(r, 50));
+    expect(deletes).toEqual([SESSION]);
     mode = 'modern';
   });
 
@@ -540,6 +578,30 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     expect(seen.map((s) => s.method)).not.toContain('initialize');
     client.disconnect();
     mode = 'modern';
+  });
+});
+
+describe('StreamableHTTPTransport cancel', () => {
+  it('aborts an in-flight request by id', async () => {
+    let aborted = false;
+    const fetchImpl = ((_url: string, init: RequestInit) =>
+      new Promise((_resolve, reject) => {
+        init.signal!.addEventListener('abort', () => {
+          aborted = true;
+          reject(new DOMException('aborted', 'AbortError'));
+        });
+      })) as unknown as typeof fetch;
+    const transport = new StreamableHTTPTransport('http://x/mcp', fetchImpl);
+    await transport.connect();
+    const pending = transport.send({
+      jsonrpc: '2.0',
+      id: 42,
+      method: 'tools/call',
+      params: { name: 'slow' },
+    });
+    transport.cancel(42);
+    await expect(pending).rejects.toThrow();
+    expect(aborted).toBe(true);
   });
 });
 

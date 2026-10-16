@@ -17,6 +17,10 @@ export interface MCPTransport extends EventEmitter {
     message: MCPMessage,
     headers?: Record<string, string>,
   ): void | Promise<void>;
+  /** Abort the in-flight request with this id, if the transport can. */
+  cancel?(id: string | number): void;
+  /** Record the version a legacy server negotiated, for later requests. */
+  setProtocolVersion?(version: string): void;
   close(): void;
   isConnected(): boolean;
 }
@@ -480,13 +484,34 @@ export class StreamableHTTPTransport
   implements MCPTransport
 {
   private connected = false;
-  private inFlight = new Set<AbortController>();
+  /** Requests still waiting for an answer, keyed by JSON-RPC id. */
+  private inFlight = new Map<string | number, AbortController>();
+  /** Set when a 2025-03-26 server assigns `Mcp-Session-Id`. */
+  private sessionId?: string;
+  /** Negotiated protocol version on the legacy path, sent on later requests. */
+  private protocolVersion?: string;
 
   constructor(
     private url: string,
     private fetchImpl: typeof fetch = fetch,
   ) {
     super();
+  }
+
+  /** Record the protocol version a legacy server negotiated during initialize. */
+  setProtocolVersion(version: string): void {
+    this.protocolVersion = version;
+  }
+
+  /**
+   * Cancel the request with this id by aborting its HTTP request. On
+   * Streamable HTTP, closing the response stream is the cancel signal.
+   */
+  cancel(id: string | number): void {
+    const controller = this.inFlight.get(id);
+    if (!controller) return;
+    this.inFlight.delete(id);
+    controller.abort();
   }
 
   connect(): Promise<void> {
@@ -505,19 +530,26 @@ export class StreamableHTTPTransport
     if (!this.connected) throw new Error('Transport not connected');
 
     const controller = new AbortController();
-    this.inFlight.add(controller);
+    if (message.id !== undefined) this.inFlight.set(message.id, controller);
     try {
       const response = await this.fetchImpl(this.url, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           Accept: 'application/json, text/event-stream',
+          ...(this.sessionId ? { 'Mcp-Session-Id': this.sessionId } : {}),
+          ...(this.protocolVersion
+            ? { 'MCP-Protocol-Version': this.protocolVersion }
+            : {}),
           ...mcpRequestHeaders(message),
           ...headers,
         },
         body: JSON.stringify(message),
         signal: controller.signal,
       });
+
+      const assigned = response.headers.get('mcp-session-id');
+      if (assigned) this.sessionId = assigned;
 
       // Notifications get a bare 202; nothing to correlate.
       if (message.id === undefined) {
@@ -544,7 +576,12 @@ export class StreamableHTTPTransport
       }
       this.emit('message', parsed);
     } finally {
-      this.inFlight.delete(controller);
+      if (
+        message.id !== undefined &&
+        this.inFlight.get(message.id) === controller
+      ) {
+        this.inFlight.delete(message.id);
+      }
     }
   }
 
@@ -593,8 +630,22 @@ export class StreamableHTTPTransport
   }
 
   close(): void {
-    for (const controller of this.inFlight) controller.abort();
+    for (const controller of this.inFlight.values()) controller.abort();
     this.inFlight.clear();
+    if (this.sessionId) {
+      // Best effort: tell a 2025-03-26 server the session is over.
+      const sessionId = this.sessionId;
+      this.sessionId = undefined;
+      this.fetchImpl(this.url, {
+        method: 'DELETE',
+        headers: {
+          'Mcp-Session-Id': sessionId,
+          ...(this.protocolVersion
+            ? { 'MCP-Protocol-Version': this.protocolVersion }
+            : {}),
+        },
+      }).catch(() => undefined);
+    }
     if (this.connected) {
       this.connected = false;
       this.emit('disconnect');

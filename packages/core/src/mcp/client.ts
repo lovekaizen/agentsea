@@ -148,14 +148,6 @@ export class MCPClient extends EventEmitter {
       ) {
         throw error;
       }
-      // Streamable HTTP has no legacy handshake here: a server that predates
-      // 2026-07-28 may need session headers this transport does not send.
-      if (this.config.transport === 'http') {
-        throw new Error(
-          `MCP server did not answer server/discover (${(error as Error).message}). ` +
-            'Legacy initialize over Streamable HTTP is not supported; use transport "sse" for HTTP+SSE servers.',
-        );
-      }
       await this.initialize();
       return;
     }
@@ -214,6 +206,10 @@ export class MCPClient extends EventEmitter {
       capabilities: MCPServerInfo['capabilities'];
     };
     this.modern = false;
+    if (typeof legacy.protocolVersion === 'string') {
+      // Streamable HTTP needs the negotiated version on later requests.
+      this.transport?.setProtocolVersion?.(legacy.protocolVersion);
+    }
     this.serverInfo = {
       name: legacy.serverInfo?.name,
       version: legacy.serverInfo?.version,
@@ -407,6 +403,7 @@ export class MCPClient extends EventEmitter {
     const settled = new Promise<MCPMessage>((resolve, reject) => {
       const timer = setTimeout(() => {
         if (this.pendingRequests.delete(id)) {
+          this.cancelRequest(id);
           reject(new Error('Request timeout'));
         }
       }, timeoutMs);
@@ -441,6 +438,28 @@ export class MCPClient extends EventEmitter {
       throw new MCPInputRequiredError(outgoing.method ?? 'request');
     }
     return response;
+  }
+
+  /**
+   * Tell the server to stop work on a request that timed out. Transports that
+   * can abort a request do so. Stdio gets the spec's notifications/cancelled.
+   */
+  private cancelRequest(id: string | number): void {
+    const transport = this.transport;
+    if (!transport) return;
+    if (transport.cancel) {
+      transport.cancel(id);
+      return;
+    }
+    Promise.resolve()
+      .then(() =>
+        transport.send({
+          jsonrpc: '2.0',
+          method: 'notifications/cancelled',
+          params: { requestId: id },
+        }),
+      )
+      .catch(() => undefined);
   }
 
   private withMeta(message: MCPMessage): MCPMessage {
