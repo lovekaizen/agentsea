@@ -6,13 +6,15 @@ import { Message, ProviderConfig } from '../../types';
 // Mock OpenAI SDK
 vi.mock('openai', () => {
   return {
-    default: vi.fn().mockImplementation(() => ({
-      chat: {
-        completions: {
-          create: vi.fn(),
+    default: vi.fn().mockImplementation(function () {
+      return {
+        chat: {
+          completions: {
+            create: vi.fn(),
+          },
         },
-      },
-    })),
+      };
+    }),
   };
 });
 

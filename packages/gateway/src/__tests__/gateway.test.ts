@@ -111,36 +111,30 @@ const { createMockProviderInstance, mockChatFns, mockStreamFns } = vi.hoisted(
 
 // Mock the provider modules with .js extension to match Gateway.ts imports
 vi.mock('../providers/registry/OpenAIProvider.js', () => ({
-  OpenAIProvider: vi
-    .fn()
-    .mockImplementation((config: any) =>
-      createMockProviderInstance(
-        'openai',
-        config.models || ['gpt-5.5', 'gpt-5.4-mini'],
-      ),
-    ),
+  OpenAIProvider: vi.fn().mockImplementation(function (config: any) {
+    return createMockProviderInstance(
+      'openai',
+      config.models || ['gpt-5.5', 'gpt-5.4-mini'],
+    );
+  }),
 }));
 
 vi.mock('../providers/registry/AnthropicProvider.js', () => ({
-  AnthropicProvider: vi
-    .fn()
-    .mockImplementation((config: any) =>
-      createMockProviderInstance(
-        'anthropic',
-        config.models || ['claude-sonnet-4-6'],
-      ),
-    ),
+  AnthropicProvider: vi.fn().mockImplementation(function (config: any) {
+    return createMockProviderInstance(
+      'anthropic',
+      config.models || ['claude-sonnet-4-6'],
+    );
+  }),
 }));
 
 vi.mock('../providers/registry/GoogleProvider.js', () => ({
-  GoogleProvider: vi
-    .fn()
-    .mockImplementation((config: any) =>
-      createMockProviderInstance(
-        'google',
-        config.models || ['gemini-3.1-pro-preview'],
-      ),
-    ),
+  GoogleProvider: vi.fn().mockImplementation(function (config: any) {
+    return createMockProviderInstance(
+      'google',
+      config.models || ['gemini-3.1-pro-preview'],
+    );
+  }),
 }));
 
 describe('Gateway', () => {

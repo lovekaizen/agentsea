@@ -6,12 +6,14 @@ import { Message, ProviderConfig } from '../../types';
 // Mock Anthropic SDK
 vi.mock('@anthropic-ai/sdk', () => {
   return {
-    default: vi.fn().mockImplementation(() => ({
-      messages: {
-        create: vi.fn(),
-        stream: vi.fn(),
-      },
-    })),
+    default: vi.fn().mockImplementation(function () {
+      return {
+        messages: {
+          create: vi.fn(),
+          stream: vi.fn(),
+        },
+      };
+    }),
   };
 });
 

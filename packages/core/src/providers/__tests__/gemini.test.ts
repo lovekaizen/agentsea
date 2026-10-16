@@ -5,13 +5,15 @@ import { Message, ProviderConfig } from '../../types';
 // Mock Google Generative AI SDK
 vi.mock('@google/generative-ai', () => {
   return {
-    GoogleGenerativeAI: vi.fn().mockImplementation(() => ({
-      getGenerativeModel: vi.fn().mockReturnValue({
-        model: 'gemini-3.1-pro-preview',
-        generateContent: vi.fn(),
-        generateContentStream: vi.fn(),
-      }),
-    })),
+    GoogleGenerativeAI: vi.fn().mockImplementation(function () {
+      return {
+        getGenerativeModel: vi.fn().mockReturnValue({
+          model: 'gemini-3.1-pro-preview',
+          generateContent: vi.fn(),
+          generateContentStream: vi.fn(),
+        }),
+      };
+    }),
   };
 });
 
