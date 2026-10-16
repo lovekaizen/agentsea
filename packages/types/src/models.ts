@@ -1672,6 +1672,11 @@ export interface ModelInfo {
   displayName: string;
   capabilities: ModelCapabilities;
   deprecated?: boolean;
+  /**
+   * Date (YYYY-MM-DD) the provider stops serving this model, from its own
+   * deprecation page. Set on deprecated entries.
+   */
+  retiresOn?: string;
   releaseDate?: string;
 }
 
@@ -1748,6 +1753,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'gpt-4-turbo',
     displayName: 'GPT-4 Turbo',
+    deprecated: true,
+    retiresOn: '2026-10-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -1764,6 +1771,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'gpt-3.5-turbo',
     displayName: 'GPT-3.5 Turbo',
+    deprecated: true,
+    retiresOn: '2026-10-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -1910,6 +1919,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'anthropic',
     model: 'claude-sonnet-4-5-20250929',
     displayName: 'Claude Sonnet 4.5',
+    deprecated: true,
+    retiresOn: '2026-11-30',
     capabilities: {
       tools: true,
       streaming: true,
@@ -2293,6 +2304,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'gpt-4.1-nano',
     displayName: 'GPT-4.1 Nano',
+    deprecated: true,
+    retiresOn: '2026-10-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -2341,6 +2354,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'o4-mini',
     displayName: 'o4 Mini',
+    deprecated: true,
+    retiresOn: '2026-10-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -2373,6 +2388,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'o4-mini-deep-research',
     displayName: 'o4 Mini Deep Research',
+    deprecated: true,
+    retiresOn: '2026-07-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -2389,6 +2406,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'o3-mini',
     displayName: 'o3 Mini',
+    deprecated: true,
+    retiresOn: '2026-10-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -2437,6 +2456,8 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     provider: 'openai',
     model: 'o1',
     displayName: 'o1',
+    deprecated: true,
+    retiresOn: '2026-10-23',
     capabilities: {
       tools: true,
       streaming: true,
@@ -2454,6 +2475,7 @@ export const MODEL_REGISTRY: Record<string, ModelInfo> = {
     model: 'o1-mini',
     displayName: 'o1 Mini',
     deprecated: true,
+    retiresOn: '2025-10-27',
     capabilities: {
       tools: false,
       streaming: true,
