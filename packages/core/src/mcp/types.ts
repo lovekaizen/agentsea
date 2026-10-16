@@ -29,6 +29,12 @@ export interface MCPServerConfig extends StdioEnvOptions {
   maxRequestTimeoutMs?: number;
 }
 
+/** Per-call options for a request. Unset fields use the client's config. */
+export interface MCPRequestOptions {
+  /** Milliseconds to wait for this request, overriding requestTimeoutMs. */
+  timeoutMs?: number;
+}
+
 /** Protocol revision this client speaks by default (stateless, per-request). */
 export const MCP_PROTOCOL_VERSION = '2026-07-28';
 /** Legacy revision, used only when the server does not answer server/discover. */

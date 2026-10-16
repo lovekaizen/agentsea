@@ -17,6 +17,7 @@ import {
   MCPResource,
   MCPPrompt,
   MCPCallToolResponse,
+  MCPRequestOptions,
   MCPReadResourceResponse,
   MCPMessage,
   MCP_PROTOCOL_VERSION,
@@ -55,6 +56,26 @@ function timerMs(value: number | undefined, fallback: number): number {
     return fallback;
   }
   return Math.min(value, MAX_TIMER_MS);
+}
+
+/**
+ * A page's freshness window in ms. Missing, negative or non-numeric ttlMs is 0,
+ * so the result counts as stale at once (caching page, "If ttlMs is absent").
+ */
+function ttlOf(value: unknown): number {
+  return typeof value === 'number' && Number.isFinite(value) && value > 0
+    ? value
+    : 0;
+}
+
+/**
+ * The options argument for sendRequest. Passed only when a per-call timeout is
+ * set, so the default call shape is unchanged.
+ */
+function timeoutArg(options?: MCPRequestOptions): [{ timeoutMs: number }] | [] {
+  return options?.timeoutMs === undefined
+    ? []
+    : [{ timeoutMs: options.timeoutMs }];
 }
 
 /** A JSON-RPC error response from the server, with its code kept. */
@@ -103,6 +124,8 @@ export class MCPClient extends EventEmitter {
   private modern = false;
   private requestId = 0;
   private toolSchemas = new Map<string, Record<string, unknown>>();
+  /** When the cached tool list stops being fresh (epoch ms). 0 means stale. */
+  private toolListFreshUntil = 0;
   private connectChain: Promise<void> = Promise.resolve();
   private pendingRequests = new Map<
     string | number,
@@ -314,18 +337,23 @@ export class MCPClient extends EventEmitter {
   /**
    * List available tools
    */
-  async listTools(): Promise<MCPTool[]> {
-    const all = await this.listAllPages<MCPTool>('tools/list', 'tools');
+  async listTools(options?: MCPRequestOptions): Promise<MCPTool[]> {
+    const { items, freshUntil } = await this.listAllPages<MCPTool>(
+      'tools/list',
+      'tools',
+      options,
+    );
     const tools =
       this.config.transport === 'http'
-        ? all.filter((tool) => this.acceptTool(tool))
-        : all;
+        ? items.filter((tool) => this.acceptTool(tool))
+        : items;
     for (const tool of tools) {
       this.toolSchemas.set(
         tool.name,
         tool.inputSchema as Record<string, unknown>,
       );
     }
+    this.toolListFreshUntil = freshUntil;
     return tools;
   }
 
@@ -350,21 +378,29 @@ export class MCPClient extends EventEmitter {
   async callTool(
     name: string,
     args?: Record<string, unknown>,
+    options?: MCPRequestOptions,
   ): Promise<MCPCallToolResponse> {
     // Streamable HTTP needs the tool's schema to build Mcp-Param-* headers.
-    // Load the list once if this tool is not known yet.
-    if (this.config.transport === 'http' && !this.toolSchemas.has(name)) {
+    // Reload the list when this tool is unknown or the cached list is stale.
+    // A server that gives no ttlMs makes every list stale at once.
+    if (
+      this.config.transport === 'http' &&
+      (!this.toolSchemas.has(name) || Date.now() >= this.toolListFreshUntil)
+    ) {
       await this.listTools();
     }
-    const response = await this.sendRequest({
-      jsonrpc: '2.0',
-      id: this.nextId(),
-      method: 'tools/call',
-      params: {
-        name,
-        arguments: args,
+    const response = await this.sendRequest(
+      {
+        jsonrpc: '2.0',
+        id: this.nextId(),
+        method: 'tools/call',
+        params: {
+          name,
+          arguments: args,
+        },
       },
-    });
+      ...timeoutArg(options),
+    );
 
     return response.result as MCPCallToolResponse;
   }
@@ -372,27 +408,44 @@ export class MCPClient extends EventEmitter {
   /**
    * List available resources
    */
-  async listResources(): Promise<MCPResource[]> {
-    return this.listAllPages<MCPResource>('resources/list', 'resources');
+  async listResources(options?: MCPRequestOptions): Promise<MCPResource[]> {
+    const { items } = await this.listAllPages<MCPResource>(
+      'resources/list',
+      'resources',
+      options,
+    );
+    return items;
   }
 
   /**
    * Fetch every page of a list method. The cursor is opaque: it is passed back
    * exactly as the server sent it, and the list ends when no nextCursor comes.
    */
-  private async listAllPages<T>(method: string, key: string): Promise<T[]> {
+  private async listAllPages<T>(
+    method: string,
+    key: string,
+    options?: MCPRequestOptions,
+  ): Promise<{ items: T[]; freshUntil: number }> {
     const items: T[] = [];
     const seen = new Set<string>();
+    // Each page has its own ttlMs. The list is fresh only until the earliest
+    // page's TTL runs out.
+    let freshUntil = Number.POSITIVE_INFINITY;
     let cursor: string | undefined;
     do {
-      const response = await this.sendRequest({
-        jsonrpc: '2.0',
-        id: this.nextId(),
-        method,
-        params: cursor === undefined ? {} : { cursor },
-      });
+      const receivedAt = Date.now();
+      const response = await this.sendRequest(
+        {
+          jsonrpc: '2.0',
+          id: this.nextId(),
+          method,
+          params: cursor === undefined ? {} : { cursor },
+        },
+        ...timeoutArg(options),
+      );
       const page = (response.result ?? {}) as Record<string, unknown>;
       items.push(...((page[key] as T[] | undefined) ?? []));
+      freshUntil = Math.min(freshUntil, receivedAt + ttlOf(page.ttlMs));
       cursor = (page.nextCursor as string | undefined) ?? undefined;
       if (cursor !== undefined) {
         // A cursor the server has already sent would loop forever.
@@ -402,21 +455,27 @@ export class MCPClient extends EventEmitter {
         seen.add(cursor);
       }
     } while (cursor !== undefined);
-    return items;
+    return { items, freshUntil };
   }
 
   /**
    * Read a resource
    */
-  async readResource(uri: string): Promise<MCPReadResourceResponse> {
-    const response = await this.sendRequest({
-      jsonrpc: '2.0',
-      id: this.nextId(),
-      method: 'resources/read',
-      params: {
-        uri,
+  async readResource(
+    uri: string,
+    options?: MCPRequestOptions,
+  ): Promise<MCPReadResourceResponse> {
+    const response = await this.sendRequest(
+      {
+        jsonrpc: '2.0',
+        id: this.nextId(),
+        method: 'resources/read',
+        params: {
+          uri,
+        },
       },
-    });
+      ...timeoutArg(options),
+    );
 
     return response.result as MCPReadResourceResponse;
   }
@@ -424,8 +483,13 @@ export class MCPClient extends EventEmitter {
   /**
    * List available prompts
    */
-  async listPrompts(): Promise<MCPPrompt[]> {
-    return this.listAllPages<MCPPrompt>('prompts/list', 'prompts');
+  async listPrompts(options?: MCPRequestOptions): Promise<MCPPrompt[]> {
+    const { items } = await this.listAllPages<MCPPrompt>(
+      'prompts/list',
+      'prompts',
+      options,
+    );
+    return items;
   }
 
   /**
@@ -434,16 +498,20 @@ export class MCPClient extends EventEmitter {
   async getPrompt(
     name: string,
     args?: Record<string, string>,
+    options?: MCPRequestOptions,
   ): Promise<unknown> {
-    const response = await this.sendRequest({
-      jsonrpc: '2.0',
-      id: this.nextId(),
-      method: 'prompts/get',
-      params: {
-        name,
-        arguments: args,
+    const response = await this.sendRequest(
+      {
+        jsonrpc: '2.0',
+        id: this.nextId(),
+        method: 'prompts/get',
+        params: {
+          name,
+          arguments: args,
+        },
       },
-    });
+      ...timeoutArg(options),
+    );
 
     return response.result;
   }
@@ -478,6 +546,7 @@ export class MCPClient extends EventEmitter {
     this.serverInfo = null;
     this.modern = false;
     this.toolSchemas.clear();
+    this.toolListFreshUntil = 0;
     // Nothing on a closed connection can answer. Fail waiting callers now,
     // rather than let them time out and report a timeout.
     this.failPending('Client disconnected');
@@ -605,9 +674,11 @@ export class MCPClient extends EventEmitter {
   ): void {
     // The spec forbids cancelling initialize, so a slow handshake is left alone.
     if (method === 'initialize') return;
-    // Abort the local request, if the transport can. The notification is sent
-    // on every transport, because the server does the work.
+    // Abort the local request, if the transport can.
     transport.cancel?.(id);
+    // Streamable HTTP: closing the request's stream is the cancel signal, and
+    // the spec says no notifications/cancelled is required or expected there.
+    if (this.config.transport === 'http') return;
     const notice: MCPMessage = {
       jsonrpc: '2.0',
       method: 'notifications/cancelled',
@@ -686,6 +757,12 @@ export class MCPClient extends EventEmitter {
       } else {
         pending.resolve(message);
       }
+      return;
+    }
+
+    // The server's tool list changed: the cached list is stale from now on.
+    if (message.method === 'notifications/tools/list_changed') {
+      this.toolListFreshUntil = 0;
       return;
     }
 
