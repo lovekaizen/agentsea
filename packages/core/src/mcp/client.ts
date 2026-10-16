@@ -88,6 +88,8 @@ export class MCPClient extends EventEmitter {
   private serverInfo: MCPServerInfo | null = null;
   /** True after server/discover succeeds; requests then carry `_meta`. */
   private modern = false;
+  /** Version the legacy server negotiated; sent as a header on HTTP. */
+  private legacyVersion?: string;
   private requestId = 0;
   private toolSchemas = new Map<string, Record<string, unknown>>();
   private pendingRequests = new Map<
@@ -128,21 +130,18 @@ export class MCPClient extends EventEmitter {
     // Events from a transport the client has already left are ignored. The
     // listeners stay attached, so a late stdio error cannot go unhandled.
     const transport = this.transport;
-    const whileCurrent = (handle: () => void) => {
-      if (this.transport === transport) handle();
-    };
-    transport.on('message', (message: MCPMessage) =>
-      whileCurrent(() => this.handleMessage(message)),
-    );
-    transport.on('error', (error: Error) =>
-      whileCurrent(() => this.emit('error', error)),
-    );
-    transport.on('stderr', (text: string) =>
-      whileCurrent(() => this.emit('stderr', text)),
-    );
-    transport.on('disconnect', () =>
-      whileCurrent(() => this.emit('disconnect')),
-    );
+    const bind = (event: string, handle: (...args: unknown[]) => void) =>
+      transport.on(event, (...args: unknown[]) => {
+        if (this.transport === transport) handle(...args);
+      });
+    bind('message', (message) => this.handleMessage(message as MCPMessage));
+    bind('error', (error) => this.emit('error', error as Error));
+    bind('stderr', (text) => this.emit('stderr', text as string));
+    bind('disconnect', () => {
+      // The connection ended on its own, so fail its waiting callers now.
+      this.failPending('Connection closed');
+      this.emit('disconnect');
+    });
 
     try {
       await transport.connect();
@@ -168,6 +167,13 @@ export class MCPClient extends EventEmitter {
    * failure (method not found, no reply) means a legacy server.
    */
   private async discover(): Promise<void> {
+    const transport = this.transport;
+    // Never shorter than the cold-start floor, so a short requestTimeoutMs
+    // cannot turn a slow modern server into a legacy one.
+    const probeMs = Math.max(
+      DISCOVER_TIMEOUT_MS,
+      timerMs(this.config.requestTimeoutMs, 0),
+    );
     let result: MCPDiscoverResult;
     try {
       const response = await this.sendRequest(
@@ -177,13 +183,13 @@ export class MCPClient extends EventEmitter {
           method: 'server/discover',
           params: {},
         },
-        {
-          meta: true,
-          timeoutMs: timerMs(this.config.requestTimeoutMs, DISCOVER_TIMEOUT_MS),
-        },
+        { meta: true, timeoutMs: probeMs },
       );
       result = response.result as MCPDiscoverResult;
     } catch (error) {
+      // A connect() that was superseded or disconnected mid-probe must not
+      // start a handshake on whatever transport is current now.
+      if (this.transport !== transport) throw error;
       if (
         error instanceof MCPProtocolError &&
         error.code === UNSUPPORTED_PROTOCOL_VERSION
@@ -197,7 +203,7 @@ export class MCPClient extends EventEmitter {
         error instanceof MCPTimeoutError
       ) {
         throw new Error(
-          `MCP server did not answer server/discover within ${DISCOVER_TIMEOUT_MS / 1000}s`,
+          `MCP server did not answer server/discover within ${probeMs / 1000}s`,
         );
       }
       await this.initialize();
@@ -258,20 +264,24 @@ export class MCPClient extends EventEmitter {
       capabilities: MCPServerInfo['capabilities'];
     };
     this.modern = false;
-    if (typeof legacy.protocolVersion === 'string') {
-      // Streamable HTTP needs the negotiated version on later requests.
-      this.transport?.setProtocolVersion?.(legacy.protocolVersion);
-    }
+    // Later requests carry the negotiated version, as a header on HTTP.
+    this.legacyVersion =
+      typeof legacy.protocolVersion === 'string'
+        ? legacy.protocolVersion
+        : undefined;
     this.serverInfo = {
       name: legacy.serverInfo?.name,
       version: legacy.serverInfo?.version,
       protocolVersion: legacy.protocolVersion,
       capabilities: legacy.capabilities ?? {},
     };
-    await this.transport!.send({
-      jsonrpc: '2.0',
-      method: 'notifications/initialized',
-    });
+    await this.transport!.send(
+      {
+        jsonrpc: '2.0',
+        method: 'notifications/initialized',
+      },
+      this.versionHeaders(),
+    );
     this.emit('initialized', this.serverInfo);
   }
 
@@ -422,15 +432,20 @@ export class MCPClient extends EventEmitter {
     this.transport = null;
     this.serverInfo = null;
     this.modern = false;
+    this.legacyVersion = undefined;
     this.toolSchemas.clear();
     // Nothing on a closed connection can answer. Fail waiting callers now,
     // rather than let them time out and report a timeout.
-    for (const pending of this.pendingRequests.values()) {
-      pending.reject(new Error('Client disconnected'));
-    }
-    this.pendingRequests.clear();
+    this.failPending('Client disconnected');
     transport.close();
     if (wasConnected) this.emit('disconnect');
+  }
+
+  /** Reject every waiting request. Each one's timer is cleared on the way. */
+  private failPending(reason: string): void {
+    const waiting = [...this.pendingRequests.values()];
+    this.pendingRequests.clear();
+    for (const pending of waiting) pending.reject(new Error(reason));
   }
 
   /**
@@ -457,7 +472,7 @@ export class MCPClient extends EventEmitter {
     const outgoing = useMeta ? this.withMeta(message) : message;
     const headers =
       this.config.transport === 'http'
-        ? this.paramHeaders(outgoing)
+        ? { ...this.versionHeaders(), ...this.paramHeaders(outgoing) }
         : undefined;
     const id = outgoing.id!;
     const timeoutMs = timerMs(
@@ -529,8 +544,15 @@ export class MCPClient extends EventEmitter {
     // Modern requests carry _meta and the version header, so the cancel does too.
     const outgoing = this.modern ? this.withMeta(notice) : notice;
     Promise.resolve()
-      .then(() => transport.send(outgoing))
+      .then(() => transport.send(outgoing, this.versionHeaders()))
       .catch(() => undefined);
+  }
+
+  /** The negotiated legacy version as a header. Empty on the modern path. */
+  private versionHeaders(): Record<string, string> {
+    return this.legacyVersion
+      ? { 'MCP-Protocol-Version': this.legacyVersion }
+      : {};
   }
 
   private withMeta(message: MCPMessage): MCPMessage {

@@ -19,8 +19,6 @@ export interface MCPTransport extends EventEmitter {
   ): void | Promise<void>;
   /** Abort the in-flight request with this id, if the transport can. */
   cancel?(id: string | number): void;
-  /** Record the version a legacy server negotiated, for later requests. */
-  setProtocolVersion?(version: string): void;
   close(): void;
   isConnected(): boolean;
 }
@@ -493,19 +491,12 @@ export class StreamableHTTPTransport
   private postSeq = 0;
   /** Set when a 2025-03-26 server assigns `Mcp-Session-Id`. */
   private sessionId?: string;
-  /** Negotiated protocol version on the legacy path, sent on later requests. */
-  private protocolVersion?: string;
 
   constructor(
     private url: string,
     private fetchImpl: typeof fetch = fetch,
   ) {
     super();
-  }
-
-  /** Record the protocol version a legacy server negotiated during initialize. */
-  setProtocolVersion(version: string): void {
-    this.protocolVersion = version;
   }
 
   /**
@@ -629,14 +620,9 @@ export class StreamableHTTPTransport
     this.emit('message', message);
   }
 
-  /** Session and version headers that every request after initialize carries. */
+  /** The session header, once a 2025-03-26 server has assigned one. */
   private sessionHeaders(): Record<string, string> {
-    return {
-      ...(this.sessionId ? { 'Mcp-Session-Id': this.sessionId } : {}),
-      ...(this.protocolVersion
-        ? { 'MCP-Protocol-Version': this.protocolVersion }
-        : {}),
-    };
+    return this.sessionId ? { 'Mcp-Session-Id': this.sessionId } : {};
   }
 
   close(): void {
