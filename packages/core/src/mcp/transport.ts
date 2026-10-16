@@ -57,10 +57,12 @@ const WINDOWS_ENV_ALLOWLIST: readonly string[] = [
   'COMSPEC',
   'LOCALAPPDATA',
   'PATHEXT',
+  'SYSTEMDRIVE',
   'SYSTEMROOT',
   'TEMP',
   'TMP',
   'USERPROFILE',
+  'WINDIR',
 ];
 
 export interface StdioEnvOptions {

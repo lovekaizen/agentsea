@@ -173,6 +173,18 @@ describe('buildStdioEnv', () => {
     ).toEqual({ Path: 'C:\\bin' });
   });
 
+  it('passes the Windows system variables programs need to start', () => {
+    const win = {
+      SystemDrive: 'C:',
+      WinDir: 'C:\\Windows',
+      Secret: 'x',
+    };
+    expect(buildStdioEnv(win, {}, {}, 'win32')).toEqual({
+      SystemDrive: 'C:',
+      WinDir: 'C:\\Windows',
+    });
+  });
+
   it('lets an explicit key replace a case-variant parent key on win32', () => {
     const win = { Path: 'C:\\bin' };
     const env = buildStdioEnv(win, { PATH: 'C:\\custom' }, {}, 'win32');
