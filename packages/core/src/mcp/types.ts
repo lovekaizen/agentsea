@@ -10,15 +10,16 @@ export interface MCPServerConfig {
   env?: Record<string, string>;
   /**
    * Parent environment variables to pass through to a stdio server in addition
-   * to the default allow-list (HOME, LOGNAME, PATH, SHELL, TERM, USER). The
-   * server does not inherit anything else.
+   * to the default allow-list (HOME, LOGNAME, PATH, SHELL, TERM, USER, TMPDIR,
+   * LANG, LC_ALL, the proxy variables and NODE_EXTRA_CA_CERTS). The server does
+   * not inherit anything else.
    */
   passEnv?: string[];
   /**
    * Restore the previous behaviour of inheriting the whole parent environment,
    * including provider API keys.
    *
-   * @deprecated Escape hatch for one minor release. Use `passEnv` and `env`.
+   * @deprecated Escape hatch for the 2.x line. Use `passEnv` and `env`.
    */
   inheritFullEnv?: boolean;
   transport?: 'stdio' | 'sse';

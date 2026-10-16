@@ -15,7 +15,8 @@ export interface MCPTransport extends EventEmitter {
 
 /**
  * Environment variables a stdio server inherits from the parent by default.
- * Enough to locate and start a program; nothing that is a credential.
+ * Enough to locate, start and reach the network through a corporate proxy
+ * with a private CA; nothing that is a credential.
  */
 const DEFAULT_ENV_ALLOWLIST: readonly string[] = [
   'HOME',
@@ -24,6 +25,16 @@ const DEFAULT_ENV_ALLOWLIST: readonly string[] = [
   'SHELL',
   'TERM',
   'USER',
+  'TMPDIR',
+  'LANG',
+  'LC_ALL',
+  'HTTP_PROXY',
+  'HTTPS_PROXY',
+  'NO_PROXY',
+  'http_proxy',
+  'https_proxy',
+  'no_proxy',
+  'NODE_EXTRA_CA_CERTS',
 ];
 
 /** Extra names Windows programs need to start. Not exercised on Windows in CI. */
@@ -49,8 +60,8 @@ export interface StdioEnvOptions {
    * Restore the previous behaviour: the server inherits the whole parent
    * environment, including provider API keys.
    *
-   * @deprecated Escape hatch for one minor release while callers move to
-   * `passEnv` and `env`. It will be removed in a later release.
+   * @deprecated Escape hatch for the 2.x line while callers move to `passEnv`
+   * and `env`. It will be removed in a later major release.
    */
   inheritFullEnv?: boolean;
 }
@@ -74,6 +85,14 @@ export function buildStdioEnv(
     return { ...all, ...explicit };
   }
 
+  // Untyped config (JSON or YAML) can hand over a string; spreading it would
+  // pass single characters as names and drop the variable with no error.
+  if (options.passEnv !== undefined && !Array.isArray(options.passEnv)) {
+    throw new TypeError(
+      'passEnv must be an array of environment variable names',
+    );
+  }
+
   const windows = platform === 'win32';
   const names = [
     ...DEFAULT_ENV_ALLOWLIST,
@@ -87,6 +106,16 @@ export function buildStdioEnv(
   for (const [k, v] of Object.entries(parent)) {
     if (v === undefined) continue;
     if (wanted.has(windows ? k.toUpperCase() : k)) env[k] = v;
+  }
+
+  if (windows) {
+    // An explicit `PATH` must replace a parent `Path`, not sit beside it.
+    const explicitUpper = new Set(
+      Object.keys(explicit).map((k) => k.toUpperCase()),
+    );
+    for (const k of Object.keys(env)) {
+      if (explicitUpper.has(k.toUpperCase())) delete env[k];
+    }
   }
   return { ...env, ...explicit };
 }

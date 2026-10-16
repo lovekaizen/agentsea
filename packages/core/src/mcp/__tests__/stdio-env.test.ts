@@ -20,17 +20,28 @@ async function childEnv(
     env,
     options,
   );
+  let timer: NodeJS.Timeout | undefined;
   const printed = new Promise<Record<string, string>>((resolve, reject) => {
-    transport.once('message', (m) =>
-      resolve(m as unknown as Record<string, string>),
+    transport.once('message', (m) => {
+      clearTimeout(timer);
+      resolve(m as unknown as Record<string, string>);
+    });
+    // Not `once`: stderr is re-emitted as 'error', and a second one must not
+    // reach an EventEmitter with no listener.
+    transport.on('error', (e) => {
+      clearTimeout(timer);
+      reject(e);
+    });
+    timer = setTimeout(
+      () => reject(new Error('child printed nothing')),
+      10_000,
     );
-    transport.once('error', reject);
-    setTimeout(() => reject(new Error('child printed nothing')), 10_000);
   });
-  await transport.connect();
   try {
+    await transport.connect();
     return await printed;
   } finally {
+    clearTimeout(timer);
     transport.close();
   }
 }
@@ -123,5 +134,37 @@ describe('buildStdioEnv', () => {
       'SystemRoot',
     ]);
     expect(buildStdioEnv(win, {}, {}, 'linux')).toEqual({});
+  });
+
+  it('lets an explicit key replace a case-variant parent key on win32', () => {
+    const win = { Path: 'C:\\bin' };
+    const env = buildStdioEnv(win, { PATH: 'C:\\custom' }, {}, 'win32');
+    expect(env).toEqual({ PATH: 'C:\\custom' });
+  });
+
+  it('passes the infra variables a proxied server needs by default', () => {
+    const env = buildStdioEnv({
+      HTTPS_PROXY: 'http://proxy',
+      NODE_EXTRA_CA_CERTS: '/ca.pem',
+      TMPDIR: '/tmp/x',
+      ANTHROPIC_API_KEY: 'k',
+    });
+    expect(env).toEqual({
+      HTTPS_PROXY: 'http://proxy',
+      NODE_EXTRA_CA_CERTS: '/ca.pem',
+      TMPDIR: '/tmp/x',
+    });
+  });
+
+  it('rejects a passEnv that is not an array instead of passing characters', () => {
+    expect(() =>
+      buildStdioEnv(
+        { HTTPS_PROXY: 'p' },
+        {},
+        {
+          passEnv: 'HTTPS_PROXY' as unknown as string[],
+        },
+      ),
+    ).toThrow(TypeError);
   });
 });
