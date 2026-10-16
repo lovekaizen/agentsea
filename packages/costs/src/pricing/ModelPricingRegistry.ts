@@ -87,6 +87,61 @@ const DEFAULT_PRICING: ModelPricing[] = [
       extendedThinking: true,
     },
   },
+  {
+    model: 'claude-opus-5-5',
+    provider: 'anthropic',
+    displayName: 'Claude Opus 5.5',
+    inputPricePerMillion: 4,
+    outputPricePerMillion: 20,
+    cacheReadPricePerMillion: 0.2,
+    cacheWritePricePerMillion: 5,
+    contextWindow: 1000000,
+    maxOutputTokens: 128000,
+    currency: 'USD',
+    capabilities: {
+      vision: true,
+      functionCalling: true,
+      extendedThinking: true,
+    },
+  },
+  {
+    model: 'claude-sonnet-5-5',
+    provider: 'anthropic',
+    displayName: 'Claude Sonnet 5.5',
+    inputPricePerMillion: 2,
+    outputPricePerMillion: 10,
+    cacheReadPricePerMillion: 0.1,
+    cacheWritePricePerMillion: 2.5,
+    contextWindow: 1000000,
+    maxOutputTokens: 128000,
+    currency: 'USD',
+    capabilities: {
+      vision: true,
+      functionCalling: true,
+      extendedThinking: true,
+    },
+  },
+  {
+    model: 'claude-haiku-5-5',
+    provider: 'anthropic',
+    displayName: 'Claude Haiku 5.5',
+    inputPricePerMillion: 0.1,
+    outputPricePerMillion: 0.5,
+    cacheReadPricePerMillion: 0.01,
+    cacheWritePricePerMillion: 0.125,
+    tiers: [
+      { minTokens: 0, maxTokens: 100000, inputPrice: 0.1, outputPrice: 0.5 },
+      { minTokens: 100001, inputPrice: 0.5, outputPrice: 2.5 },
+    ],
+    contextWindow: 1000000,
+    maxOutputTokens: 128000,
+    currency: 'USD',
+    capabilities: {
+      vision: true,
+      functionCalling: true,
+      extendedThinking: true,
+    },
+  },
   // Claude Sonnet 4.6 — best speed/intelligence balance. Adaptive thinking +
   // effort param; no budget_tokens extended thinking, no assistant prefill.
   {
@@ -133,6 +188,7 @@ const DEFAULT_PRICING: ModelPricing[] = [
     model: 'claude-sonnet-4-5-20250929',
     provider: 'anthropic',
     displayName: 'Claude Sonnet 4.5',
+    deprecated: true, // retires 2026-11-30
     inputPricePerMillion: 3.0,
     outputPricePerMillion: 15.0,
     cacheReadPricePerMillion: 0.3,
@@ -380,6 +436,7 @@ const DEFAULT_PRICING: ModelPricing[] = [
     model: 'gpt-4.1-nano',
     provider: 'openai',
     displayName: 'GPT-4.1 Nano',
+    deprecated: true, // retires 2026-10-23
     inputPricePerMillion: 0.1,
     outputPricePerMillion: 0.4,
     contextWindow: 1047576,
@@ -672,6 +729,7 @@ const DEFAULT_PRICING: ModelPricing[] = [
     model: 'o4-mini',
     provider: 'openai',
     displayName: 'o4 Mini',
+    deprecated: true, // retires 2026-10-23
     inputPricePerMillion: 1.1,
     outputPricePerMillion: 4.4,
     contextWindow: 200000,
@@ -708,6 +766,7 @@ const DEFAULT_PRICING: ModelPricing[] = [
     model: 'o4-mini-deep-research',
     provider: 'openai',
     displayName: 'o4 Mini Deep Research',
+    deprecated: true, // retires 2026-07-23
     inputPricePerMillion: 2.0,
     outputPricePerMillion: 8.0,
     contextWindow: 200000,
@@ -726,6 +785,7 @@ const DEFAULT_PRICING: ModelPricing[] = [
     model: 'o3-mini',
     provider: 'openai',
     displayName: 'o3 Mini',
+    deprecated: true, // retires 2026-10-23
     inputPricePerMillion: 1.1,
     outputPricePerMillion: 4.4,
     contextWindow: 200000,
@@ -776,6 +836,7 @@ const DEFAULT_PRICING: ModelPricing[] = [
     model: 'o1',
     provider: 'openai',
     displayName: 'o1',
+    deprecated: true, // retires 2026-10-23
     inputPricePerMillion: 15.0,
     outputPricePerMillion: 60.0,
     contextWindow: 200000,
@@ -808,6 +869,7 @@ const DEFAULT_PRICING: ModelPricing[] = [
     model: 'gpt-4-turbo',
     provider: 'openai',
     displayName: 'GPT-4 Turbo',
+    deprecated: true, // retires 2026-10-23
     inputPricePerMillion: 10.0,
     outputPricePerMillion: 30.0,
     contextWindow: 128000,
