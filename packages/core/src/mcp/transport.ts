@@ -548,9 +548,6 @@ export class StreamableHTTPTransport
 
       const assigned = response.headers.get('mcp-session-id');
       if (assigned) this.sessionId = assigned;
-      // The server ended the session. Drop it rather than keep sending it.
-      // Re-initializing is not implemented yet.
-      if (response.status === 404) this.sessionId = undefined;
 
       // Notifications get a bare 202; nothing to correlate.
       if (message.id === undefined) {

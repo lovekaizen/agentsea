@@ -4,6 +4,7 @@ export {
   MCPClient,
   MCPProtocolError,
   MCPInputRequiredError,
+  MCPTimeoutError,
   UNSUPPORTED_PROTOCOL_VERSION,
 } from './client';
 export { MCPRegistry } from './registry';

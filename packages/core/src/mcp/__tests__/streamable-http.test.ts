@@ -7,6 +7,7 @@ import {
   MCPClient,
   MCPInputRequiredError,
   MCPProtocolError,
+  MCPTimeoutError,
   UNSUPPORTED_PROTOCOL_VERSION,
 } from '../client';
 import {
@@ -280,6 +281,7 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
   let mode: 'modern' | 'legacy' | 'unsupported' = 'modern';
   const SESSION = 'sess-1';
   const deletes: string[] = [];
+  const cancels: string[] = [];
 
   const weatherTool = {
     name: 'lookup_weather',
@@ -394,6 +396,12 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
           return res.end();
         }
 
+        if (body.method === 'notifications/cancelled') {
+          cancels.push(String(params.requestId));
+          res.writeHead(202);
+          return res.end();
+        }
+
         if (body.method === 'tools/list') {
           return send(res, 200, {
             jsonrpc: '2.0',
@@ -404,6 +412,8 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
 
         if (body.method === 'tools/call') {
           const args = (params.arguments ?? {}) as Record<string, string>;
+          // Never answer: the client must time out and cancel.
+          if (args.query === 'hang') return;
           if (args.query === 'needs-input') {
             return send(res, 200, {
               jsonrpc: '2.0',
@@ -450,14 +460,33 @@ describe('MCPClient over Streamable HTTP (local server)', () => {
     await new Promise<void>((r) => server.close(() => r()));
   });
 
-  function newClient(): MCPClient {
+  function newClient(extra: { requestTimeoutMs?: number } = {}): MCPClient {
     return new MCPClient({
       name: 'remote',
       command: '',
       transport: 'http',
       url,
+      ...extra,
     });
   }
+
+  it('cancels a timed-out tools/call: rejects typed, sends notifications/cancelled', async () => {
+    mode = 'modern';
+    cancels.length = 0;
+    const client = newClient({ requestTimeoutMs: 200 });
+    await client.connect();
+    await client.listTools();
+    await expect(
+      client.callTool('lookup_weather', { region: 'us-west1', query: 'hang' }),
+    ).rejects.toBeInstanceOf(MCPTimeoutError);
+
+    const deadline = Date.now() + 2_000;
+    while (cancels.length === 0 && Date.now() < deadline) {
+      await new Promise((r) => setTimeout(r, 10));
+    }
+    expect(cancels).toHaveLength(1);
+    client.disconnect();
+  });
 
   it('negotiates the modern path, sends _meta, and filters the bad tool', async () => {
     mode = 'modern';

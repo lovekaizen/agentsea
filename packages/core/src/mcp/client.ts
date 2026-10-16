@@ -44,6 +44,17 @@ export class MCPProtocolError extends Error {
   }
 }
 
+/** A request got no answer in time. The request is cancelled on the way out. */
+export class MCPTimeoutError extends Error {
+  constructor(
+    readonly requestId: string | number,
+    timeoutMs: number,
+  ) {
+    super(`Request timeout after ${timeoutMs}ms`);
+    this.name = 'MCPTimeoutError';
+  }
+}
+
 /**
  * The server answered with `resultType: "input_required"` (MRTR). Answering
  * those needs an input handler, which this client does not have yet.
@@ -154,8 +165,7 @@ export class MCPClient extends EventEmitter {
       // timeout instead of waiting out a second one on initialize.
       if (
         this.config.transport === 'http' &&
-        error instanceof Error &&
-        error.message === 'Request timeout'
+        error instanceof MCPTimeoutError
       ) {
         throw new Error(
           `MCP server did not answer server/discover within ${DISCOVER_TIMEOUT_MS / 1000}s`,
@@ -377,6 +387,9 @@ export class MCPClient extends EventEmitter {
    */
   disconnect(): void {
     if (this.transport) {
+      // Detach listeners first, so a closing transport cannot report a
+      // 'disconnect' that belongs to a connection the client already left.
+      this.transport.removeAllListeners();
       this.transport.close();
       this.transport = null;
       this.serverInfo = null;
@@ -400,7 +413,8 @@ export class MCPClient extends EventEmitter {
     message: MCPMessage,
     options: { meta?: boolean; timeoutMs?: number } = {},
   ): Promise<MCPMessage> {
-    if (!this.transport || !this.transport.isConnected()) {
+    const transport = this.transport;
+    if (!transport || !transport.isConnected()) {
       throw new Error('Not connected to MCP server');
     }
 
@@ -411,13 +425,16 @@ export class MCPClient extends EventEmitter {
         ? this.paramHeaders(outgoing)
         : undefined;
     const id = outgoing.id!;
-    const timeoutMs = options.timeoutMs ?? REQUEST_TIMEOUT_MS;
+    const timeoutMs =
+      options.timeoutMs ?? this.config.requestTimeoutMs ?? REQUEST_TIMEOUT_MS;
 
     const settled = new Promise<MCPMessage>((resolve, reject) => {
       const timer = setTimeout(() => {
         if (this.pendingRequests.delete(id)) {
-          this.cancelRequest(id, outgoing.method);
-          reject(new Error('Request timeout'));
+          // Cancel on the transport this request went out on, not whichever
+          // one is current when the timer fires.
+          this.cancelRequest(transport, id, outgoing.method);
+          reject(new MCPTimeoutError(id, timeoutMs));
         }
       }, timeoutMs);
       this.pendingRequests.set(id, {
@@ -434,7 +451,7 @@ export class MCPClient extends EventEmitter {
 
     // A transport that rejects its send fails only this request.
     Promise.resolve()
-      .then(() => this.transport!.send(outgoing, headers))
+      .then(() => transport.send(outgoing, headers))
       .catch((error: unknown) => {
         const pending = this.pendingRequests.get(id);
         this.pendingRequests.delete(id);
@@ -457,21 +474,25 @@ export class MCPClient extends EventEmitter {
    * Tell the server to stop work on a request that timed out. Transports that
    * can abort a request do so. Stdio gets the spec's notifications/cancelled.
    */
-  private cancelRequest(id: string | number, method?: string): void {
-    const transport = this.transport;
+  private cancelRequest(
+    transport: MCPTransport,
+    id: string | number,
+    method?: string,
+  ): void {
     // The spec forbids cancelling initialize, so a slow handshake is left alone.
-    if (!transport || method === 'initialize') return;
+    if (method === 'initialize') return;
     // Abort the local request, if the transport can. The notification is sent
     // on every transport, because the server does the work.
     transport.cancel?.(id);
+    const notice: MCPMessage = {
+      jsonrpc: '2.0',
+      method: 'notifications/cancelled',
+      params: { requestId: id },
+    };
+    // Modern requests carry _meta and the version header, so the cancel does too.
+    const outgoing = this.modern ? this.withMeta(notice) : notice;
     Promise.resolve()
-      .then(() =>
-        transport.send({
-          jsonrpc: '2.0',
-          method: 'notifications/cancelled',
-          params: { requestId: id },
-        }),
-      )
+      .then(() => transport.send(outgoing))
       .catch(() => undefined);
   }
 
