@@ -67,7 +67,7 @@
   },
   "pnpm": {
     "overrides": {
-      "@grpc/grpc-js@1": "^1.14.4",
+      "@grpc/grpc-js@1": "^1.14.5",
       "@hono/node-server@1": "^1.19.13",
       "@isaacs/brace-expansion@5": "^5.0.1",
       "@opentelemetry/core": "^2.8.0",
