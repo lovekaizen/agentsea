@@ -9,7 +9,11 @@ import {
 
 /** JSON-RPC: the server does not know this method. */
 const METHOD_NOT_FOUND = -32601;
-/** MCP: the server does not serve the protocol version the client asked for. */
+/**
+ * MCP: the server does not serve the protocol version the client asked for.
+ * The code and the `data.supported` shape are assumed from the spec description.
+ * They have not been checked against a real server or the spec text.
+ */
 const UNSUPPORTED_PROTOCOL_VERSION = -32022;
 
 /**
@@ -29,6 +33,14 @@ export interface FakeServerOptions {
   tools?: Array<{ name: string }>;
   /** Overrides what server/discover advertises, for negotiation tests. */
   supportedVersions?: string[];
+  /** Makes server/discover fail with this JSON-RPC error instead of answering. */
+  discoverError?: { code: number; message: string; data?: unknown };
+  /**
+   * Makes the wire fail before the server answers: the returned error is thrown
+   * from send(), as the HTTP transport does for a non-2xx status. The message is
+   * still recorded in `received`, because the request left the client.
+   */
+  transportFailure?: (message: MCPMessage) => Error | null;
 }
 
 /**
@@ -77,6 +89,10 @@ export class FakeMCPServer {
 
     switch (message.method) {
       case 'server/discover':
+        if (this.options.discoverError) {
+          const { code, message: text, data } = this.options.discoverError;
+          return fail(code, text, data);
+        }
         if (this.profile === 'legacy-2024-11-05') {
           return fail(METHOD_NOT_FOUND, 'Method not found');
         }
@@ -99,6 +115,8 @@ export class FakeMCPServer {
             },
           );
         }
+        // Always answers 2024-11-05, whatever version the client requested.
+        // This fake does not negotiate.
         return ok({
           protocolVersion: MCP_LEGACY_PROTOCOL_VERSION,
           serverInfo: { name: this.name, version: '1.0.0' },
@@ -118,6 +136,11 @@ export class FakeMCPServer {
         }
         return fail(METHOD_NOT_FOUND, `Unknown method ${message.method}`);
     }
+  }
+
+  /** The error the wire should fail with for this message, if any. */
+  transportFailureFor(message: MCPMessage): Error | null {
+    return this.options.transportFailure?.(message) ?? null;
   }
 
   /**
@@ -174,6 +197,11 @@ export class FakeWireTransport extends EventEmitter implements MCPTransport {
   send(message: MCPMessage, headers?: Record<string, string>): void {
     if (!this.connected) throw new Error('not connected');
     this.sent.push({ message, headers });
+    const failure = this.server.transportFailureFor(message);
+    if (failure) {
+      this.server.received.push(message);
+      throw failure;
+    }
     const reply = this.server.handle(message);
     if (reply) queueMicrotask(() => this.emit('message', reply));
   }
