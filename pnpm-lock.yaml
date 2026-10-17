@@ -20,7 +20,7 @@ overrides:
   brace-expansion@2: ^2.0.3
   esbuild@<0.25.0: '>=0.25.0'
   esbuild@>=0.27.0 <0.28.1: '>=0.28.1'
-  fast-uri: '>=3.1.2'
+  fast-uri: ^4.1.5
   fast-xml-parser@5: ^5.7.0
   file-type@20: ^21.3.2
   flatted: '>=3.4.2'
@@ -6766,7 +6766,7 @@ packages:
     resolution: {integrity: sha512-Thbli+OlOj+iMPYFBVBfJ3OmCAnaSyNn4M1vz9T6Gka5Jt9ba/HIR56joy65tY6kx/FCF5VXNB819Y7/GUrBGA==}
     dependencies:
       fast-deep-equal: 3.1.3
-      fast-uri: 4.0.0
+      fast-uri: 4.2.2
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
     dev: false
@@ -9050,8 +9050,8 @@ packages:
   /fast-sha256@1.3.0:
     resolution: {integrity: sha512-n11RGP/lrWEFI/bWdygLxhI+pVeo1ZYIVwvvPkW7azl/rOy+F3HYRZ2K5zeE9mmkhQppyv9sQFx0JM9UabnpPQ==}
 
-  /fast-uri@4.0.0:
-    resolution: {integrity: sha512-l90y339r2DkZs/ldcWQXcwTjkbp/NbuJDGYoQ3awBgaT3GXOFkm3OkVpz6Z86TywYcya0eVP2r1kTV90f3krGQ==}
+  /fast-uri@4.2.2:
+    resolution: {integrity: sha512-EwVpUMzLVNOmcWW0zi5G3JJwkopB6XXjnVvNBGfqrMMsVew2hkQWl5e/pe/CfYUeS6jt4cIO2MnamEW7v/7wPw==}
     dev: false
 
   /fast-xml-builder@1.2.0:
