@@ -5,43 +5,47 @@ import { LemonFoxTTSProvider } from '../tts/lemonfox-tts';
 // Mock OpenAI
 vi.mock('openai', () => {
   return {
-    default: vi.fn().mockImplementation((config) => ({
-      audio: {
-        transcriptions: {
-          create: vi.fn().mockResolvedValue({
-            text: 'Transcribed text',
-            language: 'en',
-            duration: 5.5,
-            segments: [
-              { id: 0, start: 0, end: 2.5, text: 'Transcribed' },
-              { id: 1, start: 2.5, end: 5.5, text: 'text' },
-            ],
-          }),
+    default: vi.fn().mockImplementation(function (config) {
+      return {
+        audio: {
+          transcriptions: {
+            create: vi.fn().mockResolvedValue({
+              text: 'Transcribed text',
+              language: 'en',
+              duration: 5.5,
+              segments: [
+                { id: 0, start: 0, end: 2.5, text: 'Transcribed' },
+                { id: 1, start: 2.5, end: 5.5, text: 'text' },
+              ],
+            }),
+          },
+          speech: {
+            create: vi.fn().mockResolvedValue({
+              arrayBuffer: () => Promise.resolve(new ArrayBuffer(100)),
+              body: {
+                getReader: () => ({
+                  read: vi
+                    .fn()
+                    .mockResolvedValueOnce({
+                      done: false,
+                      value: new Uint8Array([1, 2, 3]),
+                    })
+                    .mockResolvedValueOnce({ done: true, value: undefined }),
+                }),
+              },
+            }),
+          },
         },
-        speech: {
-          create: vi.fn().mockResolvedValue({
-            arrayBuffer: () => Promise.resolve(new ArrayBuffer(100)),
-            body: {
-              getReader: () => ({
-                read: vi
-                  .fn()
-                  .mockResolvedValueOnce({
-                    done: false,
-                    value: new Uint8Array([1, 2, 3]),
-                  })
-                  .mockResolvedValueOnce({ done: true, value: undefined }),
-              }),
-            },
-          }),
-        },
-      },
-      _config: config, // Store config for assertions
-    })),
+        _config: config, // Store config for assertions
+      };
+    }),
     // Mock toFile helper for Node.js compatibility
-    toFile: vi.fn().mockImplementation(async (buffer, filename) => ({
-      name: filename,
-      buffer,
-    })),
+    toFile: vi.fn().mockImplementation(function (buffer, filename) {
+      return {
+        name: filename,
+        buffer,
+      };
+    }),
   };
 });
 
