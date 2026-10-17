@@ -6,7 +6,7 @@ settings:
 
 overrides:
   '@grpc/grpc-js@1': ^1.14.4
-  '@hono/node-server@1': ^1.19.13
+  '@hono/node-server@1': ^1.19.15
   '@isaacs/brace-expansion@5': ^5.0.1
   '@opentelemetry/core': ^2.8.0
   '@protobufjs/utf8': '>=1.1.1'
@@ -671,8 +671,8 @@ importers:
   packages/gateway:
     dependencies:
       '@hono/node-server':
-        specifier: ^1.19.13
-        version: 1.19.14(hono@4.12.25)
+        specifier: ^1.19.15
+        version: 1.19.17(hono@4.12.25)
       '@lov3kaizen/agentsea-core':
         specifier: '>=0.6.0'
         version: link:../core
@@ -2817,8 +2817,8 @@ packages:
       yargs: 17.7.2
     dev: false
 
-  /@hono/node-server@1.19.14(hono@4.12.25):
-    resolution: {integrity: sha512-GwtvgtXxnWsucXvbQXkRgqksiH2Qed37H9xHZocE5sA3N8O8O8/8FA3uclQXxXVzc9XBZuEOMK7+r02FmSpHtw==}
+  /@hono/node-server@1.19.17(hono@4.12.25):
+    resolution: {integrity: sha512-dSneS5qhiauZWGDCeK4o695Xd9nUNjviSZCMQrj10eetr8Uln1ucn6bbphOM6UynAMMtNIzZNSpL9vnASJwrPQ==}
     engines: {node: '>=18.14.1'}
     peerDependencies:
       hono: ^4.12.21
