@@ -11,7 +11,7 @@ overrides:
   '@opentelemetry/core': ^2.8.0
   '@protobufjs/utf8': '>=1.1.1'
   '@tootallnate/once': '>=2.0.1'
-  '@xmldom/xmldom': ^0.8.13
+  '@xmldom/xmldom': ^0.8.15
   ajv@6: ^6.14.0
   ajv@8: ^8.18.0
   basic-ftp: '>=5.3.1'
@@ -6606,8 +6606,8 @@ packages:
     dev: false
     optional: true
 
-  /@xmldom/xmldom@0.8.13:
-    resolution: {integrity: sha512-KRYzxepc14G/CEpEGc3Yn+JKaAeT63smlDr+vjB8jRfgTBBI9wRj/nkQEO+ucV8p8I9bfKLWp37uHgFrbntPvw==}
+  /@xmldom/xmldom@0.8.15:
+    resolution: {integrity: sha512-/5NV/vDALVFDXgLmfsy9TRCBlKwO2LNBFzpzvb9iIj+jR+eSc6DLYYvVOdivT/jm7MtU6TebYuRmzEOI7w40UA==}
     engines: {node: '>=10.0.0'}
     dev: false
 
@@ -10858,7 +10858,7 @@ packages:
     engines: {node: '>=12.0.0'}
     hasBin: true
     dependencies:
-      '@xmldom/xmldom': 0.8.13
+      '@xmldom/xmldom': 0.8.15
       argparse: 1.0.10
       base64-js: 1.5.1
       bluebird: 3.4.7
