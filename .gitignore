@@ -46,3 +46,6 @@ tmp/
 # Admin UI build artifacts (Next.js)
 packages/admin-ui/.next/
 packages/admin-ui/out/
+
+# Local Temp Files
+local-temp/

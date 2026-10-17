@@ -195,6 +195,8 @@ All packages have been bumped to v0.6.0 with updated dependencies:
 
 ## Upgrade Guide
 
+See [docs/UPGRADING.md](./docs/UPGRADING.md) for the full upgrade guide (version policy, keeping packages in sync, and troubleshooting).
+
 ```bash
 # Update all AgentSea packages
 pnpm update @lov3kaizen/agentsea-core@0.6.0
