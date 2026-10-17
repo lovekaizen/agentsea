@@ -14,7 +14,7 @@ overrides:
   '@xmldom/xmldom': ^0.8.13
   ajv@6: ^6.14.0
   ajv@8: ^8.18.0
-  basic-ftp: '>=5.3.1'
+  basic-ftp: ^6.2.1
   better-sqlite3: 11.10.0
   brace-expansion@1: ^1.1.13
   brace-expansion@2: ^2.0.3
@@ -7181,8 +7181,8 @@ packages:
       safe-buffer: 5.1.2
     dev: false
 
-  /basic-ftp@6.0.1:
-    resolution: {integrity: sha512-3ilxa3n4276wGQp/ImRAuz4ALdsj/2Wd3FqoZBZlajDYnByCZ0JMb4+26Rde0wGXIbM0G2HWSfr/Fi8b21KX8g==}
+  /basic-ftp@6.2.3:
+    resolution: {integrity: sha512-T7GYtQ2eKJUN5YORG7A8u2WfB9JMN0a4/wl3MI64qq2qTRfa3FXzoNq0DDojZDkDyStcL+TkfKsz4JHEZx5kGQ==}
     engines: {node: '>=10.0.0'}
     dev: false
 
@@ -9424,7 +9424,7 @@ packages:
     resolution: {integrity: sha512-b1O07XYq8eRuVzBNgJLstU6FYc1tS6wnMtF1I1D9lE8LxZSOGZ7LhxN54yPP6mGw5f2CkXY2BQUL9Fx41qvcIg==}
     engines: {node: '>= 14'}
     dependencies:
-      basic-ftp: 6.0.1
+      basic-ftp: 6.2.3
       data-uri-to-buffer: 6.0.2
       debug: 4.4.3
     transitivePeerDependencies:
