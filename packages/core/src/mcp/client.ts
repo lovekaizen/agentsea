@@ -237,7 +237,10 @@ export class MCPClient extends EventEmitter {
       // A connect() that was superseded or disconnected mid-probe must not
       // start a handshake on whatever transport is current now.
       if (this.transport !== transport) throw error;
-      if (error instanceof MCPProtocolError && MODERN_ERROR_CODES.has(error.code)) {
+      if (
+        error instanceof MCPProtocolError &&
+        MODERN_ERROR_CODES.has(error.code)
+      ) {
         throw error;
       }
       // Only a server that answered is a legacy candidate. A dead stdio child
@@ -324,7 +327,13 @@ export class MCPClient extends EventEmitter {
       protocolVersion: legacy.protocolVersion,
       capabilities: legacy.capabilities ?? {},
     };
-    await this.transport!.send(
+    // disconnect() can run while the response is being handled and clear
+    // this.transport. Fail with a clear error instead of a TypeError.
+    const transport = this.transport;
+    if (!transport) {
+      throw new Error('MCP connection closed during the initialize handshake');
+    }
+    await transport.send(
       {
         jsonrpc: '2.0',
         method: 'notifications/initialized',
@@ -608,20 +617,23 @@ export class MCPClient extends EventEmitter {
       const arm = () => {
         // A wait never runs past the ceiling, however much progress arrives.
         const untilCeiling = Math.max(0, ceilingMs - (Date.now() - sentAt));
-        timer = setTimeout(() => {
-          if (this.pendingRequests.delete(id)) {
-            // Settle the caller first, so nothing that goes wrong while
-            // cancelling can leave it waiting.
-            reject(new MCPTimeoutError(id, timeoutMs));
-            try {
-              // Cancel on the transport this request went out on, not whichever
-              // one is current when the timer fires.
-              this.cancelRequest(transport, id, outgoing.method);
-            } catch {
-              // Cancellation is best effort; the caller already has its error.
+        timer = setTimeout(
+          () => {
+            if (this.pendingRequests.delete(id)) {
+              // Settle the caller first, so nothing that goes wrong while
+              // cancelling can leave it waiting.
+              reject(new MCPTimeoutError(id, timeoutMs));
+              try {
+                // Cancel on the transport this request went out on, not whichever
+                // one is current when the timer fires.
+                this.cancelRequest(transport, id, outgoing.method);
+              } catch {
+                // Cancellation is best effort; the caller already has its error.
+              }
             }
-          }
-        }, Math.min(timeoutMs, untilCeiling));
+          },
+          Math.min(timeoutMs, untilCeiling),
+        );
       };
       arm();
       this.pendingRequests.set(id, {
@@ -672,7 +684,8 @@ export class MCPClient extends EventEmitter {
     id: string | number,
     method?: string,
   ): void {
-    // The spec forbids cancelling initialize, so a slow handshake is left alone.
+    // The cancellation spec (2024-11-05 and 2025-06-18) says initialize MUST NOT
+    // be cancelled by clients, so a slow handshake is left alone.
     if (method === 'initialize') return;
     // Abort the local request, if the transport can.
     transport.cancel?.(id);

@@ -106,6 +106,26 @@ describe('pagination', () => {
     await expect(client.listPrompts()).rejects.toThrow('repeated nextCursor');
   });
 
+  it('returns every prompt across pages and passes each cursor back', async () => {
+    const client = new MCPClient(stdioConfig);
+    const requests: unknown[] = [];
+    const pages = [
+      { prompts: [{ name: 'p1' }], nextCursor: 'c1' },
+      { prompts: [{ name: 'p2' }] },
+    ];
+    vi.spyOn(client as any, 'sendRequest').mockImplementation(
+      async (message: any) => {
+        requests.push(message.params);
+        return { result: pages[requests.length - 1] };
+      },
+    );
+
+    const prompts = await client.listPrompts();
+
+    expect(prompts.map((prompt) => prompt.name)).toEqual(['p1', 'p2']);
+    expect(requests).toEqual([{}, { cursor: 'c1' }]);
+  });
+
   it('pages resources too', async () => {
     const client = new MCPClient(stdioConfig);
     vi.spyOn(client as any, 'sendRequest')
