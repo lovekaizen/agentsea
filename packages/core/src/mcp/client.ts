@@ -684,8 +684,8 @@ export class MCPClient extends EventEmitter {
     id: string | number,
     method?: string,
   ): void {
-    // The cancellation spec (2024-11-05 and 2025-06-18) says initialize MUST NOT
-    // be cancelled by clients, so a slow handshake is left alone.
+    // The MCP cancellation spec says the initialize request MUST NOT be
+    // cancelled by clients, so a slow handshake is left alone.
     if (method === 'initialize') return;
     // Abort the local request, if the transport can.
     transport.cancel?.(id);
