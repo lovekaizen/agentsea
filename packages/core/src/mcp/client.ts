@@ -327,8 +327,8 @@ export class MCPClient extends EventEmitter {
       protocolVersion: legacy.protocolVersion,
       capabilities: legacy.capabilities ?? {},
     };
-    // The socket can drop between the initialize response and this send. Fail
-    // with a clear reason instead of dereferencing a cleared transport.
+    // disconnect() can run while the response is being handled and clear
+    // this.transport. Fail with a clear error instead of a TypeError.
     const transport = this.transport;
     if (!transport) {
       throw new Error('MCP connection closed during the initialize handshake');
@@ -684,8 +684,8 @@ export class MCPClient extends EventEmitter {
     id: string | number,
     method?: string,
   ): void {
-    // MCP cancellation spec (2025-11-25): "The initialize request MUST NOT be
-    // cancelled by clients", so a slow handshake is left to finish or fail.
+    // The MCP cancellation spec says the initialize request MUST NOT be
+    // cancelled by clients, so a slow handshake is left alone.
     if (method === 'initialize') return;
     // Abort the local request, if the transport can.
     transport.cancel?.(id);
