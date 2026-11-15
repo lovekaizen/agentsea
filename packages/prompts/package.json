@@ -46,7 +46,7 @@
     "clean": "rm -rf dist"
   },
   "dependencies": {
-    "handlebars": "^4.7.9",
+    "handlebars": "^4.7.10",
     "nanoid": "^5.0.9",
     "diff": "^8.0.3",
     "zod": "^3.25.76",
