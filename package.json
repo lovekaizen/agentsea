@@ -102,7 +102,7 @@
       "minimatch@5": "^5.1.8",
       "minimatch@7": "^7.4.8",
       "minimatch@9": "^9.0.7",
-      "mongoose@8": "^8.22.1",
+      "mongoose@8": "^8.24.1",
       "picomatch@2": "^2.3.2",
       "picomatch@4": "^4.0.4",
       "postcss@<8.5.10": ">=8.5.10",
