@@ -5,14 +5,16 @@ import { Message } from '../../types';
 // Mock ioredis
 vi.mock('ioredis', () => {
   return {
-    default: vi.fn().mockImplementation(() => ({
-      get: vi.fn(),
-      set: vi.fn(),
-      setex: vi.fn(),
-      del: vi.fn(),
-      keys: vi.fn(),
-      quit: vi.fn(),
-    })),
+    default: vi.fn().mockImplementation(function () {
+      return {
+        get: vi.fn(),
+        set: vi.fn(),
+        setex: vi.fn(),
+        del: vi.fn(),
+        keys: vi.fn(),
+        quit: vi.fn(),
+      };
+    }),
   };
 });
 

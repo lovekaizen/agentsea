@@ -23,8 +23,12 @@ vi.mock('winston', () => {
         printf: vi.fn().mockReturnValue({}),
       },
       transports: {
-        Console: vi.fn().mockImplementation(() => ({})),
-        File: vi.fn().mockImplementation(() => ({})),
+        Console: vi.fn().mockImplementation(function () {
+          return {};
+        }),
+        File: vi.fn().mockImplementation(function () {
+          return {};
+        }),
       },
     },
   };

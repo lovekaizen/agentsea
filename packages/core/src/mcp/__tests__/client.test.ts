@@ -14,8 +14,12 @@ const mockTransportInstance = {
 
 // Mock transport with shared instance
 vi.mock('../transport', () => ({
-  StdioTransport: vi.fn().mockImplementation(() => mockTransportInstance),
-  SSETransport: vi.fn().mockImplementation(() => mockTransportInstance),
+  StdioTransport: vi.fn().mockImplementation(function () {
+    return mockTransportInstance;
+  }),
+  SSETransport: vi.fn().mockImplementation(function () {
+    return mockTransportInstance;
+  }),
 }));
 
 describe('MCPClient', () => {

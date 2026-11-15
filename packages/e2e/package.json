@@ -12,6 +12,6 @@
     "@lov3kaizen/agentsea-core": "workspace:*",
     "@lov3kaizen/agentsea-crews": "workspace:*",
     "@lov3kaizen/agentsea-types": "workspace:*",
-    "vitest": "^3.2.6"
+    "vitest": "^4.1.11"
   }
 }

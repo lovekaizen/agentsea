@@ -58,7 +58,7 @@
     "@types/node": "^20.17.10",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
-    "vitest": "^3.2.6"
+    "vitest": "^4.1.11"
   },
   "optionalDependencies": {
     "better-sqlite3": "^11.7.0",

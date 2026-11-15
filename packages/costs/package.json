@@ -58,7 +58,7 @@
     "stripe": "^17.4.0",
     "tsup": "^8.3.5",
     "typescript": "^5.7.2",
-    "vitest": "^3.2.6"
+    "vitest": "^4.1.11"
   },
   "peerDependencies": {
     "@nestjs/common": "^10.0.0 || ^11.0.0",
