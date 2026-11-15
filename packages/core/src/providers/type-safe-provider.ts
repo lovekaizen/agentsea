@@ -100,7 +100,7 @@ export interface TypeSafeProvider<TConfig extends ProviderModelConfig> {
  *
  * // o1 model - can use tools but NOT system prompts
  * const o1 = createProvider(
- *   openai('o1', {
+ *   openai('gpt-5.5', {
  *     tools: [myTool],
  *     reasoningEffort: 'high',
  *     // systemPrompt: '...' // ❌ TypeScript error!

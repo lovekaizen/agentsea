@@ -102,7 +102,7 @@ const gpt4oConfig = openai('gpt-4o', {
 });
 
 // o1 - supports tools and reasoning, but NOT system prompts
-const o1Config = openai('o1', {
+const o1Config = openai('gpt-5.5', {
   tools: [myTool],
   reasoningEffort: 'high',
   // systemPrompt: '...' // ❌ TypeScript error!
@@ -115,7 +115,7 @@ const o1MiniConfig = openai('o1-mini', {
 });
 
 // o3-mini - supports tools but NOT system prompts
-const o3MiniConfig = openai('o3-mini', {
+const o3MiniConfig = openai('gpt-5.4-mini', {
   tools: [myTool],
   reasoningEffort: 'high',
 });
@@ -124,9 +124,9 @@ const o3MiniConfig = openai('o3-mini', {
 **Typed models (latest first):**
 
 - `gpt-5.5`, `gpt-5.4-mini`, `gpt-5.2` (+ `pro`/`codex`), `gpt-5.1` (+ `codex` variants)
-- `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5-pro`, `gpt-4.1`
-- `gpt-4o`, `gpt-4o-mini`, `gpt-4-turbo`, `gpt-4`, `gpt-3.5-turbo`
-- Reasoning: `o3`, `o3-pro`, `o3-mini`, `o1`, `o1-mini`
+- `gpt-5.5`, `gpt-5.4-mini`, `gpt-4.1`
+- `gpt-4o`, `gpt-4o-mini`, `gpt-4`
+- Reasoning: `o1-mini`
 
 ### `gemini(model, config?)`
 

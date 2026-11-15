@@ -104,16 +104,6 @@ const MODEL_CAPABILITIES: Record<string, Partial<ProviderCapabilities>> = {
     maxContextWindow: 400000,
     maxOutputTokens: 128000,
   },
-  // Legacy entry — kept for callers still routing older non-strict models
-  'gpt-4-turbo': {
-    jsonMode: true,
-    strictJsonMode: false,
-    toolCalling: true,
-    streaming: true,
-    systemMessages: true,
-    maxContextWindow: 128000,
-    maxOutputTokens: 4096,
-  },
   'o1-preview': {
     jsonMode: false,
     strictJsonMode: false,

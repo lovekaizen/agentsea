@@ -145,7 +145,7 @@ async function _localAIExample() {
     {
       name: 'localai-assistant',
       description: 'Assistant powered by LocalAI',
-      model: models[0] || 'gpt-3.5-turbo', // Use first available model
+      model: models[0] || 'gpt-4o-mini', // Use first available model
       provider: 'openai-compatible',
     },
     provider,

@@ -216,7 +216,7 @@ export interface OpenAIConfig<TModel extends OpenAIModel> {
  * });
  *
  * // o1 - supports tools but NO system prompts
- * const config = openai('o1', {
+ * const config = openai('gpt-5.5', {
  *   tools: [myTool],
  *   reasoningEffort: 'medium',
  *   // systemPrompt: '...' // ❌ TypeScript error

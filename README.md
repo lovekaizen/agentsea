@@ -46,7 +46,7 @@ AgentSea ships a typed model registry (60+ models with capabilities and live pri
 | Provider             | Latest models                                                                                                                  | Notes                                               |
 | -------------------- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------- |
 | **Anthropic Claude** | `claude-opus-4-8` _(default)_, `claude-opus-4-7`, `claude-opus-4-6`, `claude-sonnet-4-6`, `claude-haiku-4-5`, `claude-fable-5` | Adaptive thinking on Opus 4.6+, Sonnet 4.6, Fable 5 |
-| **OpenAI**           | `gpt-5.5`, `gpt-5.4-mini`, `gpt-5.2` (+ `pro` / `codex`), `gpt-5.1`, `o3`, `o1`                                                | Reasoning-effort aware, per-model capability typing |
+| **OpenAI**           | `gpt-5.5`, `gpt-5.4-mini`, `gpt-5.2` (+ `pro` / `codex`), `gpt-5.1`                                                            | Reasoning-effort aware, per-model capability typing |
 | **Google Gemini**    | `gemini-3.5-flash`, `gemini-3.1-pro-preview`, `gemini-2.5-pro`, `gemini-2.5-flash`                                             |                                                     |
 | **Local / OSS**      | Ollama, LM Studio, LocalAI, vLLM, Text Generation WebUI, any OpenAI-compatible endpoint                                        | Run fully on your own hardware                      |
 
@@ -154,7 +154,7 @@ const lmstudioAgent = new Agent(
 
 // Use LocalAI (local)
 const localaiAgent = new Agent(
-  { model: 'gpt-3.5-turbo', provider: 'openai-compatible' },
+  { model: 'gpt-4o-mini', provider: 'openai-compatible' },
   new LocalAIProvider(),
   toolRegistry,
 );
@@ -183,7 +183,7 @@ const sonnetConfig = anthropic('claude-sonnet-4-5-20250929', {
 });
 
 // ✅ Valid: o1 supports tools but NOT system prompts
-const o1Config = openai('o1', {
+const o1Config = openai('gpt-5.5', {
   tools: [myTool],
   reasoningEffort: 'high',
   // systemPrompt: '...' // ❌ TypeScript error - o1 doesn't support system prompts

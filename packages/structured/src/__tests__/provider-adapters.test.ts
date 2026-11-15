@@ -257,7 +257,7 @@ describe('OpenAIAdapter', () => {
       const adapter = new OpenAIAdapter(client);
 
       await adapter.createCompletion({
-        model: 'gpt-4-turbo',
+        model: 'o1-mini',
         messages: [{ role: 'user', content: 'Hello' }],
         mode: 'json',
         jsonSchema: {

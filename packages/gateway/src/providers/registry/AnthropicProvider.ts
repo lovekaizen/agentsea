@@ -241,12 +241,9 @@ export class AnthropicProvider extends Provider {
       transformed.system = systemPrompt;
     }
 
-    if (request.temperature !== undefined) {
-      transformed.temperature = request.temperature;
-    }
-    if (request.top_p !== undefined) {
-      transformed.top_p = request.top_p;
-    }
+    // temperature and top_p are not forwarded: Anthropic API version
+    // 2026-10-21 removes them and returns 400 when they are sent. Callers
+    // should guide model behaviour through the prompt instead.
     if (request.stop !== undefined) {
       transformed.stop_sequences = Array.isArray(request.stop)
         ? request.stop
