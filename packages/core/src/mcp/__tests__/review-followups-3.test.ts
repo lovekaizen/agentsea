@@ -12,9 +12,15 @@ const MODERN = '2026-07-28';
 const factory = vi.hoisted(() => ({ create: (): unknown => undefined }));
 
 vi.mock('../transport', () => ({
-  StdioTransport: vi.fn().mockImplementation(() => factory.create()),
-  SSETransport: vi.fn().mockImplementation(() => factory.create()),
-  StreamableHTTPTransport: vi.fn().mockImplementation(() => factory.create()),
+  StdioTransport: vi.fn().mockImplementation(function () {
+    return factory.create();
+  }),
+  SSETransport: vi.fn().mockImplementation(function () {
+    return factory.create();
+  }),
+  StreamableHTTPTransport: vi.fn().mockImplementation(function () {
+    return factory.create();
+  }),
   MCPHttpError: class MCPHttpError extends Error {
     constructor(readonly status: number) {
       super(`MCP HTTP ${status}`);
