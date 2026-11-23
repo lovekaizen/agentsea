@@ -51,18 +51,20 @@ describe('5.5 model pricing', () => {
 describe('retirement flags', () => {
   const registry = new ModelPricingRegistry();
 
-  const retiring = [
-    'gpt-4-turbo',
-    'gpt-4.1-nano',
-    'o1',
-    'o3-mini',
-    'o4-mini',
-    'claude-sonnet-4-5-20250929',
-  ];
+  const retiring = ['gpt-4.1-nano', 'claude-sonnet-4-5-20250929'];
 
   for (const id of retiring) {
     it(`marks ${id} deprecated`, () => {
       expect(registry.getPricingByModel(id)?.deprecated).toBe(true);
+    });
+  }
+
+  // Removed from the registry by the 2.0.0 release (6318aba): no exact entry remains.
+  const removed = ['gpt-4-turbo', 'o1', 'o3-mini', 'o4-mini'];
+
+  for (const id of removed) {
+    it(`no longer has an exact entry for retired ${id}`, () => {
+      expect(registry.getPricingByModel(id)?.model).not.toBe(id);
     });
   }
 
