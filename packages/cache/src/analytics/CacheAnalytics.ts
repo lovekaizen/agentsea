@@ -33,9 +33,7 @@ const DEFAULT_MODEL_PRICING: Record<string, ModelPricing> = {
   // Legacy/retired models — kept so cached historical entries still price
   'gpt-4o': { inputPer1K: 0.0025, outputPer1K: 0.01 },
   'gpt-4o-mini': { inputPer1K: 0.00015, outputPer1K: 0.0006 },
-  'gpt-4-turbo': { inputPer1K: 0.01, outputPer1K: 0.03 },
   'gpt-4': { inputPer1K: 0.03, outputPer1K: 0.06 },
-  'gpt-3.5-turbo': { inputPer1K: 0.0005, outputPer1K: 0.0015 },
   'claude-3-opus': { inputPer1K: 0.015, outputPer1K: 0.075 },
   'claude-sonnet-4-20250514': { inputPer1K: 0.003, outputPer1K: 0.015 },
   'claude-3-5-sonnet': { inputPer1K: 0.003, outputPer1K: 0.015 },

@@ -129,7 +129,7 @@ const claudeConfig = anthropic('claude-sonnet-4-6', {
 });
 
 // o3 supports tools and reasoning effort
-const o3Config = openai('o3', {
+const o3Config = openai('gpt-5.5', {
   tools: [myTool],
   reasoningEffort: 'high',
 });

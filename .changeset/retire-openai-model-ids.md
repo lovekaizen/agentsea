@@ -1,0 +1,15 @@
+---
+'@lov3kaizen/agentsea-types': major
+'@lov3kaizen/agentsea-costs': major
+'@lov3kaizen/agentsea-gateway': major
+'@lov3kaizen/agentsea-cache': major
+'@lov3kaizen/agentsea-structured': major
+---
+
+**Breaking:** the OpenAI model IDs that OpenAI has retired or is retiring are removed from the model registries, pricing tables, context-window and capability maps, and the OpenAI provider's default list. Lookups for these IDs now return `undefined`, and they are no longer members of the `OpenAIModel` union.
+
+Removed: `o1`, `o1-2024-12-17`, `o1-pro`, `o1-pro-2025-03-19`, `o3-mini`, `o3-mini-2025-01-31`, `o4-mini`, `o4-mini-2025-04-16`, `gpt-4-turbo`, `gpt-4-turbo-2024-04-09`, `gpt-3.5-turbo`, `gpt-3.5-turbo-0125`, `gpt-image-1`, `gpt-4o-2024-05-13`, `gpt-5`, `gpt-5-2025-08-07`, `gpt-5-mini`, `gpt-5-mini-2025-08-07`, `gpt-5-nano`, `gpt-5-nano-2025-08-07`, `gpt-5-pro`, `gpt-5-pro-2025-10-06`, `o3`, `o3-2025-04-16`, `o3-pro`, `o3-pro-2025-06-10`, `gpt-4o-2024-08-06`, `gpt-4o-2024-11-20`, `gpt-4o-mini-2024-07-18`.
+
+OpenAI's shutdown dates, from its deprecations page: the first group (`o1`, `o3-mini`, `o4-mini`, `gpt-4-turbo`, `gpt-3.5-turbo`, `gpt-image-1`) shut down on 2026-10-23. `gpt-5`, `gpt-5-mini`, `gpt-5-nano`, `gpt-5-pro`, `o3` and `o3-pro` shut down on 2026-12-11. The `gpt-4o` snapshots and `gpt-4o-mini-2024-07-18` shut down on 2027-01-14.
+
+Migrate to the replacements OpenAI names: `gpt-6.1-sol` for `gpt-5`, `gpt-5-pro`, `o3` and `o3-pro`; `gpt-6.1-terra` for `gpt-5-mini`; `gpt-6-luna` for `gpt-5-nano` and the `gpt-4o` snapshots; and `gpt-5.6-sol` or `gpt-5.6-terra` for the 2026-10-23 group. The `gpt-5.5` and `gpt-5.4-mini` IDs are unchanged.

@@ -19,7 +19,8 @@ describe('pricing utilities', () => {
       // Legacy entries kept for historical cost lookups
       expect(MODEL_PRICING['gpt-4o']).toBeDefined();
       expect(MODEL_PRICING['gpt-4o-mini']).toBeDefined();
-      expect(MODEL_PRICING['gpt-3.5-turbo']).toBeDefined();
+      // gpt-3.5-turbo was retired in 2.0.0 and is no longer priced
+      expect(MODEL_PRICING['gpt-3.5-turbo']).toBeUndefined();
     });
 
     it('should have pricing for major Anthropic models', () => {

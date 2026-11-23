@@ -38,7 +38,11 @@ describe('5.5 model pricing', () => {
   });
 
   it('gives every 5.5 default a price, so cost tracking has a rate for it', () => {
-    for (const id of ['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5']) {
+    for (const id of [
+      'claude-opus-5-5',
+      'claude-sonnet-5-5',
+      'claude-haiku-5-5',
+    ]) {
       expect(registry.getPricingByModel(id)).not.toBeNull();
     }
   });
@@ -47,14 +51,7 @@ describe('5.5 model pricing', () => {
 describe('retirement flags', () => {
   const registry = new ModelPricingRegistry();
 
-  const retiring = [
-    'gpt-4-turbo',
-    'gpt-4.1-nano',
-    'o1',
-    'o3-mini',
-    'o4-mini',
-    'claude-sonnet-4-5-20250929',
-  ];
+  const retiring = ['gpt-4.1-nano', 'claude-sonnet-4-5-20250929'];
 
   for (const id of retiring) {
     it(`marks ${id} deprecated`, () => {
@@ -62,8 +59,21 @@ describe('retirement flags', () => {
     });
   }
 
+  // Removed from the registry by the 2.0.0 release (6318aba): no exact entry remains.
+  const removed = ['gpt-4-turbo', 'o1', 'o3-mini', 'o4-mini'];
+
+  for (const id of removed) {
+    it(`no longer has an exact entry for retired ${id}`, () => {
+      expect(registry.getPricingByModel(id)?.model).not.toBe(id);
+    });
+  }
+
   it('keeps current 5.5 models out of the deprecated set', () => {
-    for (const id of ['claude-opus-5-5', 'claude-sonnet-5-5', 'claude-haiku-5-5']) {
+    for (const id of [
+      'claude-opus-5-5',
+      'claude-sonnet-5-5',
+      'claude-haiku-5-5',
+    ]) {
       expect(registry.getPricingByModel(id)?.deprecated).not.toBe(true);
     }
   });

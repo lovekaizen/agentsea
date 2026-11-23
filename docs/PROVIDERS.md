@@ -93,7 +93,7 @@ agent.registerProvider('openai', provider);
 
 - `gpt-5.5` - Most capable; also `gpt-5.2` (+ `pro`/`codex`), `gpt-5.1`
 - `gpt-5.4-mini` - Fast and cost-effective
-- `o3`, `o1` - Reasoning models
+- `gpt-5.5`, `gpt-5.4-mini` - Current reasoning-capable models
 - `gpt-4.1`, `gpt-4o` - Previous generation
 
 **Features:**

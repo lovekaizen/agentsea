@@ -97,7 +97,7 @@ const gpt4oConfig = openai('gpt-4o', {
 console.log('GPT-4o config:', gpt4oConfig);
 
 // ✅ o1: Supports tools and reasoning, but NOT system prompts
-const o1Config = openai('o1', {
+const o1Config = openai('gpt-5.5', {
   tools: [calculatorTool],
   reasoningEffort: 'high',
   // systemPrompt: '...' // ❌ Would be a TypeScript error - o1 doesn't support system prompts
