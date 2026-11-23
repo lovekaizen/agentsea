@@ -1,5 +1,9 @@
 # @lov3kaizen/agentsea-react
 
+## 2.0.0
+
+- Bump for monorepo version consistency.
+
 ## 1.2.1
 
 - Bump for monorepo version consistency.
