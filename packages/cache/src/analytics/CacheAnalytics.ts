@@ -25,6 +25,9 @@ const DEFAULT_MODEL_PRICING: Record<string, ModelPricing> = {
   'claude-opus-4-8': { inputPer1K: 0.005, outputPer1K: 0.025 },
   'claude-sonnet-4-6': { inputPer1K: 0.003, outputPer1K: 0.015 },
   'claude-haiku-4-5': { inputPer1K: 0.001, outputPer1K: 0.005 },
+  'claude-opus-5-5': { inputPer1K: 0.004, outputPer1K: 0.02 },
+  'claude-sonnet-5-5': { inputPer1K: 0.002, outputPer1K: 0.01 },
+  'claude-haiku-5-5': { inputPer1K: 0.0001, outputPer1K: 0.0005 },
   'gemini-3.1-pro-preview': { inputPer1K: 0.002, outputPer1K: 0.012 },
   'gemini-3.5-flash': { inputPer1K: 0.0015, outputPer1K: 0.009 },
   // Legacy/retired models — kept so cached historical entries still price
