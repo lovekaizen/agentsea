@@ -128,7 +128,8 @@ describe('pagination', () => {
 
   it('pages resources too', async () => {
     const client = new MCPClient(stdioConfig);
-    vi.spyOn(client as any, 'sendRequest')
+    const spy = vi
+      .spyOn(client as any, 'sendRequest')
       .mockResolvedValueOnce({
         result: { resources: [{ uri: 'x' }], nextCursor: 'p2' },
       })
@@ -136,6 +137,11 @@ describe('pagination', () => {
 
     const resources = await client.listResources();
     expect(resources.map((r) => r.uri)).toEqual(['x', 'y']);
+    // The second page is requested with the cursor the first one returned.
+    expect(spy.mock.calls.map(([message]) => (message as any).params)).toEqual([
+      {},
+      { cursor: 'p2' },
+    ]);
   });
 });
 
